@@ -1,6 +1,6 @@
 ---
-- name: Playbook to install k8s on raspberry pis
-  hosts: pis
+- name: Playbook to install k8s on raspberry pis part 1
+  hosts: localhost
   become: yes
   gather_facts: no
   tasks:
@@ -136,40 +136,3 @@
   - name: Update apt cache
     ansible.builtin.apt:
       update_cache: yes
-
-  - name: Install kubelet kubeadm kubectl 
-    ansible.builtin.apt:  
-      pkg:  
-        -  kubelet 
-        - kubeadm  
-        - kubectl
-  
-  - name: Hold kubelet, kubeadm, and kubectl
-    ansible.builtin.dpkg_selections:
-      -name: kubelet
-        selection: hold
-      -name: kubeadm
-        selection: hold
-      -name: kubectl
-        selection: hold
-
-  - name: Download and install Flannel
-    ansible.builtin.get_url:
-      url: https://github.com/flannel-io/flannel/releases/download/v0.19.2/flanneld-arm64
-      dest: /usr/local/bin/flanneld
-      owner: root
-      group: root
-      mode: '0755'
-
-  - name: Create Flannel networks directory
-    ansible.builtin.file:
-      path: /var/lib/k8s/flannel/networks
-      state: directory
-      recurse: yes
-      owner: root
-      group: root
-      mode: '0755'
-
-  - name: Reboot pi
-    reboot:
-      msg: "Reboot initiated by ansible playbook"

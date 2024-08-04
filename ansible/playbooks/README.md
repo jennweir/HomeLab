@@ -6,6 +6,18 @@
 
 ```ansible-playbook -i inventory playbooks/raspberry-pis/deploy-install-k8s.yaml```
 
+### ssh into pi
+
+```ansible-playbook /tmp/install-k8s-pt1.yaml```
+
+### Restart pi required to load k8s and re-ssh into pi
+
+```ansible-playbook /tmp/install-k8s-pt2.yaml```
+
+### On machine where HomeLab repo exists
+
+```ansible-playbook -i inventory playbooks/raspberry-pis/cleanup-install-files.yaml```
+
 ## Useful Links
 
 [https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html)
