@@ -5,8 +5,7 @@
   tasks:
     - name: Upload install script
       ansible.builtin.copy:
-        remote_src: true
-        src: /playbooks/raspberry-pis/install-k8s.yaml
+        src: "{{ playbook_dir }}/install-k8s.yaml"
         dest: /tmp/install-k8s.yaml
 
     - name: Run install playbook
