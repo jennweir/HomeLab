@@ -129,7 +129,7 @@
     validate_certs: yes
 
   -name: Add the Kubernetes apt repository
-  ansible.builtin.ansible.builtin.command:
+  ansible.builtin.command:
     cmd: echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
     creates: /etc/apt/sources.list.d/kubernetes.list
 
@@ -145,7 +145,7 @@
       - kubectl
   
   -name: Hold kubelet, kubeadm, and kubectl
-  dpkg_selections:
+  ansible.builtin.dpkg_selections:
     -name: kubelet
       selection: hold
     -name: kubeadm
