@@ -1,11 +1,17 @@
 ---
 - name: Deploy only the install-k8s.yaml file to raspberry pi
   hosts: pis
+  become: yes
   tasks:
-  - name: Upload install script
-    ansible.builtin.copy:
-      src: /playbooks/raspberry-pis/install-k8s.yaml
-      dest: /tmp/install-k8s.yaml
+    - name: Upload install script
+      ansible.builtin.copy:
+        src: /playbooks/raspberry-pis/install-k8s.yaml
+        dest: /tmp/install-k8s.yaml
 
-  - name: Run install playbook
-    ansible.builtin.command: ansible-playbook /tmp/install-k8s.yaml
+    - name: Run install playbook
+      ansible.builtin.command: ansible-playbook /tmp/install-k8s.yaml
+
+    - name: Remove the temp install-k8s.yaml file when install is complete
+      ansible.builtin.file:
+        path: /tmp/install-k8s.yaml
+        state: absent
