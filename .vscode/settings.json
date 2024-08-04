@@ -1,0 +1,20 @@
+{
+    "workbench.iconTheme": "vscode-icons",
+    "explorer.confirmDelete": false,
+    "editor.rulers": [
+        100
+    ],
+    "tabnine.experimentalAutoImports": true,
+    "editor.inlineSuggest.enabled": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "files.autoSave": "afterDelay",
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "remote.SSH.configFile": "~/.ssh/config",
+    "window.zoomLevel": 1,
+    "editor.codeActionsOnSave": {
+
+    }
+}

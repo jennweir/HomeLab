@@ -1,0 +1,11 @@
+[pis]
+10.0.0.[101:103]
+
+[pis:vars]
+ansible_user=jennifer
+
+[k8s_main]
+10.0.0.101
+
+[k8s_worker]
+10.0.0.[102:103]
