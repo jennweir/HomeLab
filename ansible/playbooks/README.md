@@ -1,6 +1,8 @@
 # Raspberry Pi Ansible Playbook Guide
 
-## ssh into raspberry pi with 64-bit lite (no-desktop) raspbian OS
+## Install k8s on raspberry pi with the deploy-install playbook
+
+### deploy-install-k8s.yaml copies a temp file for the install-k8s playbook and deletes install-k8s.yaml when finished from the pi
 
 ```ansible-playbook -i inventory playbooks/raspberry-pis/deploy-install-k8s.yaml```
 
