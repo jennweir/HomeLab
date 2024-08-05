@@ -71,6 +71,10 @@ sudo kubeadm join local-main-IP:6443 --token token-here \
 --discovery-token-ca-cert-hash sha256:sha256-value-here`
 ```
 
+### View cluster
+
+```kubectl get nodes -o wide```
+
 ## Useful Links
 
 [https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html)
