@@ -18,6 +18,8 @@
 
 ```ansible-playbook -i inventory playbooks/raspberry-pis/cleanup-install-files.yaml```
 
+### Restart pi to load changes
+
 ## Useful Links
 
 [https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html)

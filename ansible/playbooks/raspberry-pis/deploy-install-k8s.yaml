@@ -3,12 +3,12 @@
   hosts: pis
   become: yes
   tasks:
-    - name: Upload install script part 1
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/install-k8s-pt1.yaml"
-        dest: /tmp/install-k8s-pt1.yaml
+  - name: Upload install script part 1
+    ansible.builtin.copy:
+      src: "{{ playbook_dir }}/install-k8s-pt1.yaml"
+      dest: /tmp/install-k8s-pt1.yaml
 
-    - name: Upload install script part 2
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/install-k8s-pt2.yaml"
-        dest: /tmp/install-k8s-pt2.yaml
+  - name: Upload install script part 2
+    ansible.builtin.copy:
+      src: "{{ playbook_dir }}/install-k8s-pt2.yaml"
+      dest: /tmp/install-k8s-pt2.yaml
