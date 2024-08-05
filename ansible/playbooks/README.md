@@ -6,23 +6,70 @@
 
 ```ansible-playbook -i inventory playbooks/raspberry-pis/deploy-install-k8s.yaml```
 
-### ssh into pi: 
+### ssh into pi
 
 ```ssh pi-#@raspberry-pi-#.local```
 
 ```ansible-playbook /tmp/install-k8s-pt1.yaml```
 
-### Restart pi required to load k8s and re-ssh into pi: 
+### Restart pi required to load k8s and re-ssh into pi
 
 ```ssh pi-#@raspberry-pi-#.local```
 
 ```ansible-playbook /tmp/install-k8s-pt2.yaml```
 
-### On machine where HomeLab repo exists: 
+### On machine where HomeLab repo exists
 
 ```ansible-playbook -i inventory playbooks/raspberry-pis/cleanup-install-files.yaml```
 
 ### Restart pi to load changes
+
+## All above steps should be completed on every raspberry pi in the cluster. The steps below should then be completed on a single pi that will act as the main
+
+```sudo kubeadm init --pod-network-cidr=10.244.0.0/16```
+
+```mkdir -p $HOME/.kube```
+
+```sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config```
+
+```sudo chown $(id -u):$(id -g) $HOME/.kube/config```
+
+### Add flannel to the cluster
+
+```kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml```
+
+### Add MetalLB to the cluster
+
+```kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/namespace.yaml```
+
+```kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/metallb.yaml```
+
+### Configure MetalLB
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 10.0.0.200-10.0.0.250
+---
+EOF`
+```
+
+### Join each worker to main (fill in credentials appropriately)
+
+```bash
+sudo kubeadm join local-main-IP:6443 --token token-here \ 
+--discovery-token-ca-cert-hash sha256:sha256-value-here`
+```
 
 ## Useful Links
 
