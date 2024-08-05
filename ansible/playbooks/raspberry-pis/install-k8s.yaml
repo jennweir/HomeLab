@@ -1,6 +1,6 @@
 ---
-- name: Playbook to install k8s on raspberry pis part 1
-  hosts: localhost
+- name: Playbook to install k8s on raspberry pis
+  hosts: pis
   become: yes
   gather_facts: no
   tasks:
@@ -12,21 +12,13 @@
       autoclean: yes
       autoremove: yes
 
-  - name: Check for reboot
-    register: reboot_required_file
-    stat:
-      path: /var/run/reboot-required
-      get_md5: no
-
-  - name: Reboot if needed
+  - name: Reboot the system to apply updates
     ansible.builtin.reboot:
-      msg: "Reboot initiated by ansible playbook to update kernel"
+      msg: "Rebooting after performing upgrade and cleaning files"
       connect_timeout: 5
       reboot_timeout: 300
       pre_reboot_delay: 0
       post_reboot_delay: 30
-      test_command: uptime
-    when: reboot_required_file.stat.exists
 
   - name: Check whether a package called dphys-swapfile is installed
     ansible.builtin.package_facts:
@@ -55,6 +47,14 @@
       backrefs: yes
       regexp: '^console(.*) rootwait$'
       line: '\g<0> cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1'
+
+  - name: Reboot the system to apply cgroup changes
+    ansible.builtin.reboot:
+      msg: "Rebooting after cgroup configuration"
+      connect_timeout: 5
+      reboot_timeout: 300
+      pre_reboot_delay: 0
+      post_reboot_delay: 30
 
   - name: Install containerd as the container runtime
     ansible.builtin.apt:
@@ -136,3 +136,58 @@
   - name: Update apt cache
     ansible.builtin.apt:
       update_cache: yes
+
+  - name: Reboot the system to apply k8s
+    ansible.builtin.reboot:
+      msg: "Rebooting after k8s apt repository installed"
+      connect_timeout: 5
+      reboot_timeout: 300
+      pre_reboot_delay: 0
+      post_reboot_delay: 30
+  
+  - name: Install kubelet, kubeadm, kubectl 
+    ansible.builtin.apt:  
+      pkg:  
+        - kubelet 
+        - kubeadm  
+        - kubectl
+  
+  - name: Hold kubelet
+    ansible.builtin.dpkg_selections:
+      name: kubelet
+      selection: hold
+  
+  - name: Hold kubeadm
+    ansible.builtin.dpkg_selections:
+      name: kubeadm
+      selection: hold
+
+  - name: Hold kubectl
+    ansible.builtin.dpkg_selections:
+      name: kubectl
+      selection: hold
+
+  - name: Download and install Flannel
+    ansible.builtin.get_url:
+      url: https://github.com/flannel-io/flannel/releases/download/v0.19.2/flanneld-arm64
+      dest: /usr/local/bin/flanneld
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: Create Flannel networks directory
+    ansible.builtin.file:
+      path: /var/lib/k8s/flannel/networks
+      state: directory
+      recurse: yes
+      owner: root
+      group: root
+      mode: '0755'
+
+  - name: Reboot after installation is complete
+    ansible.builtin.reboot:
+      msg: "Rebooting after k8s installation is complete"
+      connect_timeout: 5
+      reboot_timeout: 300
+      pre_reboot_delay: 0
+      post_reboot_delay: 30
