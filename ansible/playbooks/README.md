@@ -61,14 +61,14 @@ data:
       addresses:
       - 10.0.0.200-10.0.0.250
 ---
-EOF`
+EOF
 ```
 
 ### Join each worker to main (fill in credentials appropriately)
 
 ```bash
 sudo kubeadm join local-main-IP:6443 --token token-here \ 
---discovery-token-ca-cert-hash sha256:sha256-value-here`
+--discovery-token-ca-cert-hash sha256:sha256-value-here
 ```
 
 ### View cluster
