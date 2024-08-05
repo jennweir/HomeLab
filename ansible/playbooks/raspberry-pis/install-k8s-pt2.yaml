@@ -1,5 +1,5 @@
 ---
-- name: Playbook to install k8s on raspberry pis part 2
+- name: Playbook to finish k8s install (part 2) and install flannel on raspberry pis
   hosts: localhost
   become: yes
   gather_facts: no
@@ -13,18 +13,18 @@
   
   - name: Hold kubelet
     ansible.builtin.dpkg_selections:
-    -name: kubelet
-    selection: hold
+      name: kubelet
+      selection: hold
   
   - name: Hold kubeadm
     ansible.builtin.dpkg_selections:
-    -name: kubeadm
-    selection: hold
+      name: kubeadm
+      selection: hold
 
   - name: Hold kubectl
     ansible.builtin.dpkg_selections:
-    -name: kubectl
-    selection: hold
+      name: kubectl
+      selection: hold
 
   - name: Download and install Flannel
     ansible.builtin.get_url:
@@ -42,7 +42,3 @@
       owner: root
       group: root
       mode: '0755'
-
-  - name: Reboot pi
-    reboot:
-      msg: "Reboot initiated by ansible playbook"
