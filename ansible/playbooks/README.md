@@ -4,7 +4,7 @@
 
 ```ansible-playbook -i inventory playbooks/raspberry-pis/install-k8s.yaml```
 
-## Choose main node and initialize with kubeadm
+## Choose main node and initialize with kubeadm. Save the resulting kubeadm join credentials in a secret place
 
 ```sudo kubeadm init --pod-network-cidr=10.244.0.0/16```
 
