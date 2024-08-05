@@ -3,12 +3,12 @@
   hosts: pis
   become: yes
   tasks:
-  - name: Remove the temp install-k8s-pt1.yaml file when install is complete
+  - name: Remove the temporary install-k8s-pt1.yaml file when install is complete
     ansible.builtin.file:
       path: /tmp/install-k8s-pt1.yaml
       state: absent
     
-  - name: Remove the temp install-k8s-pt2.yaml file when install is complete
+  - name: Remove the temporary install-k8s-pt2.yaml file when install is complete
     ansible.builtin.file:
       path: /tmp/install-k8s-pt2.yaml
       state: absent
