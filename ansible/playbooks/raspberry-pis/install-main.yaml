@@ -1,0 +1,61 @@
+---
+- name: Playbook to install main node k8s on raspberry pis
+  hosts: k8s_main
+  become: yes
+  tasks:
+  - name: Make .kube directory
+    ansible.builtin.file:
+      path: "{{ ansible_env.HOME }}/.kube"
+      state: directory
+      mode: '0755'
+
+  - name: Copy the k8s admin.conf file to .kube directory
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: "{{ ansible_env.HOME }}/.kube/config"
+      owner: "{{ ansible_user_id }}"
+      group: "{{ ansible_user_gid }}"
+      mode: '0644'
+      backup: yes
+      remote_src: yes
+
+  - name: Set ownership of .kube/config file
+    ansible.builtin.file:
+      path: "{{ ansible_env.HOME }}/.kube/config"
+      owner: "{{ ansible_user_id }}"
+      group: "{{ ansible_user_gid }}"
+      mode: '0644'
+  
+  - name: Apply flannel to the cluster
+    ansible.builtin.shell: |
+      kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+    become: no
+
+  - name: Apply metalLB namespace
+    ansible.builtin.shell: |
+      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/namespace.yaml
+    become: no
+
+  - name: Apply metalLB manifests
+    ansible.builtin.shell: |
+      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/metallb.yaml
+    become: no
+
+  - name: Configure metalLB
+    ansible.builtin.shell: |
+      cat <<EOF | kubectl apply -f -
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: metallb-system
+        name: config
+      data:
+        config: |
+          address-pools:
+          - name: default
+            protocol: layer2
+            addresses:
+            - 10.0.0.200-10.0.0.250
+      ---
+      EOF
+    become: no
