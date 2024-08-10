@@ -1,21 +1,30 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: argocd-server-ingress
+  name: argocd
   namespace: argocd
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
-  ingressClassName: nginx
+  spec:
+  tls:
+    - hosts:
+        - argocd.jenniferpweir.com
+      secretName: secret-jenniferpweir-com
   rules:
-  - host: jenniferpweir.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: argocd-server
-            port:
-              name: https
+    - host: argocd.jenniferpweir.com
+      http:
+        paths:
+        - pathType: ImplementationSpecific
+          path: "/*"   # use * for the js and css to load properly
+          backend:
+            service:
+              name: argocd-server
+              port:
+                number: 80
+
+# kubectl apply -f path_to_ingress.yaml
+# kubectl get ingress -n argocd
 
 # apiVersion: networking.k8s.io/v1
 # kind: Ingress with Passthrough SSL
