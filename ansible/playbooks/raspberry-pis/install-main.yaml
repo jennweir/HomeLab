@@ -30,16 +30,23 @@
     ansible.builtin.shell: |
       kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
     become: no
-
-  - name: Apply metalLB namespace
+  
+  - name: Install helm
     ansible.builtin.shell: |
-      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/namespace.yaml
+      curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+      sudo apt-get install apt-transport-https --yes
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+      sudo apt-get update
+      sudo apt-get install helm
     become: no
 
-  - name: Apply metalLB manifests
+  - name: Install cert-manager
     ansible.builtin.shell: |
-      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.12.1/manifests/metallb.yaml
-    become: no
+      kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.2/cert-manager.yaml
+
+  - name: Apply metalLB manifest
+    ansible.builtin.shell: |
+      kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/metallb-native.yaml
 
   - name: Configure metalLB
     ansible.builtin.shell: |
@@ -59,3 +66,30 @@
       ---
       EOF
     become: no
+
+  - name: Install argocd
+    ansible.builtin.shell: |
+      kubectl create namespace argocd
+      kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    become: no
+
+  - name: Change the argocd-server service type to LoadBalancer
+    ansible.builtin.shell: |
+      kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+    become: no
+
+  - name: Copy cluster-issuer.yaml to main pi
+    ansible.builtin.copy:
+      src: /Users/jenn/Projects/HomeLab/kubernetes/argocd/cluster-issuer.yaml
+      dest: /tmp/cluster-issuer.yaml
+
+  - name: Apply cluster-issuer manifest
+    command: kubectl apply -f /tmp/cluster-issuer.yaml
+
+  - name: Copy ingress.yaml to main pi
+    ansible.builtin.copy:
+      src: /Users/jenn/Projects/HomeLab/kubernetes/argocd/ingress.yaml
+      dest: /tmp/ingress.yaml
+  
+  - name: Apply ingress manifest
+    command: kubectl apply -f /tmp/ingress.yaml
