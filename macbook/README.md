@@ -2,4 +2,8 @@
 
 ## All terminal panes open in iTerm2 as a single window (split vertically)
 
-`osascript macbook/pi-cluster-ssh.app`
+`osascript macbook/ssh-pi-cluster.app`
+
+## Shut down each machine individually once finished
+
+`sudo shutdown -h now`
