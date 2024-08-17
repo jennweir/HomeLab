@@ -12,6 +12,6 @@ spec:
     - dns01:
         cloudflare:
           email: contact@jenniferpweir.com
-          apiKeySecretRef:
+          apiTokenSecretRef:
             name: cloudflare-api-token-secret
-            key: api-key
+            key: api-token
