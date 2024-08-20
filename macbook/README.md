@@ -4,6 +4,6 @@
 
 `osascript macbook/ssh-pi-cluster.app`
 
-## Shut down each machine individually once finished
+## Once finished, shut down each machine individually
 
 `sudo shutdown -h now`
