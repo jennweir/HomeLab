@@ -19,6 +19,8 @@ NAMESPACE="$3"
 #     --location="global" \
 #     --display-name="Kubernetes WIF Pool"
 
+# TODO: FIX attribute-mapping error
+
 gcloud iam workload-identity-pools providers create-oidc "k8s-provider" \
     --location="global" \
     --workload-identity-pool="k8s-wif-pool" \
