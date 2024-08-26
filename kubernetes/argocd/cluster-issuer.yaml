@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: cloud-dns-issuer
+spec:
+  acme:
+    email: contact@jenniferpweir.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: cloud-dns-account-key
+    solvers:
+    - dns01:
+        cloudDNS:
+          project: pi-cluster
+          hostedZoneName: 'jenniferpweir.com.'
+          serviceAccountSecretRef:
+            name: cloud-dns-wif
+            key: wif.json  # contain the WIF configuration
