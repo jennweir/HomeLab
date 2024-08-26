@@ -1,2 +1,6 @@
 /secrets
 /.kube/config
+
+# Terraform
+.terraform
+terraform.tfstate*
