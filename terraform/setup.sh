@@ -71,8 +71,8 @@ fi
 
 # Set up some variables we'll need
 HOST="${1:-app.terraform.io}"
-BACKEND_TF=$(dirname ${BASH_SOURCE[0]})/../backend.tf
-PROVIDER_TF=$(dirname ${BASH_SOURCE[0]})/../provider.tf
+BACKEND_TF=$(dirname ${BASH_SOURCE[0]})/backend.tf
+PROVIDER_TF=$(dirname ${BASH_SOURCE[0]})/provider.tf
 TERRAFORM_VERSION=$(terraform version -json | jq -r '.terraform_version')
 
 # Check that we've already authenticated via Terraform in the static credentials
@@ -97,16 +97,16 @@ fi
 
 # Check that this is your first time running this script. If not, we'll reset
 # all local state and restart from scratch!
-if ! git diff-index --quiet --no-ext-diff HEAD --; then
-  echo "It looks like you may have run this script before! Re-running it will reset any
-  changes you've made to backend.tf and provider.tf."
-  echo
-  pause_for_confirmation
+# if ! git diff-index --quiet --no-ext-diff HEAD --; then
+#   echo "It looks like you may have run this script before! Re-running it will reset any
+#   changes you've made to backend.tf and provider.tf."
+#   echo
+#   pause_for_confirmation
 
-  git checkout HEAD backend.tf provider.tf
-  rm -rf .terraform
-  rm -f *.lock.hcl
-fi
+#   git checkout HEAD backend.tf provider.tf
+#   rm -rf .terraform
+#   rm -f *.lock.hcl
+# fi
 
 echo
 printf "\r\033[00;35;1m
@@ -126,48 +126,51 @@ info "First, we'll do some setup and configure Terraform to use HCP Terraform."
 echo
 pause_for_confirmation
 
+echo "Remove cache from previous runs"
+rm -rf .terraform
+
 # Create a HCP Terraform organization
-echo
-echo "Creating an organization and workspace..."
-sleep 1
-setup() {
-  curl https://$HOST/api/getting-started/setup \
-    --request POST \
-    --silent \
-    --header "Content-Type: application/vnd.api+json" \
-    --header "Authorization: Bearer $TOKEN" \
-    --header "User-Agent: tfc-getting-started" \
-    --data @- << REQUEST_BODY
-{
-	"workflow": "remote-operations",
-  "terraform-version": "$TERRAFORM_VERSION"
-}
-REQUEST_BODY
-}
+# echo
+# echo "Creating an organization and workspace..."
+# sleep 1
+# setup() {
+#   curl https://$HOST/api/getting-started/setup \
+#     --request POST \
+#     --silent \
+#     --header "Content-Type: application/vnd.api+json" \
+#     --header "Authorization: Bearer $TOKEN" \
+#     --header "User-Agent: tfc-getting-started" \
+#     --data @- << REQUEST_BODY
+# {
+# 	"workflow": "remote-operations",
+#   "terraform-version": "$TERRAFORM_VERSION"
+# }
+# REQUEST_BODY
+# }
 
-response=$(setup)
-err=$(echo $response | jq -r '.errors')
+# response=$(setup)
+# err=$(echo $response | jq -r '.errors')
 
-if [[ $err != null ]]; then
-  err_msg=$(echo $err | jq -r '.[0].detail')
-  if [[ $err_msg != null ]]; then
-    fail "An error occurred: ${err_msg}"
-  else 
-    fail "An unknown error occurred: ${err}"
-  fi
-  exit 1
-fi
+# if [[ $err != null ]]; then
+#   err_msg=$(echo $err | jq -r '.[0].detail')
+#   if [[ $err_msg != null ]]; then
+#     fail "An error occurred: ${err_msg}"
+#   else 
+#     fail "An unknown error occurred: ${err}"
+#   fi
+#   exit 1
+# fi
 
 # TODO: If there's an active trial, we should just retrieve that and configure
 # it instead (especially if it has no state yet)
-info=$(echo $response | jq -r '.info')
-if [[ $info != null ]]; then
-  info "\n${info}"
-  exit 0
-fi
+# info=$(echo $response | jq -r '.info')
+# if [[ $info != null ]]; then
+#   info "\n${info}"
+#   exit 0
+# fi
 
-organization_name=$(echo $response | jq -r '.data."organization-name"')
-workspace_name=$(echo $response | jq -r '.data."workspace-name"')
+organization_name="jennweir-org"
+workspace_name="homelab"
 
 echo
 echo "Writing HCP Terraform configuration to backend.tf..."
@@ -284,8 +287,5 @@ echo "    workspace, and you can reference state from other workspaces using"
 echo "    the 'terraform_remote_state' data source."
 echo "  * Much more!"
 echo
-info "To see the mock infrastructure you just provisioned and continue exploring
-HCP Terraform, visit:
-https://$HOST/fake-web-services"
 echo
 exit 0

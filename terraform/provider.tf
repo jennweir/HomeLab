@@ -1,4 +1,4 @@
 provider "google" {
   project     = "pi-cluster-433101"
-  region      = "us-east1"
+  region      = "us-central1"
 }
