@@ -6,10 +6,8 @@
 
 Run `terraform login` and retrieve API token.
 
-### 2. Initialize terraform
+### 2. Apply IaC changes
 
 `terraform init`
-
-### 3. Apply IaC configuration
-
+`terraform plan`
 `terraform apply`
