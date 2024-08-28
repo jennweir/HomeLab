@@ -14,6 +14,10 @@
 
 ## Set up Workload Identity Federation (WIF) declaratively using terraform
 
+<https://cloud.google.com/docs/authentication/provide-credentials-adc#how-to>
+
+`gcloud auth application-default login`
+
 `cd HomeLab/terraform`
 
 `terraform init`
