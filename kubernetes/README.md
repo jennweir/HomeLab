@@ -103,7 +103,9 @@ Events:
 ```
 
 <!-- TODO: figure out how else to do this so its not pending -->
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer", "externalIPs":["10.244.2.56"]}}'
+`kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer", "externalIPs":["10.244.2.56"]}}'`
+
+`kubectl get services -n argocd`
 
 ```bash
 pi-1@raspberry-pi-1:~ $ kubectl get services -n argocd
@@ -118,10 +120,11 @@ argocd-server                             LoadBalancer   10.109.230.70    10.244
 argocd-server-metrics                     ClusterIP      10.103.216.84    <none>        8083/TCP                     21d
 ```
 
-
 <!-- gcloud dns --project=pi-cluster-433101 record-sets create argocd.jenniferpweir.com. --zone="homelab" --type="A" --ttl="300" --rrdatas="10.109.230.70"
 
 gcloud dns --project=pi-cluster-433101 record-sets create www.argocd.jenniferpweir.com. --zone="homelab" --type="CNAME" --ttl="300" --rrdatas="jenniferpweir.com." -->
+
+`kubectl get services --all-namespaces`
 
 <!-- TODO: should only be 1 LB for the ingress-nginx svc and that should route to argocd server -->
 ```bash
