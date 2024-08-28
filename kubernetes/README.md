@@ -101,3 +101,46 @@ Events:
   ----    ------  ----  ----                      -------
   Normal  Sync    26m   nginx-ingress-controller  Scheduled for sync
 ```
+
+<!-- TODO: figure out how else to do this so its not pending -->
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer", "externalIPs":["10.244.2.56"]}}'
+
+```bash
+pi-1@raspberry-pi-1:~ $ kubectl get services -n argocd
+NAME                                      TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+argocd-applicationset-controller          ClusterIP      10.107.177.139   <none>        7000/TCP,8080/TCP            21d
+argocd-dex-server                         ClusterIP      10.98.99.20      <none>        5556/TCP,5557/TCP,5558/TCP   21d
+argocd-metrics                            ClusterIP      10.98.130.183    <none>        8082/TCP                     21d
+argocd-notifications-controller-metrics   ClusterIP      10.108.44.10     <none>        9001/TCP                     21d
+argocd-redis                              ClusterIP      10.105.178.34    <none>        6379/TCP                     21d
+argocd-repo-server                        ClusterIP      10.105.108.88    <none>        8081/TCP,8084/TCP            21d
+argocd-server                             LoadBalancer   10.109.230.70    10.244.2.56   80:32035/TCP,443:31656/TCP   21d
+argocd-server-metrics                     ClusterIP      10.103.216.84    <none>        8083/TCP                     21d
+```
+
+
+<!-- gcloud dns --project=pi-cluster-433101 record-sets create argocd.jenniferpweir.com. --zone="homelab" --type="A" --ttl="300" --rrdatas="10.109.230.70"
+
+gcloud dns --project=pi-cluster-433101 record-sets create www.argocd.jenniferpweir.com. --zone="homelab" --type="CNAME" --ttl="300" --rrdatas="jenniferpweir.com." -->
+
+<!-- TODO: should only be 1 LB for the ingress-nginx svc and that should route to argocd server -->
+```bash
+pi-1@raspberry-pi-1:~ $ kubectl get services --all-namespaces
+NAMESPACE        NAME                                               TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+argocd           argocd-applicationset-controller                   ClusterIP      10.107.177.139   <none>        7000/TCP,8080/TCP            21d
+argocd           argocd-dex-server                                  ClusterIP      10.98.99.20      <none>        5556/TCP,5557/TCP,5558/TCP   21d
+argocd           argocd-metrics                                     ClusterIP      10.98.130.183    <none>        8082/TCP                     21d
+argocd           argocd-notifications-controller-metrics            ClusterIP      10.108.44.10     <none>        9001/TCP                     21d
+argocd           argocd-redis                                       ClusterIP      10.105.178.34    <none>        6379/TCP                     21d
+argocd           argocd-repo-server                                 ClusterIP      10.105.108.88    <none>        8081/TCP,8084/TCP            21d
+argocd           argocd-server                                      LoadBalancer   10.109.230.70    10.244.2.56   80:32035/TCP,443:31656/TCP   21d
+argocd           argocd-server-metrics                              ClusterIP      10.103.216.84    <none>        8083/TCP                     21d
+cert-manager     cert-manager                                       ClusterIP      10.106.130.111   <none>        9402/TCP                     16d
+cert-manager     cert-manager-webhook                               ClusterIP      10.97.35.13      <none>        443/TCP                      16d
+default          kubernetes                                         ClusterIP      10.96.0.1        <none>        443/TCP                      22d
+default          metallb-webhook-service                            ClusterIP      10.110.107.139   <none>        443/TCP                      16d
+ingress-nginx    nginx-ingress-ingress-nginx-controller             LoadBalancer   10.96.248.246    <pending>     80:31234/TCP,443:31467/TCP   16d
+ingress-nginx    nginx-ingress-ingress-nginx-controller-admission   ClusterIP      10.106.68.112    <none>        443/TCP                      16d
+kube-system      kube-dns                                           ClusterIP      10.96.0.10       <none>        53/UDP,53/TCP,9153/TCP       22d
+metallb-system   metallb-webhook-service                            ClusterIP      10.98.108.235    <none>        443/TCP                      16d
+```
