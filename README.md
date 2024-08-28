@@ -6,11 +6,7 @@
 
 [MicroSD Card with Adapter 32GB](https://www.meijer.com/shopping/product/sandisk-ultra-plus-microsdhc-uhs-i-card-with-adapter-32gb/61965917455.html)
 
-## Helpful Links
-
-[https://www.raspberrypi.com/software/](https://www.raspberrypi.com/software/)
-
-## Inspiration and Sources
+## Inspiration
 
 [https://www.pidramble.com/](https://www.pidramble.com/)
 
