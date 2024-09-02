@@ -1,24 +1,22 @@
-resource "google_service_account" "cert_manager_sa" {
-    account_id   = "cert-manager-sa"
-    display_name = "Service Account for cert-manager"
+locals {
+    K8S_NAMESPACE = "argocd"
+    K8S_SERVICE_ACCOUNT = "k8s-wif-service-account"
+    K8S_GCP_PROJECT_NUMBER = "494599251997"
+    K8S_WORKLOAD_IDENTITY_POOL = "k8s-wif-pool"
 }
 
-resource "google_project_iam_member" "dns_admin_binding" {
-    project = "pi-cluster-433101"
-    role    = "roles/dns.admin"
-    member  = "serviceAccount:${google_service_account.cert_manager_sa.email}"
+# GCP service account that the kubernetes service account impersonates
+# can create it via Terraform pipeline
+resource "google_service_account" "gcp_wif_service_account" {
+    account_id   = "gcp-wif-service-account"
+    display_name = "GCP WIF Service Account"
+    project      = "pi-cluster-433101" # project id
 }
 
-# resource "google_project_iam_binding" "workload_identity_user_binding" {
-#     project = var.project_id
-#     role    = "roles/iam.workloadIdentityUser"
-
-#     members = [
-#         "principalSet://iam.googleapis.com/projects/${var.project_number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.k8s_wif_pool.name}/attribute.actor/service-account/${var.namespace}/cert-manager"
-#     ]
-# }
-
-resource "google_service_account_key" "cert_manager_key" {
-    service_account_id = google_service_account.cert_manager_sa.email
-    key_algorithm      = "KEY_ALG_RSA_2048"
+# GCP policy WIF binding: what allows our k8s service account to impersonate GCP service account
+resource "google_service_account_iam_member" "pi-cluster-argocd" {
+    service_account_id = google_service_account.gcp_wif_service_account.name
+    role               = "roles/iam.workloadIdentityUser"
+    # principal://iam.googleapis.com/projects/494599251997/locations/global/workloadIdentityPools/k8s-wif-pool/subject/SUBJECT_ATTRIBUTE_VALUE
+    member             = "principal://iam.googleapis.com/projects/${local.K8S_GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${local.K8S_WORKLOAD_IDENTITY_POOL}/subject/${local.K8S_NAMESPACE}"
 }
