@@ -1,0 +1,38 @@
+apiVersion: app1/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+spec:
+  template:
+    spec:
+      serviceAccountName: k8s-wif-service-account
+      volumes: 
+        - name: bound-service-account-token
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  audience: kubernetes.io
+                  expirationSeconds: 3600
+                  path: token
+        - name: google-creds
+          configMap:
+            name: google-creds
+            defaultMode: 420
+            optional: false
+      containers:
+        - name: argocd-server
+          volumeMounts:
+            - name: bound-service-account-token
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
+            - name: google-creds
+              mountPath: /var/run/secrets/google
+              readOnly: true
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/run/secrets/google/credentials_config.json
