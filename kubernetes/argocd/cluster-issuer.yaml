@@ -12,7 +12,7 @@ spec:
     - dns01:
         cloudDNS:
           project: pi-cluster
-          hostedZoneName: 'jenniferpweir.com.'
-          serviceAccountSecretRef:
-            name: cloud-dns-wif
-            key: wif.json  # contain the WIF configuration
+          hostedZoneName: 'argocd.jenniferpweir.com.'
+          serviceAccountName:
+            name: k8s-wif-service-account
+            namespace: argocd
