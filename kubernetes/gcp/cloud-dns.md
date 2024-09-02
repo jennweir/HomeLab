@@ -12,7 +12,7 @@
 
 `gcloud dns --project=pi-cluster-433101 managed-zones create homelab --description="" --dns-name="jenniferpweir.com." --visibility="public" --dnssec-state="off"`
 
-## Set up Workload Identity Federation (WIF) declaratively using terraform
+<https://cloud.google.com/docs/authentication/external/set-up-adc>
 
 <https://cloud.google.com/docs/authentication/provide-credentials-adc#how-to>
 
