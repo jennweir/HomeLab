@@ -11,6 +11,7 @@ K8S_SERVICE_ACCOUNT= k8s-wif-service-account
 K8S_GCP_PROJECT_NUMBER= 494599251997
 K8S_WORKLOAD_IDENTITY_POOL= k8s-wif-pool
 # json file projected into configmap volume in the cluster
+# TODO: FIX from-file path
 cat <<EOF > | oc create configmap google-creds --namespace ${K8S_NAMESPACE} --from-file=credentials_config.json=/dev/secrets
 {
   "credential_source": {
