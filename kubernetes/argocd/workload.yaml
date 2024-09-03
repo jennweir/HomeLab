@@ -1,4 +1,4 @@
-apiVersion: app1/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: argocd-server
@@ -7,7 +7,15 @@ metadata:
     app.kubernetes.io/name: argocd-server
     app.kubernetes.io/part-of: argocd
 spec:
+  replicas: 1  # Add replicas to ensure the Deployment is valid
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server
   template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: argocd-server
+        app.kubernetes.io/part-of: argocd
     spec:
       serviceAccountName: k8s-wif-service-account
       volumes: 
@@ -26,6 +34,7 @@ spec:
             optional: false
       containers:
         - name: argocd-server
+          image: argoproj/argocd:v2.6.15
           volumeMounts:
             - name: bound-service-account-token
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount
