@@ -17,6 +17,6 @@ resource "google_service_account" "gcp_wif_service_account" {
 resource "google_service_account_iam_member" "pi-cluster-argocd" {
     service_account_id = google_service_account.gcp_wif_service_account.name
     role               = "roles/iam.workloadIdentityUser"
-    # principal://iam.googleapis.com/projects/494599251997/locations/global/workloadIdentityPools/k8s-wif-pool/subject/SUBJECT_ATTRIBUTE_VALUE
+    # principal://iam.googleapis.com/projects/494599251997/locations/global/workloadIdentityPools/k8s-wif-pool/subject/SUBJECT_ATTRIBUTE_VALUE (subject of OIDC token)
     member             = "principal://iam.googleapis.com/projects/${local.K8S_GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${local.K8S_WORKLOAD_IDENTITY_POOL}/subject/${local.K8S_NAMESPACE}"
 }
