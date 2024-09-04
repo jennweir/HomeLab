@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: argocd-server
     app.kubernetes.io/part-of: argocd
 spec:
-  replicas: 1  # Add replicas to ensure the Deployment is valid
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-server
@@ -18,7 +18,7 @@ spec:
         app.kubernetes.io/part-of: argocd
     spec:
       serviceAccountName: k8s-wif-service-account
-      volumes: 
+      volumes:
         - name: bound-service-account-token
           projected:
             defaultMode: 420
@@ -35,6 +35,9 @@ spec:
       containers:
         - name: argocd-server
           image: argoproj/argocd:v2.6.15
+          ports:
+            - containerPort: 8080
+              name: http
           volumeMounts:
             - name: bound-service-account-token
               mountPath: /var/run/secrets/kubernetes.io/serviceaccount
@@ -45,3 +48,22 @@ spec:
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/run/secrets/google/credentials_config.json
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
