@@ -21,7 +21,11 @@ sudo kubeadm join local-main-IP:6443 --token token-here \
 
 ### View cluster
 
-```kubectl get nodes -o wide```
+`kubectl get nodes -o wide`
+
+`kubectl proxy`
+
+`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/`
 
 ## Useful Links
 
