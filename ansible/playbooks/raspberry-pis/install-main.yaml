@@ -3,32 +3,30 @@
   hosts: k8s_main
   become: yes
   tasks:
-  - name: Make .kube directory
-    ansible.builtin.file:
-      path: "{{ ansible_env.HOME }}/.kube"
-      state: directory
-      mode: '0755'
+  # - name: Create the .kube directory
+  #   ansible.builtin.file:
+  #     path: "{{ ansible_env.HOME }}/.kube"
+  #     state: directory
+  #     mode: '0755'
 
-  - name: Copy the k8s admin.conf file to .kube directory
-    ansible.builtin.copy:
-      src: /etc/kubernetes/admin.conf
-      dest: "{{ ansible_env.HOME }}/.kube/config"
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_gid }}"
-      mode: '0644'
-      backup: yes
-      remote_src: yes
+  # - name: Copy admin.conf to .kube/config
+  #   ansible.builtin.command:
+  #     cmd: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  #   become: yes
 
-  - name: Set ownership of .kube/config file
-    ansible.builtin.file:
-      path: "{{ ansible_env.HOME }}/.kube/config"
-      owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_gid }}"
-      mode: '0644'
+  # - name: Change ownership of the config file
+  #   ansible.builtin.command:
+  #     cmd: chown $(id -u):$(id -g) $HOME/.kube/config
+  #   become: yes
+
+  # sudo rm -rf /root/.kube/config
+  # sudo cp /etc/kubernetes/admin.conf /root/.kube/config
+  # sudo chown root:root /root/.kube/config
+  # sudo chmod 600 /root/.kube/config
   
   - name: Apply flannel to the cluster
     ansible.builtin.shell: |
-      kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+      kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
     become: no
 
   - name: Install cert-manager
@@ -69,18 +67,33 @@
       kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
     become: no
 
-  - name: Copy cluster-issuer.yaml to main pi
-    ansible.builtin.copy:
-      src: /Users/jenn/Projects/HomeLab/kubernetes/argocd/cluster-issuer.yaml
-      dest: /tmp/cluster-issuer.yaml
+  - name: Deploy k8s dashboard
+    ansible.builtin.shell: |
+      kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+    become: no
 
-  - name: Apply cluster-issuer manifest
-    command: kubectl apply -f /tmp/cluster-issuer.yaml
+  # - name: Copy cluster-issuer.yaml to main pi
+  #   ansible.builtin.copy:
+  #     src: /Users/jenn/Projects/HomeLab/kubernetes/argocd/cluster-issuer.yaml
+  #     dest: /tmp/cluster-issuer.yaml
 
-  - name: Copy ingress.yaml to main pi
-    ansible.builtin.copy:
-      src: /Users/jenn/Projects/HomeLab/kubernetes/argocd/ingress.yaml
-      dest: /tmp/ingress.yaml
+  # - name: Apply cluster-issuer manifest
+  #   command: kubectl apply -f /tmp/cluster-issuer.yaml
+
+  # - name: Copy ingress.yaml to main pi
+  #   ansible.builtin.copy:
+  #     src: /Users/jenn/Projects/HomeLab/kubernetes/argocd/ingress.yaml
+  #     dest: /tmp/ingress.yaml
   
-  - name: Apply ingress manifest
-    command: kubectl apply -f /tmp/ingress.yaml
+  # - name: Apply ingress manifest
+  #   command: kubectl apply -f /tmp/ingress.yaml
+
+  # - name: Add nginx controller help repository
+  #   ansible.builtin.shell: |
+  #     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+  #     helm repo update
+
+  # - name: Install nginx ingress controller
+  #   ansible.builtin.shell: |
+  #     helm install nginx-ingress ingress-nginx/ingress-nginx \
+  #     --namespace ingress-nginx --create-namespace
