@@ -71,29 +71,3 @@
     ansible.builtin.shell: |
       kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
     become: no
-
-  # - name: Copy cluster-issuer.yaml to main pi
-  #   ansible.builtin.copy:
-  #     src: /Users/jenn/Projects/HomeLab/kubernetes/argocd/cluster-issuer.yaml
-  #     dest: /tmp/cluster-issuer.yaml
-
-  # - name: Apply cluster-issuer manifest
-  #   command: kubectl apply -f /tmp/cluster-issuer.yaml
-
-  # - name: Copy ingress.yaml to main pi
-  #   ansible.builtin.copy:
-  #     src: /Users/jenn/Projects/HomeLab/kubernetes/argocd/ingress.yaml
-  #     dest: /tmp/ingress.yaml
-  
-  # - name: Apply ingress manifest
-  #   command: kubectl apply -f /tmp/ingress.yaml
-
-  # - name: Add nginx controller help repository
-  #   ansible.builtin.shell: |
-  #     helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-  #     helm repo update
-
-  # - name: Install nginx ingress controller
-  #   ansible.builtin.shell: |
-  #     helm install nginx-ingress ingress-nginx/ingress-nginx \
-  #     --namespace ingress-nginx --create-namespace
