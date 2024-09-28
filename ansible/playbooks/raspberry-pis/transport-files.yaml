@@ -1,8 +1,0 @@
-- name: Send files to raspberry pi
-  hosts: k8s_main
-  become: yes
-  tasks:
-    - name: Send a file
-      ansible.builtin.copy:
-        src: ""
-        dest: /
