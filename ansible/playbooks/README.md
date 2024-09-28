@@ -19,14 +19,6 @@ sudo kubeadm join local-main-IP:6443 --token token-here \
 --discovery-token-ca-cert-hash sha256:sha256-value-here
 ```
 
-### View cluster
-
-`kubectl get nodes -o wide`
-
-`kubectl proxy`
-
-`http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/`
-
 ## Useful Links
 
 [https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html)
