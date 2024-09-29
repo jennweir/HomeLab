@@ -12,7 +12,4 @@ spec:
     - dns01:
         cloudDNS:
           project: pi-cluster
-          hostedZoneName: 'argocd.jenniferpweir.com.'
-          serviceAccountName:
-            name: k8s-wif-service-account
-            namespace: argocd
+          hostedZoneName: 'jenniferpweir.com.'
