@@ -25,4 +25,4 @@ spec:
   tls:
   - hosts:
     - argocd.jenniferpweir.com
-    secretName: argocd-secret-tls # as expected by argocd-server
+    secretName: argocd-server-tls # as expected by argocd-server
