@@ -37,25 +37,6 @@
     ansible.builtin.shell: |
       kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/metallb-native.yaml
 
-  - name: Configure metalLB
-    ansible.builtin.shell: |
-      cat <<EOF | kubectl apply -f -
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        namespace: metallb-system
-        name: config
-      data:
-        config: |
-          address-pools:
-          - name: default
-            protocol: layer2
-            addresses:
-            - 10.0.0.200-10.0.0.250
-      ---
-      EOF
-    become: no
-
   - name: Install argocd
     ansible.builtin.shell: |
       kubectl create namespace argocd
