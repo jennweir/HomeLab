@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jenniferpweir-com
+  namespace: default
+spec:
+  secretName: jenniferpweir-com-tls
+  issuerRef:
+    name: jenniferpweir-com-issuer
+    kind: ClusterIssuer
+  commonName: www.jenniferpweir.com
+  dnsNames:
+  - jenniferpweir.com
+  - www.jenniferpweir.com
