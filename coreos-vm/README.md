@@ -2,6 +2,8 @@
 
 <https://docs.fedoraproject.org/en-US/>
 
+<https://fedoraproject.org/coreos/download?stream=stable&arch=aarch64#download_section>
+
 `VBoxManage showvminfo coreos-vm --details`
 
 ## turn yaml into ign using butane
