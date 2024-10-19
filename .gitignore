@@ -4,3 +4,5 @@
 # Terraform
 .terraform
 terraform.tfstate*
+
+*.iso

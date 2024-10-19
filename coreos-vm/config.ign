@@ -1,0 +1,51 @@
+{
+  "ignition": {
+    "version": "3.4.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "sshAuthorizedKeys": [
+          "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAAok0q7jxMHMSUkp5vr6nzYB9A00gG8JZt41T+syFlft3Rv/LD4SswrhYiqAyfK3s+uGDobA8wwy7iUHrXAXAytqQHOU4bssijkJ73pGMZ6VqCBbH60PvXuvWwHS+VonPSndSSX4sQ1cGJjQdb86nLiAvIKfSFDgjUXYcMP7XZezM9eOg=="
+        ]
+      }
+    ]
+  },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/hostname",
+        "contents": {
+          "compression": "",
+          "source": "data:,coreos-vm"
+        },
+        "mode": 420
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "contents": "[Unit]\nDescription=MyApp\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nTimeoutStartSec=0\nExecStartPre=-/bin/podman kill busybox1\nExecStartPre=-/bin/podman rm busybox1\nExecStartPre=/bin/podman pull busybox\nExecStart=/bin/podman run --name busybox1 busybox /bin/sh -c \"trap 'exit 0' INT TERM; while true; do echo Hello World; sleep 1; done\"\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "hello.service"
+      },
+      {
+        "contents": "[Unit]\nDescription=Run single node etcd\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nExecStartPre=mkdir -p /var/lib/etcd\nExecStartPre=-/bin/podman kill etcd\nExecStartPre=-/bin/podman rm etcd\nExecStartPre=-/bin/podman pull quay.io/coreos/etcd\nExecStart=/bin/podman run --name etcd --volume /var/lib/etcd:/etcd-data:z --net=host quay.io/coreos/etcd:latest /usr/local/bin/etcd --data-dir /etcd-data --name node1 \\\n        --initial-advertise-peer-urls http://127.0.0.1:2380 --listen-peer-urls http://127.0.0.1:2380 \\\n        --advertise-client-urls http://127.0.0.1:2379 \\\n        --listen-client-urls http://127.0.0.1:2379 \\\n        --initial-cluster node1=http://127.0.0.1:2380\n\nExecStop=/bin/podman stop etcd\n\n[Install]\nWantedBy=multi-user.target\n",
+        "enabled": true,
+        "name": "etcd-member.service"
+      },
+      {
+        "dropins": [
+          {
+            "contents": "[Service]\nEnvironmentFile=/etc/example-proxy.env\n",
+            "name": "99-proxy.conf"
+          }
+        ],
+        "enabled": true,
+        "name": "containerd.service"
+      }
+    ]
+  }
+}
