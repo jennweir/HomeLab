@@ -8233,6 +8233,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/component: "controller"
     app.kubernetes.io/version: "v1.15.2"
+  annotations:
+    iam.gke.io/gcp-service-account: dns01-solver@pi-cluster-433101.iam.gserviceaccount.com
 ---
 # Source: cert-manager/templates/webhook-serviceaccount.yaml
 apiVersion: v1
