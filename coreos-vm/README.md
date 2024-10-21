@@ -12,9 +12,19 @@
 
 ## on mac to interact with vm
 
+By default, NAT networking does not allow inbound connections to the vm. To allow inbound SSH connections, you can forward connections to e.g. port 2222 on the host to the SSH server in the vm:
+
+`VBoxManage modifyvm coreos-vm --natpf1 "guestssh,tcp,,2222,,22"`
+
+Start and stop vm:
+
 `VBoxManage startvm coreos-vm` --type headless
 
 `VBoxManage controlvm coreos-vm acpipowerbutton`
+
+Connect with:
+
+`ssh core@localhost -p 2222`
 
 ## vm first boot
 
@@ -24,6 +34,7 @@ Fedora CoreOS will automatically apply the Ignition config from the secondary CD
 ## use container for ignition-validate to check the ignition file is valid
 
 -v $(pwd):/data mounts the current directory (where config.ign file is located) into /data inside the container
+
 `podman run --rm -v $(pwd):/data quay.io/coreos/ignition-validate:release /data/config.ign`
 
 ## use container for coreos-installer to inject ignition file into iso
