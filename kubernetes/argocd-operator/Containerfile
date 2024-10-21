@@ -1,0 +1,1 @@
+FROM quay.io/argoprojlabs/argocd-operator-registry@sha256:72a4c53d2baaddd7c770063735e8a62a3f56bb5c0a72b4277435773f305ac376
