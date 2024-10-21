@@ -32,11 +32,6 @@
         "name": "hello.service"
       },
       {
-        "contents": "[Unit]\nDescription=Run single node etcd\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nExecStartPre=mkdir -p /var/lib/etcd\nExecStartPre=-/bin/podman kill etcd\nExecStartPre=-/bin/podman rm etcd\nExecStartPre=-/bin/podman pull quay.io/coreos/etcd\nExecStart=/bin/podman run --name etcd --volume /var/lib/etcd:/etcd-data:z --net=host quay.io/coreos/etcd:latest /usr/local/bin/etcd --data-dir /etcd-data --name node1 \\\n        --initial-advertise-peer-urls http://127.0.0.1:2380 --listen-peer-urls http://127.0.0.1:2380 \\\n        --advertise-client-urls http://127.0.0.1:2379 \\\n        --listen-client-urls http://127.0.0.1:2379 \\\n        --initial-cluster node1=http://127.0.0.1:2380\n\nExecStop=/bin/podman stop etcd\n\n[Install]\nWantedBy=multi-user.target\n",
-        "enabled": true,
-        "name": "etcd-member.service"
-      },
-      {
         "dropins": [
           {
             "contents": "[Service]\nEnvironmentFile=/etc/example-proxy.env\n",
