@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: jenniferpweir-com-issuer
+spec:
+  acme:
+    email: contact@jenniferpweir.com
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: jenniferpweir-com-priv-key
+    solvers:
+    - dns01:
+        cloudDNS:
+          project: pi-cluster-433101
