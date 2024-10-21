@@ -17,9 +17,7 @@ spec:
     spec:
       containers:
         - name: registry-server
-          # https://argocd-operator.readthedocs.io/en/latest/install/olm/
-          # https://quay.io/repository/argoprojlabs/argocd-operator-registry?tab=tags&tag=latest
-          image: 
+          image: quay.io/jennweir/argocd-operator:10.20.2024@sha256:03f93aec2ff1e6a73979f89e6d96426a55ecdada32b3272534d2aeae782a99c8
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
