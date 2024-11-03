@@ -19,3 +19,10 @@ Use contents from Containerfile for source repository:
 `podman tag argocd-operator:<date.of.build> quay.io/jennweir/argocd-operator:<date.of.build>`
 
 `podman push quay.io/jennweir/argocd-operator:<date.of.build>`
+
+## ArgoCD operator
+
+```bash
+kubectl create -f https://operatorhub.io/install/argocd-operator.yaml
+kubectl get csv -n operators
+```
