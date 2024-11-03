@@ -15,3 +15,10 @@
 ## Once finished, shut down each machine individually
 
 `sudo shutdown -h now`
+
+## Operators
+
+```bash
+brew install operator-sdk 
+operator-sdk olm install
+```
