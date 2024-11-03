@@ -4,7 +4,6 @@ metadata:
   name: jenniferpweir-com
   namespace: default
 spec:
-  secretName: jenniferpweir-com-tls
   issuerRef:
     name: jenniferpweir-com-issuer
     kind: ClusterIssuer
