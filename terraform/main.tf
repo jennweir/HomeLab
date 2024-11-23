@@ -12,3 +12,22 @@ resource "google_service_account_iam_member" "cert_manager_binding" {
     role               = "roles/iam.workloadIdentityUser"
     member             = "principal://iam.googleapis.com/projects/${local.K8S_GCP_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${local.K8S_WORKLOAD_IDENTITY_POOL}/subject/${local.K8S_NAMESPACE_CERT_MAN}/${local.K8S_SERVICE_ACCOUNT_CERT_MAN}"
 }
+
+data "google_project" "pi_homelab_bucket" {
+    project_id = "pi-cluster-433101"
+}
+
+resource "google_storage_bucket" "pi_homelab_bucket" {
+    project = data.google_project.pi_homelab_bucket.project_id
+    name = "pi-cluster-bucket"
+    location = "US"
+    force_destroy = true
+    public_access_prevention = "inherited"
+    uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket_iam_member" "pi_homelab_bucket" {
+    bucket = google_storage_bucket.pi_homelab_bucket.name
+    role   = "roles/storage.objectViewer"
+    member = "allUsers"
+}
