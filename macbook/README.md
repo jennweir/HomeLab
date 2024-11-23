@@ -14,7 +14,7 @@
 
 ## Once finished, shut down each machine individually
 
-`sudo shutdown -h now`
+`sudo shutdown -h 1`
 
 ## Operators
 

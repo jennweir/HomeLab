@@ -54,8 +54,8 @@
     ansible.builtin.shell: |
       kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
     become: no
-  
-  - name: Change the kubernetes-dashboard service type to LoadBalancer
+
+  - name: Install nginx ingress controller
     ansible.builtin.shell: |
-      kubectl patch svc kubernetes-dashboard -n kubernetes-dashboard -p '{"spec": {"type": "LoadBalancer"}}'
-    become: no
+      kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0-beta.0/deploy/static/provider/cloud/deploy.yaml
+    become no
