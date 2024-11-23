@@ -18,3 +18,11 @@ Address: 142.250.190.14
 
 pod "dns-test" deleted
 ```
+
+## Add public OIDC endpoint to kube-apiserver manifests with these flags. ssh into node, then
+
+```bash
+/etc/kubernetes/manifests/kube-apiserver.yaml
+- --service-account-issuer=https://storage.googleapis.com/pi-cluster-bucket
+- --service-account-jwks-uri=https://storage.googleapis.com/pi-cluster-bucket/openid/v1/jwks
+```

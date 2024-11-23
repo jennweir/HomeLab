@@ -19,6 +19,16 @@ sudo kubeadm join local-main-IP:6443 --token token-here \
 --discovery-token-ca-cert-hash sha256:sha256-value-here
 ```
 
+### Assigning workers explicitly with label
+
+```bash
+kubectl get nodes
+kubectl label nodes raspberry-pi-2 node-role.kubernetes.io/worker=worker
+kubectl label nodes raspberry-pi-3 node-role.kubernetes.io/worker=worker
+kubectl get nodes --show-labels
+kubectl get nodes
+```
+
 ## Useful Links
 
 [https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html](https://docs.ansible.com/ansible/latest/network/getting_started/first_playbook.html)
