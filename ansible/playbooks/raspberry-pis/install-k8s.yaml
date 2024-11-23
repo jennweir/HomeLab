@@ -132,7 +132,7 @@
   - name: Create keyrings directory and import GPG key
     shell: |
       mkdir -p /etc/apt/keyrings
-      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | gpg --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null 2>&1
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null 2>&1
     args:
       removes: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
