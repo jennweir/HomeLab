@@ -1,0 +1,12 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+namespace: cert-manager
+resources:
+  - certificate.yaml
+  - clusterissuer.yaml
+  - crd.yaml
+  - serviceaccount.yaml
+configMapGenerator:
+  - name: cert-manager-creds-config
+    files:
+      - config/credential-configuration.json
