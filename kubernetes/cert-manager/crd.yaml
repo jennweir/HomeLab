@@ -9123,6 +9123,20 @@ spec:
         - name: creds-config-volume
           configMap:
             name: cert-manager-creds-config
+        - name: gcp-ksa
+          projected:
+            defaultMode: 420
+            sources:
+              - serviceAccountToken:
+                  audience: k8s
+                  expirationSeconds: 3600
+                  path: token
+              - configMap:
+                  items:
+                    - key: cert-manager/jenniferpweir-com-1-3262807617-979735213
+                      path: config/credential-configuration.json
+                  name: cert-manager-creds-config
+                  optional: false
 ---
 # Source: cert-manager/templates/webhook-deployment.yaml
 apiVersion: apps/v1
