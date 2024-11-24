@@ -45,11 +45,6 @@
       kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
     become: no
 
-  - name: Change the argocd-server service type to LoadBalancer
-    ansible.builtin.shell: |
-      kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
-    become: no
-
   - name: Deploy k8s dashboard
     ansible.builtin.shell: |
       kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml

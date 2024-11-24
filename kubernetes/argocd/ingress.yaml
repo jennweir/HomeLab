@@ -1,20 +1,20 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: kubernetes-dashboard-ingress
-  namespace: kubernetes-dashboard
+  name: argocd-ingress
+  namespace: argocd
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
-  - host: dashboard.jenniferpweir.com
+  - host: argocd.jenniferpweir.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: kubernetes-dashboard
+            name: argocd-server
             port:
               number: 80

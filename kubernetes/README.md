@@ -19,10 +19,25 @@ Address: 142.250.190.14
 pod "dns-test" deleted
 ```
 
-## Add public OIDC endpoint to kube-apiserver manifests with these flags. ssh into node, then
+## Add public OIDC endpoint to kube-apiserver manifests with these flags. ssh into node, then add the following to `/etc/kubernetes/manifests/kube-apiserver.yaml` on master node
 
 ```bash
-/etc/kubernetes/manifests/kube-apiserver.yaml
-- --service-account-issuer=https://storage.googleapis.com/pi-cluster-bucket
-- --service-account-jwks-uri=https://storage.googleapis.com/pi-cluster-bucket/openid/v1/jwks
+- --service-account-issuer=https://storage.googleapis.com/pi-cluster
+- --service-account-jwks-uri=https://storage.googleapis.com/pi-cluster/openid/v1/jwks
+```
+
+```bash
+kubectl create token -n default default | jc --jwt -p # creates token using public oidc issuer from gcp bucket
+
+kubectl get --raw /.well-known/openid-configuration | gcloud storage cp --cache-control=no-cache /dev/stdin gs://pi-cluster-bucket/.well-known/openid-configuration
+
+kubectl get --raw /openid/v1/jwks | gcloud storage cp --cache-control=no-cache /dev/stdin gs://pi-cluster-bucket/openid/v1/jwks
+
+# ------------------------------------------------
+
+kubectl create token -n cert-manager cert-manager | jc --jwt -p
+
+kubectl get --raw /.well-known/openid-configuration | gcloud storage cp --cache-control=no-cache /dev/stdin gs://pi-cluster-bucket/.well-known/openid-configuration-cert-manager
+
+kubectl get --raw /openid/v1/jwks | gcloud storage cp --cache-control=no-cache /dev/stdin gs://pi-cluster-bucket/openid/v1/jwks-cert-manager
 ```
