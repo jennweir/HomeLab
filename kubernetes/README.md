@@ -23,7 +23,7 @@ pod "dns-test" deleted
 
 ```bash
 - --service-account-issuer=https://storage.googleapis.com/pi-cluster # name of the storage bucket containing oidc token
-- --service-account-jwks-uri=https://storage.googleapis.com/pi-cluster/openid/v1/jwks-cert-manager
+- --service-account-jwks-uri=https://storage.googleapis.com/pi-cluster/openid/v1/jwks-cert-manager # jwks-cert-manager because cert-manager suffix was added to openid-configuration-cert-manager
 ```
 
 ```bash
