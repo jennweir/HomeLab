@@ -10,7 +10,7 @@ data "google_project" "pi_cluster" {
 
 resource "google_storage_bucket" "pi_homelab_bucket" {
     project = data.google_project.pi_cluster.project_id
-    name = "pi-cluster-bucket"
+    name = "pi-cluster"
     location = "US"
     force_destroy = true
     public_access_prevention = "inherited"
