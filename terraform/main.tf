@@ -1,5 +1,5 @@
 locals {
-    K8S_WORKLOAD_IDENTITY_POOL = "homelab-pi-cluster"
+    K8S_WORKLOAD_IDENTITY_POOL = "pi-cluster"
     K8S_NAMESPACE_CERT_MAN = "cert-manager"
     K8S_SERVICE_ACCOUNT_CERT_MAN = "cert-manager"
 }
@@ -25,8 +25,8 @@ resource "google_storage_bucket_iam_member" "pi_homelab_bucket" {
 
 resource "google_iam_workload_identity_pool" "pi_cluster" {
     project                   = data.google_project.pi_cluster.project_id
-    workload_identity_pool_id = "homelab-pi-cluster"
-    display_name              = "homelab-pi-cluster"
+    workload_identity_pool_id = "pi-cluster"
+    display_name              = "pi-cluster"
     description               = "created with terraform"
 }
 
