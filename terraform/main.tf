@@ -58,7 +58,7 @@ resource "google_project_iam_member" "dns_solver_dns_admin" {
     member  = "serviceAccount:${google_service_account.dns_solver.email}" # cert-manager-dns-solver@pi-cluster-433101.iam.gserviceaccount.com
 }
 
-# k8s service account cer-manager to google service account cert-manager-dns-solver
+# k8s service account cert-manager to google service account cert-manager-dns-solver
 resource "google_service_account_iam_member" "cert_manager_binding" {
     service_account_id = google_service_account.dns_solver.id
     role               = "roles/iam.workloadIdentityUser"

@@ -1,12 +1,49 @@
 kind: Kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
-namespace: cert-manager
 resources:
   - certificate.yaml
   - clusterissuer.yaml
   - crd.yaml
-  - serviceaccount.yaml
+namespace: cert-manager
+patches:
+  - target:
+      kind: Deployment
+      name: cert-manager
+      namespace: cert-manager
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/1
+        value:
+          name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/run/secrets/google/credential-configuration.json
+      - op: add
+        path: /spec/template/spec/containers/0/volumeMounts
+        value:
+          - name: credential-configuration-volume
+            mountPath: /var/run/secrets/google
+            readOnly: true
+      - op: add
+        path: /spec/template/spec/volumes
+        value:
+          - name: credential-configuration-volume
+            configMap:
+              name: google-creds
+              items:
+                - key: google-creds
+                  path: credential-configuration.json
+              optional: false
+  - target:
+      kind: ServiceAccount
+      name: cert-manager
+      namespace: cert-manager
+    patch: |-
+      - op: add
+        path: /metadata/annotations/iam.gke.io~1gcp-service-account
+        value: "cert-manager-dns-solver@pi-cluster-433101.iam.gserviceaccount.com"
 configMapGenerator:
-  - name: cert-manager-creds-config
+  - name: google-creds
+    namespace: cert-manager
+    options:
+      disableNameSuffixHash: true
     files:
-      - config/credential-configuration.json
+      - google-creds=./config/credential-configuration.json

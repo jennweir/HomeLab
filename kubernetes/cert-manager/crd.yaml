@@ -8205,7 +8205,48 @@ spec:
 
 # END crd
 
-
+---
+# Source: cert-manager/templates/cainjector-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: cert-manager-cainjector
+  namespace: cert-manager
+  labels:
+    app: cainjector
+    app.kubernetes.io/name: cainjector
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "cainjector"
+    app.kubernetes.io/version: "v1.15.2"
+---
+# Source: cert-manager/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+  labels:
+    app: cert-manager
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "controller"
+    app.kubernetes.io/version: "v1.15.2"
+---
+# Source: cert-manager/templates/webhook-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: cert-manager-webhook
+  namespace: cert-manager
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/component: "webhook"
+    app.kubernetes.io/version: "v1.15.2"
 ---
 # Source: cert-manager/templates/cainjector-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -9076,10 +9117,6 @@ spec:
         - name: cert-manager-controller
           image: "quay.io/jetstack/cert-manager-controller:v1.15.2"
           imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - name: creds-config-volume
-              mountPath: /etc/creds
-              readOnly: true
           args:
           - --v=2
           - --cluster-resource-namespace=$(POD_NAMESPACE)
@@ -9119,24 +9156,6 @@ spec:
             failureThreshold: 8
       nodeSelector:
         kubernetes.io/os: linux
-      volumes:
-        - name: creds-config-volume
-          configMap:
-            name: cert-manager-creds-config
-        - name: gcp-ksa
-          projected:
-            defaultMode: 420
-            sources:
-              - serviceAccountToken:
-                  audience: k8s
-                  expirationSeconds: 3600
-                  path: token
-              - configMap:
-                  items:
-                    - key: cert-manager/jenniferpweir-com-1-3262807617-979735213
-                      path: config/credential-configuration.json
-                  name: cert-manager-creds-config
-                  optional: false
 ---
 # Source: cert-manager/templates/webhook-deployment.yaml
 apiVersion: apps/v1
