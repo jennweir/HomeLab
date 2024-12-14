@@ -2,7 +2,7 @@
 
 To get token:
 
-`kubectl -n kubernetes-dashboard create token admin-user`
+`kubectl -n kubernetes-dashboard create token admin-user | pbcopy`
 
 ## Note
 
@@ -10,7 +10,4 @@ To get token:
 
 ### DNS resolution?
 
-```bash
-/etc/hosts
-10.0.0.246 dashboard.jenniferpweir.com
-```
+todo
