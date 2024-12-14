@@ -1,14 +1,14 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: jenniferpweir-com
+  name: wildcard-jenniferpweir-com
   namespace: cert-manager
 spec:
-  secretName: jenniferpweir-com-tls
+  secretName: wildcard-jenniferpweir-com-tls
   issuerRef:
     name: jenniferpweir-com-issuer
     kind: ClusterIssuer
-  commonName: www.jenniferpweir.com
+  commonName: "*.jenniferpweir.com"
   dnsNames:
-  - jenniferpweir.com
-  - www.jenniferpweir.com
+  - "*.jenniferpweir.com"
+  - "jenniferpweir.com"
