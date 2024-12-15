@@ -15,23 +15,30 @@ patches:
         path: /spec/template/spec/containers/0/env/1
         value:
           name: GOOGLE_APPLICATION_CREDENTIALS
-          value: /var/run/secrets/google/credential-configuration.json
+          value: /var/run/secrets/tokens/gcp-ksa/credential-configuration.json
       - op: add
         path: /spec/template/spec/containers/0/volumeMounts
         value:
-          - name: credential-configuration-volume
-            mountPath: /var/run/secrets/google
+          - name: gcp-ksa
+            mountPath: /var/run/secrets/tokens/gcp-ksa
             readOnly: true
       - op: add
         path: /spec/template/spec/volumes
         value:
-          - name: credential-configuration-volume
-            configMap:
-              name: google-creds
-              items:
-                - key: google-creds
-                  path: credential-configuration.json
-              optional: false
+          - name: gcp-ksa
+            projected:
+              defaultMode: 420
+              sources:
+                - serviceAccountToken:
+                    audience: //iam.googleapis.com/projects/494599251997/locations/global/workloadIdentityPools/pi-cluster/providers/pi-cluster
+                    expirationSeconds: 3600
+                    path: token
+                - configMap:
+                    items:
+                      - key: credential-configuration.json
+                        path: credential-configuration.json
+                    name: creds-config
+                    optional: false
   - target:
       kind: ServiceAccount
       name: cert-manager
@@ -41,9 +48,9 @@ patches:
         path: /metadata/annotations/iam.gke.io~1gcp-service-account
         value: "cert-manager-dns-solver@pi-cluster-433101.iam.gserviceaccount.com"
 configMapGenerator:
-  - name: google-creds
+  - name: creds-config
     namespace: cert-manager
     options:
       disableNameSuffixHash: true
     files:
-      - google-creds=./config/credential-configuration.json
+      - config/credential-configuration.json
