@@ -18,3 +18,9 @@ Address: 142.250.190.14
 
 pod "dns-test" deleted
 ```
+
+## Debug pod
+
+`kubectl run debug-pod -n cert-manager --image=alpine --restart=Never -- sleep 1d`
+
+`kubectl exec -it debug-pod -n cert-manager -- ls <path>`

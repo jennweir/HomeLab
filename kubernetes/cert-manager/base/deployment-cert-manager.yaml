@@ -63,8 +63,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /var/run/secrets/tokens/gcp-ksa/credential-configuration.json
           livenessProbe:
             httpGet:
               port: http-healthz
@@ -75,24 +73,5 @@ spec:
             timeoutSeconds: 15
             successThreshold: 1
             failureThreshold: 8
-          volumeMounts:
-            - mountPath: /var/run/secrets/tokens/gcp-ksa
-              name: gcp-ksa
-              readOnly: true
       nodeSelector:
         kubernetes.io/os: linux
-      volumes:
-        - name: gcp-ksa
-          projected:
-            defaultMode: 420
-            sources:
-              - serviceAccountToken:
-                  audience: k3s
-                  expirationSeconds: 3600
-                  path: token
-              - configMap:
-                  items:
-                    - key: credential-configuration.json
-                      path: credential-configuration.json
-                  name: default-creds-config
-                  optional: false
