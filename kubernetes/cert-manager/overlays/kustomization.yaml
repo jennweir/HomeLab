@@ -46,7 +46,7 @@ patches:
     patch: |-
       - op: add
         path: /metadata/annotations/iam.gke.io~1gcp-service-account
-        value: "cert-manager-dns-solver@pi-cluster-433101.iam.gserviceaccount.com"
+        value: "cert-manager-dns-solver-sa@pi-cluster-433101.iam.gserviceaccount.com"
 configMapGenerator:
   - name: creds-config
     namespace: cert-manager
