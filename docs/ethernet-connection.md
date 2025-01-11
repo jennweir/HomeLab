@@ -12,7 +12,7 @@ Check connected device is accessible from router
 
 `ping -I <device-name> <router-ip>`
 
-Confirm connection to machine at ethernet ip is successul
+Confirm connection to machine at ethernet ip is successful
 
 `ssh user@<ethernet-ip>`
 
