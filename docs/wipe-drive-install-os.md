@@ -48,7 +48,7 @@ Install new OS
 > Steps completed here were to install Fedora Linux
 
 - Select "Install Fedora" and complete steps
-- Installation Destination > Choose disk to install Fedora on
+- Installation Destination > Choose disk
 - Enable Root account and set password
 - Set Network & Host Name settings
 
