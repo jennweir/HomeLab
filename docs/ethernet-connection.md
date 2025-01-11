@@ -20,6 +20,14 @@ Disconnect wifi connection
 
 `sudo nmcli radio wifi off`
 
+## Ensure ethernet connection comes up after machine is restarted
+
+`nmcli connection show <device-name>`
+
+Set connection.autoconnect to yes
+
+`nmcli connection modify <device-name> connection.autoconnect yes`
+
 ## Renew a DHCP lease
 
 `sudo dhclient -r <device-name>`
