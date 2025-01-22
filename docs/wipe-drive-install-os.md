@@ -41,6 +41,11 @@ Advanced > Boot Options > adjust UEFI Boot Order to boot into USB first > Main >
 
 Security > Hard Drive Utilities > Secure Erase > Enter DriveLock password to allow drive to be erased > Enhanced > Main > Save Changes and Exit
 
+> If secure erase is not an option, F2 to get shell during install and format drives
+> `nvme format /dev/nvme0n1 --ses=1` to format nvme ssd
+> `hdparm -I /dev/sda | grep -i erase` to check if secure erase is supported via cli for hdd
+> `sudo dd if=/dev/zero of=/dev/sd<X> bs=1M` to overwrite with zeros as another option
+
 ### On fourth boot (into USB media)
 
 Install new OS
