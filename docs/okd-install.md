@@ -2,6 +2,8 @@
 
 <https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html#installation-obtaining-installer_installing-bare-metal>
 
+<https://docs.okd.io/4.17/installing/installing_platform_agnostic/installing-platform-agnostic.html>
+
 ## VM base image creation
 
 ```bash
