@@ -31,3 +31,14 @@ Set connection.autoconnect to yes
 ## Renew a DHCP lease
 
 `sudo dhclient -r <device-name>`
+
+## Swap wifi connections
+
+Closes original connection to host and allows you to start new ssh connection
+
+```bash
+sudo nmcli connection add type wifi ifname wlan0 con-name <new-wifi-ssid-connection-name> ssid <new-wifi-ssid>
+sudo nmcli connection modify <new-wifi-ssid> wifi-sec.key-mgmt wpa-psk wifi-sec.psk "<new-wifi-ssid-password>"
+sudo nmcli connection modify <new-wifi-ssid> connection.autoconnect yes
+sudo nmcli connection up <new-wifi-ssid>
+```
