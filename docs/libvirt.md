@@ -4,14 +4,18 @@
 
 `sudo dnf install tmux`
 
-## Install libvirt
+## Install libvirt and related plugins
+
+<https://docs.fedoraproject.org/en-US/fedora-server/virtualization/installation/#_finishing_cockpit_machines_configuration>
 
 <https://wiki.libvirt.org/Networking.html>
 
+<https://www.reddit.com/r/qemu_kvm/comments/13uc290/vm_on_the_local_network/>
+
+<https://linuxconfig.org/how-to-use-bridged-networking-with-libvirt-and-kvm>
+
 ```bash
-sudo dnf install @virtualization
-sudo systemctl enable --now libvirtd
-sudo systemctl status libvirtd
+sudo dnf install qemu-kvm-core libvirt virt-install cockpit-machines guestfs-tools
 ```
 
 > Installing libvirt creates the interface virbr0 since it is defaultly configured to use NAT forwarding
@@ -59,7 +63,7 @@ nmcli connection up eno1
 
 ```bash
 vgdisplay
-lvcreate -L 100G -n <disk-name> <volume-group-name>
+lvcreate -L 140G -n <disk-name> <volume-group-name>
 lvdisplay /dev/<volume-group-name>/<disk-name>
 mkfs.ext4 /dev/<volume-group-name>/<disk-name> # format each logical volume before using it
 lvs # to view summarized view of logical volumes
@@ -69,48 +73,51 @@ vgs # status of your volume groups and their allocated space
 ## Create a vm
 
 ```bash
-virt-install \
-  --name=cp-# \
-  --vcpus=4 \
-  --memory=16384 \
-  --location=/var/lib/libvirt/images/fedora-coreos-39.iso \
-  --disk path=/dev/<volume-group-name>/<disk-name> \
-  --os-variant=fedora-coreos-stable \
-  --network bridge=br0,model=virtio \
-  --graphics none \
-  --console pty,target_type=serial
+# control plane and bootstrap
+IGNITION_CONFIG="<ign-config>"
+IMAGE="/var/lib/libvirt/images/<image>"
+VM_NAME="<vm>"
+VCPUS="<#>"
+RAM_MB="<#>"
+STREAM="stable"
+DISK_NAME="path=/dev/fedora/<lv>"
+# For x86 / aarch64,
+IGNITION_DEVICE_ARG=(--qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=${IGNITION_CONFIG}")
+
+# Setup the correct SELinux label to allow access to the config
+chcon --verbose --type svirt_home_t ${IGNITION_CONFIG}
+
+virt-install --connect="qemu:///system" --name="${VM_NAME}" --vcpus="${VCPUS}" --memory="${RAM_MB}" \
+        --os-variant="fedora-coreos-$STREAM" --import --graphics=none \
+        --disk="${DISK_NAME}" \
+        --network network=br0 "${IGNITION_DEVICE_ARG[@]}"
 ```
 
-```bash
-virt-install \
-  --name=bootstrap \
-  --vcpus=4 \
-  --memory=16384 \
-  --cdrom=/var/lib/libvirt/images/fedora-coreos-39.iso \
-  --disk path=/dev/fedora/bootstrap-disk \
-  --os-variant=fedora-coreos-stable \
-  --network bridge=br0,model=virtio \
-  --graphics none \
-  --console pty,target_type=serial
-```
+### Create bridged network
 
 ```bash
-virt-install \
-  --name=worker-# \
-  --vcpus=2 \
-  --memory=8192 \
-  --cdrom=/var/lib/libvirt/images/fedora-coreos-39.iso \
-  --disk path=/dev/<volume-group-name>/<disk-name> \
-  --os-variant=fedora-coreos-stable \
-  --network bridge=br0,model=virtio \
-  --graphics none \
-  --console pty,target_type=serial
+vi br0.xml
+cat br0.xml
+<network>
+  <name>br0</name>
+  <bridge name="br0" />
+  <forward mode="bridge"/>
+</network>
+virsh net-define br0.xml
+virsh net-start br0
+virsh net-autostart br0
+virsh net-list
+# deactivate default libvirt NAT network using device virbr0
+virsh net-undefine virbr0
+
+# configure virtual nic to use this network
+sudo brctl addif br0 vnet0
+sudo ip link set vnet0 up
+virsh domiflist <vm>
 ```
 
-```bash
-journalctl -f # to see status
-virsh list --all
-virsh --connect qemu:///system console <vm>
-virsh console <vm>
-virsh domifaddr <vm>
-```
+`journalctl -xe | grep -i libvirt`
+
+## Cockpit Configuration
+
+<https://docs.fedoraproject.org/en-US/fedora-server/virtualization/vm-management-cockpit/>
