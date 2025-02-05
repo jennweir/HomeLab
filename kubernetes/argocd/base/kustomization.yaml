@@ -1,0 +1,5 @@
+apiVersion: v1beta1
+kind: Kustomization
+resources:
+  - argocd.yaml
+  - namespace.yaml
