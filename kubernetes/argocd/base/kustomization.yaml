@@ -1,5 +1,9 @@
 apiVersion: v1beta1
 kind: Kustomization
+metadata:
+  labels:
+    app.kubernetes.io/instance: argocd
+  namespace: argocd
 resources:
   - argocd.yaml
   - namespace.yaml
