@@ -1,5 +1,5 @@
 /secrets
-.kube/
+.kube/*
 
 # Terraform
 .terraform
