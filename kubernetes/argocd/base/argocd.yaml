@@ -2,8 +2,9 @@ kind: ArgoCD
 apiVersion: argoproj.io/v1beta1
 metadata:
   name: argocd
-  namespace: openshift-operators
+  namespace: argocd
 spec:
+  applicationInstanceLabelKey: argocd.argoproj.io/instance
   controller:
     resources:
       limits:
