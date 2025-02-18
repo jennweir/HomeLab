@@ -2,9 +2,8 @@ kind: ArgoCD
 apiVersion: argoproj.io/v1beta1
 metadata:
   name: argocd
-  namespace: argocd
+  namespace: openshift-operators
 spec:
-  applicationInstanceLabelKey: argocd.argoproj.io/instance
   controller:
     resources:
       limits:
@@ -58,7 +57,3 @@ spec:
   #         cpu: 250m
   #         memory: 128Mi
   #   provider: dex
-  rbac:
-    policy: |
-      g, system:cluster-admins, role:admin
-      g, cluster-admins, role:admin
