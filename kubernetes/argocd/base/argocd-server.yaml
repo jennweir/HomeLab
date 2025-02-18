@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  labels:
+    app.kubernetes.io/component: server
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/part-of: argocd
+  name: argocd-server
+  namespace: argocd
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/name: argocd-server
+    spec:
+      containers:
+      - command:
+        - argocd-server
+        - --staticassets
+        - /shared/app
+        - --dex-server
+        - https://argocd-dex-server.argocd.svc.cluster.local:5556
+        - --repo-server
+        - argocd-repo-server.argocd.svc.cluster.local:8081
+        - --redis
+        - argocd-redis.argocd.svc.cluster.local:6379
+        - --loglevel
+        - info
+        - --logformat
+        - text
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: admin.password
+              name: argocd-redis-initial-password
+        image: quay.io/argoproj/argocd@sha256:19608c266cc41e4986d9b1c2b79ea4c42bb9430269eefc5005e9d65be4d22868
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 3
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: argocd-server
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        - containerPort: 8083
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 3
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 500m
+            memory: 256Mi
+          requests:
+            cpu: 125m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /app/config/ssh
+          name: ssh-known-hosts
+        - mountPath: /app/config/tls
+          name: tls-certs
+        - mountPath: /app/config/server/tls
+          name: argocd-repo-server-tls
+        - mountPath: /app/config/server/tls/redis
+          name: argocd-operator-redis-tls
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubernetes.io/os: linux
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: argocd-argocd-server
+      serviceAccountName: argocd-argocd-server
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: argocd-ssh-known-hosts-cm
+        name: ssh-known-hosts
+      - configMap:
+          defaultMode: 420
+          name: argocd-tls-certs-cm
+        name: tls-certs
+      - name: argocd-repo-server-tls
+        secret:
+          defaultMode: 420
+          optional: true
+          secretName: argocd-repo-server-tls
+      - name: argocd-operator-redis-tls
+        secret:
+          defaultMode: 420
+          optional: true
+          secretName: argocd-operator-redis-tls
