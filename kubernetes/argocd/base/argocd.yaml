@@ -2,6 +2,7 @@ kind: ArgoCD
 apiVersion: argoproj.io/v1beta1
 metadata:
   name: argocd
+  namespace: argocd
 spec:
   applicationInstanceLabelKey: argocd.argoproj.io/instance
   controller:
@@ -47,17 +48,13 @@ spec:
         memory: 128Mi
     route:
       enabled: true
-  # sso:
-  #   dex:
-  #     resources:
-  #       limits:
-  #         cpu: 500m
-  #         memory: 256Mi
-  #       requests:
-  #         cpu: 250m
-  #         memory: 128Mi
-  #   provider: dex
-  rbac:
-    policy: |
-      g, system:cluster-admins, role:admin
-      g, cluster-admins, role:admin
+  sso:
+    dex:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 256Mi
+        requests:
+          cpu: 250m
+          memory: 128Mi
+    provider: dex
