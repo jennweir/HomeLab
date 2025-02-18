@@ -6,4 +6,5 @@ metadata:
   namespace: argocd
 resources:
   - argocd.yaml
+  - argocd-server.yaml
   - namespace.yaml
