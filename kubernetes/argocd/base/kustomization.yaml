@@ -8,3 +8,4 @@ resources:
   - argocd.yaml
   - argocd-server.yaml
   - namespace.yaml
+  - rbac.yaml
