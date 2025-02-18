@@ -3,9 +3,6 @@ kind: Kustomization
 metadata:
   labels:
     app.kubernetes.io/instance: argocd
-  namespace: argocd
+  namespace: openshift-operators
 resources:
   - argocd.yaml
-  - argocd-server.yaml
-  - namespace.yaml
-  - rbac.yaml
