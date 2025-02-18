@@ -5,6 +5,8 @@ metadata:
     openshift.io/description: "Platform ArgoCD"
     openshift.io/display-name: "ArgoCD"
   labels:
+    argocd.argoproj.io/managed-by: argocd
+    kubernetes.io/metadata.name: argocd
     pod-security.kubernetes.io/audit: privileged
     pod-security.kubernetes.io/audit-version: latest
     pod-security.kubernetes.io/warn: privileged
