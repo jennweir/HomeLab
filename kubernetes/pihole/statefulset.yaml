@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pihole
+  namespace: pihole
+spec:
+  selector:
+    matchLabels:
+      app: pihole
+  serviceName: pihole
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: pihole
+    spec:
+      containers:
+        - name: pihole
+          image: pihole/pihole@sha256:6c872c3f8f1954423dbd1c7db661719b447e7b890e231489ada2a6a2904342ff # 2025.03.0
+          envFrom:
+            - configMapRef:
+                name: pihole-configmap
+          env:
+            - name: INTERFACE
+              value: wlan0 # TODO: get more ethernet cables
+          ports:
+            - name: svc-80-tcp-web
+              containerPort: 80
+              protocol: TCP
+            - name: svc-53-udp-dns
+              containerPort: 53
+              protocol: UDP
+            - name: svc-53-tcp-dns
+              containerPort: 53
+              protocol: TCP
+          # TODO: fix probes; worked on 2022.12.01 image; failing with 403 in pihole v6.05
+          # livenessProbe:
+          #   httpGet:
+          #     port: svc-80-tcp-web
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 5
+          # readinessProbe:
+          #   httpGet:
+          #     port: svc-80-tcp-web
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 10
+          #   failureThreshold: 10
+          volumeMounts:
+            - name: pihole-etc-pihole
+              mountPath: /etc/pihole
+            - name: pihole-etc-dnsmasq
+              mountPath: /etc/dnsmasq.d
+  volumeClaimTemplates:
+    - metadata:
+        name: pihole-etc-pihole
+        namespace: pihole
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 3Gi
+    - metadata:
+        name: pihole-etc-dnsmasq
+        namespace: pihole
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 3Gi

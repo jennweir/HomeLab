@@ -3,10 +3,12 @@ kind: Ingress
 metadata:
   name: kubernetes-dashboard-ingress
   namespace: kubernetes-dashboard
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - dashboard.jenniferpweir.com
+    secretName: kubernetes-dashboard-cert
   rules:
   - host: dashboard.jenniferpweir.com
     http:
@@ -17,4 +19,4 @@ spec:
           service:
             name: kubernetes-dashboard
             port:
-              number: 80
+              number: 443
