@@ -3,6 +3,9 @@
   hosts: k8s_main
   become: yes
   tasks:
+  # mkdir -p $HOME/.kube
+  # sudo cp /etc/kubernetes/admin.conf /root/.kube/config
+
   # - name: Create the .kube directory
   #   ansible.builtin.file:
   #     path: "{{ ansible_env.HOME }}/.kube"
@@ -19,10 +22,7 @@
   #     cmd: chown $(id -u):$(id -g) $HOME/.kube/config
   #   become: yes
 
-  # sudo rm -rf /root/.kube/config
-  # sudo cp /etc/kubernetes/admin.conf /root/.kube/config
-  # sudo chown root:root /root/.kube/config
-  # sudo chmod 600 /root/.kube/config
+# sudo systemctl start kubelet
   
   - name: Apply flannel to the cluster
     ansible.builtin.shell: |
@@ -53,4 +53,5 @@
   - name: Install nginx ingress controller
     ansible.builtin.shell: |
       kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0-beta.0/deploy/static/provider/cloud/deploy.yaml
-    become no
+    become: no
+  

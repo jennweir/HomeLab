@@ -1,11 +1,12 @@
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: first-pool
+  name: lb-pool
   namespace: metallb-system
 spec:
   addresses:
-  - 10.0.0.244-10.0.0.253
+  - 192.168.0.60-192.168.0.64 # TODO: fix available home IP space
+  - 192.168.0.252-192.168.0.253
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
