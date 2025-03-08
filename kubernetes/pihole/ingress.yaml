@@ -4,7 +4,6 @@ metadata:
   name: pihole-ingress
   namespace: pihole
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /admin
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx

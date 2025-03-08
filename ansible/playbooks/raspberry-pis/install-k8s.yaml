@@ -20,7 +20,7 @@
       pre_reboot_delay: 0
       post_reboot_delay: 30
 
-  - name: Check whether a package called dphys-swapfile is installed
+  - name: Check whether package dphys-swapfile is installed
     ansible.builtin.package_facts:
       manager: auto
 
@@ -132,9 +132,7 @@
   - name: Create keyrings directory and import GPG key
     shell: |
       mkdir -p /etc/apt/keyrings
-      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg > /dev/null 2>&1
-    args:
-      removes: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
   - name: Clean apt cache
     command: apt-get clean

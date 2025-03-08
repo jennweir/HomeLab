@@ -16,12 +16,10 @@ spec:
     spec:
       containers:
         - name: pihole
-          image: pihole/pihole:2022.12.1
+          image: pihole/pihole@sha256:6c872c3f8f1954423dbd1c7db661719b447e7b890e231489ada2a6a2904342ff # 2025.03.0
           envFrom:
             - configMapRef:
                 name: pihole-configmap
-            - secretRef:
-                name: pihole-password
           env:
             - name: INTERFACE
               value: wlan0 # TODO: get more ethernet cables
@@ -35,17 +33,18 @@ spec:
             - name: svc-53-tcp-dns
               containerPort: 53
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              port: svc-80-tcp-web
-            initialDelaySeconds: 10
-            periodSeconds: 5
-          readinessProbe:
-            httpGet:
-              port: svc-80-tcp-web
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            failureThreshold: 10
+          # TODO: fix probes; worked on 2022.12.01 image; failing with 403 in pihole v6.05
+          # livenessProbe:
+          #   httpGet:
+          #     port: svc-80-tcp-web
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 5
+          # readinessProbe:
+          #   httpGet:
+          #     port: svc-80-tcp-web
+          #   initialDelaySeconds: 10
+          #   periodSeconds: 10
+          #   failureThreshold: 10
           volumeMounts:
             - name: pihole-etc-pihole
               mountPath: /etc/pihole

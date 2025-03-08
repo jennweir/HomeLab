@@ -1,11 +1,9 @@
 [pis]
-10.0.0.101 ansible_user=pi-1
-10.0.0.102 ansible_user=pi-2
-10.0.0.103 ansible_user=pi-3
+192.168.0.251 ansible_user=pi
+192.168.0.129 ansible_user=pi
 
 [k8s_main]
-10.0.0.101
+192.168.0.129
 
 [k8s_worker]
-10.0.0.102
-10.0.0.103
+192.168.0.251

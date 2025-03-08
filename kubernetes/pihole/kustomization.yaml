@@ -10,6 +10,6 @@ resources:
   - ingress.yaml
   - namespace.yaml
   - pv.yaml
-  - secret.yaml
+  # - secret.yaml
   - statefulset.yaml
   - web-service.yaml
