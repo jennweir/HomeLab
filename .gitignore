@@ -6,3 +6,10 @@
 terraform.tfstate*
 
 *.iso
+
+auth
+secret
+
+*.crt
+*.key
+*.pem

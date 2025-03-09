@@ -8,11 +8,36 @@
 
 ```sudo kubeadm init --pod-network-cidr=10.244.0.0/16```
 
-## Install main node with the install-main playbook
+## Get kubeconfig
 
-```ansible-playbook -i inventory playbooks/raspberry-pis/install-main.yaml```
+```bash
+  # mkdir -p $HOME/.kube
+  # sudo cp /etc/kubernetes/admin.conf /root/.kube/config
 
-### Join each worker to main (fill in credentials appropriately)
+  # - name: Create the .kube directory
+  #   ansible.builtin.file:
+  #     path: "{{ ansible_env.HOME }}/.kube"
+  #     state: directory
+  #     mode: '0755'
+
+  # - name: Copy admin.conf to .kube/config
+  #   ansible.builtin.command:
+  #     cmd: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  #   become: yes
+
+  # - name: Change ownership of the config file
+  #   ansible.builtin.command:
+  #     cmd: chown $(id -u):$(id -g) $HOME/.kube/config
+  #   become: yes
+
+# sudo systemctl start kubelet
+```
+
+## Apply overlays
+
+flannel, argocd, metallb, ingress-nginx, kubernetes-dashboard, longhorn, cert-manager, etc.
+
+## Join each worker to main (fill in credentials appropriately)
 
 ```bash
 sudo kubeadm join local-main-IP:6443 --token token-here \ 

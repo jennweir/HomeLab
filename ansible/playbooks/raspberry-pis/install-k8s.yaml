@@ -181,6 +181,12 @@
       group: root
       mode: '0755'
 
+  - name: Install open-iscsi on all nodes # sudo apt install open-iscsi
+    ansible.builtin.apt:
+      name: open-iscsi
+      state: present
+    become: yes
+
   - name: Reboot after installation is complete
     ansible.builtin.reboot:
       msg: "Rebooting after k8s installation is complete"
