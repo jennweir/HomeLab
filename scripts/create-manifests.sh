@@ -8,10 +8,10 @@ shopt -s failglob
 mkdir -p base
 pushd base > /dev/null || exit 1
 
-MANIFEST-URL="<CHANGE-ME>"
+MANIFESTURL="<CHANGE-ME>"
 
 # Download manifests and separate into separate files
-curl -sL "${MANIFEST_URL}" | \
+curl -sL "${MANIFESTURL}" | \
     yq --no-colors --prettyPrint '... comments=""' | \
     kubectl-slice -o . --template "{{ .kind | lower }}.yaml"
 
