@@ -1,0 +1,15 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+resources:
+  - ../../base
+  - ingress.yaml
+patches:
+  - target:
+      group: ""
+      kind: Service
+      name: longhorn-frontend
+      namespace: longhorn-system
+    patch: |-
+      - op: replace
+        path: /spec/type
+        value: LoadBalancer
