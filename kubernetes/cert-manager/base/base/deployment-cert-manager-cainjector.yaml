@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/name: cainjector
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/component: cainjector
-    app.kubernetes.io/version: v1.15.3
+    app.kubernetes.io/version: v1.16.1
 spec:
   replicas: 1
   selector:
@@ -23,7 +23,11 @@ spec:
         app.kubernetes.io/name: cainjector
         app.kubernetes.io/instance: cert-manager
         app.kubernetes.io/component: cainjector
-        app.kubernetes.io/version: v1.15.3
+        app.kubernetes.io/version: v1.16.1
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9402"
     spec:
       serviceAccountName: cert-manager-cainjector
       enableServiceLinks: false
@@ -33,11 +37,15 @@ spec:
           type: RuntimeDefault
       containers:
         - name: cert-manager-cainjector
-          image: quay.io/jetstack/cert-manager-cainjector:v1.15.3
+          image: quay.io/jetstack/cert-manager-cainjector:v1.16.1
           imagePullPolicy: IfNotPresent
           args:
             - --v=2
             - --leader-election-namespace=kube-system
+          ports:
+            - containerPort: 9402
+              name: http-metrics
+              protocol: TCP
           env:
             - name: POD_NAMESPACE
               valueFrom:
