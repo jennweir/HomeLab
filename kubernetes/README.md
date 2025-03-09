@@ -8,13 +8,13 @@
 
 [MicroSD Card with Adapter 32GB](https://www.meijer.com/shopping/product/sandisk-ultra-plus-microsdhc-uhs-i-card-with-adapter-32gb/61965917455.html)
 
-[https://www.pidramble.com/](https://www.pidramble.com/)
+<https://www.pidramble.com/>
 
-[https://medium.com/karlmax-berlin/how-to-install-kubernetes-on-raspberry-pi-53b4ce300b58](https://medium.com/karlmax-berlin/how-to-install-kubernetes-on-raspberry-pi-53b4ce300b58)
+<https://medium.com/karlmax-berlin/how-to-install-kubernetes-on-raspberry-pi-53b4ce300b58>
 
-[https://alexsniffin.medium.com/a-guide-to-building-a-kubernetes-cluster-with-raspberry-pis-23fa4938d420](https://alexsniffin.medium.com/a-guide-to-building-a-kubernetes-cluster-with-raspberry-pis-23fa4938d420)
+<https://alexsniffin.medium.com/a-guide-to-building-a-kubernetes-cluster-with-raspberry-pis-23fa4938d420>
 
-[https://opensource.com/article/20/8/kubernetes-raspberry-pi](https://opensource.com/article/20/8/kubernetes-raspberry-pi)
+<https://opensource.com/article/20/8/kubernetes-raspberry-pi>
 
 ## Verify that your cluster’s DNS resolver (core-dns) is functioning properly by testing DNS resolution within the cluster using busybox
 
@@ -40,3 +40,13 @@ pod "dns-test" deleted
 `kubectl run debug-pod -n cert-manager --image=alpine --restart=Never -- sleep 1d`
 
 `kubectl exec -it debug-pod -n cert-manager -- ls <path>`
+
+## Nodes
+
+Label nodes as control-plane
+
+`kubectl label node <node> node-role.kubernetes.io/control-plane=`
+
+Remove taint that prevents workloads from being scheduled
+
+`kubectl taint nodes <node> node-role.kubernetes.io/control-plane:NoSchedule-`
