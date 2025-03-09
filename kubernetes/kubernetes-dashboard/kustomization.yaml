@@ -1,9 +1,0 @@
-kind: Kustomization
-apiVersion: kustomize.config.k8s.io/v1beta1
-namespace: kubernetes-dashboard
-resources:
-  - clusterrolebinding.yaml
-  # - deployment.yaml
-  # - ingress.yaml
-  - k8s-dashboard-service.yaml
-  - serviceaccount.yaml
