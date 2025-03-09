@@ -1,0 +1,20 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+namespace: kubernetes-dashboard
+resources:
+  - ../../base
+  # - ingress.yaml
+patches:
+  # TODO: remove nodeport patches and change back to ClusterIP
+  - target:
+      group: apps
+      version: v1
+      kind: Service
+      name: kubernetes-dashboard
+    patch: |- 
+      - op: add
+        path: /spec/type
+        value: NodePort
+      - op: add
+        path: /spec/ports/0/nodePort
+        value: 32000
