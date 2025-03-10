@@ -7,3 +7,5 @@ resources:
   - deployment.yaml
   - namespace.yaml
   - service.yaml
+# https://prometheus.io/docs/prometheus/latest/querying/basics/
+# https://medium.com/@vinoji2005/install-prometheus-on-kubernetes-tutorial-and-example-6b3c800e7e1c
