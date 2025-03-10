@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: prometheus
-          image: prom/prometheus@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62 #3.2.1
+          image: prom/prometheus@sha256:6927e0919a144aa7616fd0137d4816816d42f6b816de3af269ab065250859a62 #v3.2.1
           ports:
             - containerPort: 9090
           volumeMounts:
