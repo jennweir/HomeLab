@@ -4,14 +4,14 @@ metadata:
   name: pihole-configmap # https://docs.pi-hole.net/ftldns/dnsmasq_warn/
   namespace: pihole # changes to /etc/pihole/pihole.toml within pod
 data:
-  TZ: "America/New_York"
+  TZ: "America/Detroit"
   PIHOLE_DNS_: "8.8.8.8;8.8.4.4"
   pihole.toml: |
     [dns]
     listen_addresses = ["0.0.0.0"]
     listening_mode = "SINGLE"
 ---
-apiVersion: v1 # https://www.reddit.com/r/pihole/comments/1it1k2x/pihole_6_wildcard_dns_matches_no_longer_working/
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: pihole-wildcard-configmap
