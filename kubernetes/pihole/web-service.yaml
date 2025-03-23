@@ -6,7 +6,7 @@ metadata:
 spec:
   selector:
     app: pihole
-    statefulset.kubernetes.io/pod-name: pihole-0
+    statefulset.kubernetes.io/pod-name: pihole-0 # direct web interface traffic to primary instance; secondaries would be overwritten with orbital-sync
   type: ClusterIP
   ports:
     - name: svc-80-tcp-web
