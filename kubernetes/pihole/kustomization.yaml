@@ -9,7 +9,7 @@ resources:
   - headless-service.yaml
   - ingress.yaml
   - namespace.yaml
+  - orbital-sync.yaml
   - pv.yaml
-  # - secret.yaml
   - statefulset.yaml
   - web-service.yaml
