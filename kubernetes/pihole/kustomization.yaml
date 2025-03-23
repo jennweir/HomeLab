@@ -11,6 +11,5 @@ resources:
   - namespace.yaml
   - orbital-sync.yaml
   - pv.yaml
-  # - quay-jennweir-pull-secret.yaml
   - statefulset.yaml
   - web-service.yaml
