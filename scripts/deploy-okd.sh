@@ -4,6 +4,14 @@ set -o nounset
 set -o pipefail
 shopt -s failglob
 
+# Follows steps outlined here: https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal
+
+
+OKD_INSTALL_DIR=~/Projects/HomeLab/okd/install # ~ does not expand when used inside quotes
+OC_CLI="https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/4.17.0/openshift-client-mac-arm64-4.17.0.tar.gz"
+OCP_INSTALLER="https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/4.17.0/openshift-install-mac-arm64-4.17.0.tar.gz"
+WEBSERVER_K8S_KUBECONFIG=~/Projects/HomeLab/.kube/pi-kubeconfig
+
 # This script automates the deployment of an OKD cluster with a bootstrap node and user provisioned infrastructure (UPI) with platform: none
 
 # Prerequisites
@@ -50,12 +58,38 @@ done
 
 # 3. Prepare the environment
 # Create directory for okd install
-mkdir -p ~/Projects/HomeLab/okd/install
-cd ~/Projects/HomeLab/okd/install
+mkdir -p "${OKD_INSTALL_DIR}"
+cd "${OKD_INSTALL_DIR}"
 # Download the OKD installer and client (4.17.0-okd-scos.0)
 
-curl -L -o openshift-install-linux.tar.gz "https://github.com/okd-project/okd/releases/download/4.17.0-okd-scos.0/openshift-client-mac-arm64-4.17.0-okd-scos.0.tar.gz"
-tar -xvf openshift-install-linux.tar.gz
+curl -L -o openshift-install.tar.gz "${OCP_INSTALLER}"
+# Check if the download was successful
+if [[ ! -f "openshift-install.tar.gz" ]]; then
+    echo "Error: Failed to download the OpenShift installer. Exiting."
+    exit 1
+fi
+# Extract the OpenShift installer
+tar -xvf openshift-install.tar.gz
+
+curl -L -o oc.tar.gz "${OC_CLI}"
+# Check if the download was successful
+if [[ ! -f "oc.tar.gz" ]]; then
+    echo "Error: Failed to download the OpenShift CLI (oc). Exiting."
+    exit 1
+fi
+# Extract the OpenShift CLI (oc)
+tar -xvf oc.tar.gz
+sudo mv oc /usr/local/bin/
+
+# Check if the OpenShift CLI (oc) is installed
+if ! command -v oc &> /dev/null; then
+    echo "Error: The OpenShift CLI (oc) is not installed or not in the PATH. Exiting."
+    exit 1
+else
+    echo "The OpenShift CLI (oc) is installed."
+    # Optionally, verify the version
+    oc version --client
+fi
 
 # Replace the pull secret in install-config.yaml
 if [[ -f "install-config-template.yaml" && -f "pull-secret.txt" ]]; then
@@ -84,3 +118,38 @@ else
     echo "Error: Either install-config.yaml or the SSH public key is missing. Exiting."
     exit 1
 fi
+
+# 4. Create Kubernetes manifest
+mkdir -p "${OKD_INSTALL_DIR}"
+./openshift-install create manifests --dir "${OKD_INSTALL_DIR}"
+
+# Set mastersSchedulable parameter in manifests/cluster-scheduler-02-config.yml to false to prevent pods from being scheduled on the control plane machines
+yq -i '.spec.mastersSchedulable = false' "${OKD_INSTALL_DIR}/manifests/cluster-scheduler-02-config.yml"
+
+# 5. Create Ignition config files
+./openshift-install create ignition-configs --dir "${OKD_INSTALL_DIR}"
+
+# 6. Install FCOS using iso image
+# save sha sum for each iso image
+mkdir -p ign-sha
+sha512sum bootstrap.ign > ign-sha/bootstrap-sha.txt
+sha512sum master.ign > ign-sha/master-sha.txt
+sha512sum worker.ign > ign-sha/worker-sha.txt
+
+# copy ignition files to the web server running in k8s pi cluster
+KUBECONFIG="${WEBSERVER_K8S_KUBECONFIG}"
+export KUBECONFIG
+
+kubectl cp bootstrap.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
+kubectl cp master.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
+kubectl cp worker.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
+# to retrieve files, use:
+# curl webserver.homelab.jenniferpweir.com/bootstrap.ign
+# curl webserver.homelab.jenniferpweir.com/master.ign
+# curl webserver.homelab.jenniferpweir.com/worker.ign
+
+./openshift-install coreos print-stream-json | grep '\.iso[^.]'
+COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
+COREOS_LOCATION=${COREOS_LOCATION%,} # remove trailing comma
+
+
