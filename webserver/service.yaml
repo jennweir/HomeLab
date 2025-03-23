@@ -4,10 +4,9 @@ metadata:
   name: webserver-service
   namespace: webserver
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: webserver
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30004
