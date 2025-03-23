@@ -48,9 +48,39 @@ for port in "${ports[@]}"; do
     fi
 done
 
-# Prepare the environment
+# 3. Prepare the environment
 # Create directory for okd install
 mkdir -p ~/Projects/HomeLab/okd/install
 cd ~/Projects/HomeLab/okd/install
-# Download the OKD installer and client
+# Download the OKD installer and client (4.17.0-okd-scos.0)
 
+curl -L -o openshift-install-linux.tar.gz "https://github.com/okd-project/okd/releases/download/4.17.0-okd-scos.0/openshift-client-mac-arm64-4.17.0-okd-scos.0.tar.gz"
+tar -xvf openshift-install-linux.tar.gz
+
+# Replace the pull secret in install-config.yaml
+if [[ -f "install-config-template.yaml" && -f "pull-secret.txt" ]]; then
+    echo "Creating install-config.yaml from template..."
+    cp install-config-template.yaml install-config.yaml
+    echo "Replacing pull secret in install-config.yaml with contents from pull-secret.txt..."
+    pull_secret=$(cat pull-secret.txt | tr -d '\n' | jq -c .)
+    escaped_pull_secret=$(echo "$pull_secret" | sed 's/"/\\"/g')
+    yq -i ".pullSecret = \"$escaped_pull_secret\"" install-config.yaml
+    echo "Pull secret replaced successfully."
+else
+    echo "Error: Either install-config.yaml or pull-secret.txt is missing. Exiting."
+    exit 1
+fi
+
+# Generate cluster ssh key
+ssh-keygen -t ecdsa -N '' -f ~/.ssh/okd-cluster-key
+# Add the public key to the install-config.yaml
+if [[ -f "install-config.yaml" && -f ~/.ssh/okd-cluster-key.pub ]]; then
+    echo "Adding public SSH key to install-config.yaml..."
+    public_key=$(cat ~/.ssh/okd-cluster-key.pub | tr -d '\n')
+    escaped_public_key=$(echo "$public_key" | sed 's/"/\\"/g')
+    yq -i ".sshKey = \"$escaped_public_key\"" install-config.yaml
+    echo "Public SSH key added successfully."
+else
+    echo "Error: Either install-config.yaml or the SSH public key is missing. Exiting."
+    exit 1
+fi
