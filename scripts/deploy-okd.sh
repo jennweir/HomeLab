@@ -6,27 +6,33 @@ shopt -s failglob
 
 # Follows steps outlined here: https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal
 
-
+PATH_CURRENT_DIR=$(pwd)
+USER="jennifer"
+OKD_DOMAIN="okd.jenniferpweir.com"
+PHY_BOX_1="box-1.homelab.jenniferpweir.com"
+PHY_BOX_2="box-2.homelab.jenniferpweir.com"
+PHY_BOX_3="box-3.homelab.jenniferpweir.com"
 OKD_INSTALL_DIR=~/Projects/HomeLab/okd/install # ~ does not expand when used inside quotes
 OC_CLI="https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/4.17.0/openshift-client-mac-arm64-4.17.0.tar.gz"
 OCP_INSTALLER="https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/4.17.0/openshift-install-mac-arm64-4.17.0.tar.gz"
 WEBSERVER_K8S_KUBECONFIG=~/Projects/HomeLab/.kube/pi-kubeconfig
+WEBSERVER_PATH="http://webserver.homelab.jenniferpweir.com"
 
 # This script automates the deployment of an OKD cluster with a bootstrap node and user provisioned infrastructure (UPI) with platform: none
 
 # Prerequisites
 # 1. Check the required DNS entries resolve with forward and reverse DNS
 okd_required_dns_entries=(
-    "api.okd.jenniferpweir.com"
-    "api-int.okd.jenniferpweir.com"
-    "test.apps.okd.jenniferpweir.com" # to check *.apps.okd.jenniferpweir.com
-    "bootstrap.okd.jenniferpweir.com"
-    "cp-1.okd.jenniferpweir.com"
-    "cp-2.okd.jenniferpweir.com"
-    "cp-3.okd.jenniferpweir.com"
-    "worker-1.okd.jenniferpweir.com"
-    "worker-2.okd.jenniferpweir.com"
-    "worker-3.okd.jenniferpweir.com"
+    "api.${OKD_DOMAIN}"
+    "api-int.${OKD_DOMAIN}"
+    "test.apps.${OKD_DOMAIN}"
+    "bootstrap.${OKD_DOMAIN}"
+    "cp-1.${OKD_DOMAIN}"
+    "cp-2.${OKD_DOMAIN}"
+    "cp-3.${OKD_DOMAIN}"
+    "worker-1.${OKD_DOMAIN}"
+    "worker-2.${OKD_DOMAIN}"
+    "worker-3.${OKD_DOMAIN}"
 )
 
 for dns_entry in "${okd_required_dns_entries[@]}"; do
@@ -136,20 +142,38 @@ sha512sum bootstrap.ign > ign-sha/bootstrap-sha.txt
 sha512sum master.ign > ign-sha/master-sha.txt
 sha512sum worker.ign > ign-sha/worker-sha.txt
 
-# copy ignition files to the web server running in k8s pi cluster
+# copy ignition files to the web server running in k8s cluster
 KUBECONFIG="${WEBSERVER_K8S_KUBECONFIG}"
 export KUBECONFIG
 
 kubectl cp bootstrap.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
 kubectl cp master.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
 kubectl cp worker.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
-# to retrieve files, use:
-# curl webserver.homelab.jenniferpweir.com/bootstrap.ign
-# curl webserver.homelab.jenniferpweir.com/master.ign
-# curl webserver.homelab.jenniferpweir.com/worker.ign
 
 ./openshift-install coreos print-stream-json | grep '\.iso[^.]'
 COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
 COREOS_LOCATION=${COREOS_LOCATION%,} # remove trailing comma
 
+ssh "${USER}@${PHY_BOX_1}" "curl -o coreos.iso '${COREOS_LOCATION}'; curl -o bootstrap.ign '${WEBSERVER_PATH}/bootstrap.ign'; curl -o master.ign '${WEBSERVER_PATH}/master.ign'; curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
+ssh "${USER}@${PHY_BOX_2}" "curl -o coreos.iso '${COREOS_LOCATION}'; curl -o master.ign '${WEBSERVER_PATH}/master.ign'; curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
+ssh "${USER}@${PHY_BOX_3}" "curl -o coreos.iso '${COREOS_LOCATION}'; curl -o master.ign '${WEBSERVER_PATH}/master.ign'; curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
+
+cd ../../scripts/vms
+
+scp create-bootstrap.sh "${USER}@${PHY_BOX_1}":create-bootstrap.sh
+scp create-control-plane.sh "${USER}@${PHY_BOX_1}":create-control-plane.sh
+scp create-worker.sh "${USER}@${PHY_BOX_1}":create-worker.sh
+scp create-control-plane.sh "${USER}@${PHY_BOX_2}":create-control-plane.sh
+scp create-worker.sh "${USER}@${PHY_BOX_2}":create-worker.sh
+scp create-control-plane.sh "${USER}@${PHY_BOX_3}":create-control-plane.sh
+scp create-worker.sh "${USER}@${PHY_BOX_3}":create-worker.sh
+
+# 7. Create VMs
+ssh "${USER}@${PHY_BOX_1}" "./create-bootstrap.sh"
+# ./create-master.sh 1"
+# ./create-master.sh 2"
+# ./create-master.sh 3"
+# ./create-worker.sh 1"
+# ./create-worker.sh 2"
+# ./create-worker.sh 3"
 

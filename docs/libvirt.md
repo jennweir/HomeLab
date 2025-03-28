@@ -59,6 +59,15 @@ nmcli connection up br0
 nmcli connection up eno1
 ```
 
+### Add br0 to bridge.conf
+
+On physical host, in /etc/qemu/bridge.conf:
+
+```bash
+allow virbr0
+allow br0
+```
+
 ## Create logical volume for each vm from available disk space
 
 ```bash
@@ -92,6 +101,19 @@ virt-install --connect="qemu:///system" --name="${VM_NAME}" --vcpus="${VCPUS}" -
         --disk="${DISK_NAME}" \
         --network network=br0 "${IGNITION_DEVICE_ARG[@]}"
 ```
+
+### For x86 / aarch64
+
+IGNITION_DEVICE_ARG=(--qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=${IGNITION_CONFIG}")
+
+### Setup the correct SELinux label to allow access to the config
+
+chcon --verbose --type svirt_home_t ${IGNITION_CONFIG}
+
+virt-install --connect="qemu:///system" --name="${VM_NAME}" --vcpus="${VCPUS}" --memory="${RAM_MB}" \
+        --os-variant="fedora-coreos-$STREAM" --import --graphics=none \
+        --disk="${DISK_NAME}" \
+        --network network=br0 "${IGNITION_DEVICE_ARG[@]}"
 
 ### Create bridged network
 

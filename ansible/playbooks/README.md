@@ -40,8 +40,7 @@ flannel, argocd, metallb, ingress-nginx, kubernetes-dashboard, longhorn, cert-ma
 ## Join each worker to main (fill in credentials appropriately)
 
 ```bash
-sudo kubeadm join local-main-IP:6443 --token token-here \ 
---discovery-token-ca-cert-hash sha256:sha256-value-here
+sudo <kubeadm token create --print-join-command>
 ```
 
 ## Useful Links
