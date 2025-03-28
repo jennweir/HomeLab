@@ -7,7 +7,6 @@ shopt -s failglob
 # Follows steps outlined here: https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal
 
 PATH_CURRENT_DIR=$(pwd)
-USER="jennifer"
 OKD_DOMAIN="okd.jenniferpweir.com"
 PHY_BOX_1="box-1.homelab.jenniferpweir.com"
 PHY_BOX_2="box-2.homelab.jenniferpweir.com"
@@ -137,43 +136,71 @@ yq -i '.spec.mastersSchedulable = false' "${OKD_INSTALL_DIR}/manifests/cluster-s
 
 # 6. Install FCOS using iso image
 # save sha sum for each iso image
-mkdir -p ign-sha
-sha512sum bootstrap.ign > ign-sha/bootstrap-sha.txt
-sha512sum master.ign > ign-sha/master-sha.txt
-sha512sum worker.ign > ign-sha/worker-sha.txt
+sha512sum bootstrap.ign > bootstrap-sha.txt
+sha512sum master.ign > master-sha.txt
+sha512sum worker.ign > worker-sha.txt
+
 
 # copy ignition files to the web server running in k8s cluster
 KUBECONFIG="${WEBSERVER_K8S_KUBECONFIG}"
 export KUBECONFIG
 
 kubectl cp bootstrap.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
+kubectl cp bootstrap-sha.txt $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
+
 kubectl cp master.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
+kubectl cp master-sha.txt $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
+
 kubectl cp worker.ign $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
+kubectl cp worker-sha.txt $(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}"):/usr/local/apache2/htdocs -n webserver
 
 ./openshift-install coreos print-stream-json | grep '\.iso[^.]'
 COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
-COREOS_LOCATION=${COREOS_LOCATION%,} # remove trailing comma
+COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
 
-ssh "${USER}@${PHY_BOX_1}" "curl -o coreos.iso '${COREOS_LOCATION}'; curl -o bootstrap.ign '${WEBSERVER_PATH}/bootstrap.ign'; curl -o master.ign '${WEBSERVER_PATH}/master.ign'; curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
-ssh "${USER}@${PHY_BOX_2}" "curl -o coreos.iso '${COREOS_LOCATION}'; curl -o master.ign '${WEBSERVER_PATH}/master.ign'; curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
-ssh "${USER}@${PHY_BOX_3}" "curl -o coreos.iso '${COREOS_LOCATION}'; curl -o master.ign '${WEBSERVER_PATH}/master.ign'; curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
+ssh "root@${PHY_BOX_1}" "
+    cd /var/lib/libvirt/images && \
+    curl -o coreos.iso '${COREOS_LOCATION}' && \
+    curl -o bootstrap-sha.txt '${WEBSERVER_PATH}/bootstrap-sha.txt' && \
+    curl -o master-sha.txt '${WEBSERVER_PATH}/master-sha.txt' && \
+    curl -o worker-sha.txt '${WEBSERVER_PATH}/worker-sha.txt'"
+
+ssh "root@${PHY_BOX_2}" "
+    cd /var/lib/libvirt/images && \
+    curl -o coreos.iso '${COREOS_LOCATION}' && \
+    curl -o master-sha.txt '${WEBSERVER_PATH}/master-sha.txt' && \
+    curl -o worker-sha.txt '${WEBSERVER_PATH}/worker-sha.txt'"
+
+ssh "root@${PHY_BOX_3}" "
+    cd /var/lib/libvirt/images && \
+    curl -o coreos.iso '${COREOS_LOCATION}' && \
+    curl -o master-sha.txt '${WEBSERVER_PATH}/master-sha.txt' && \
+    curl -o worker-sha.txt '${WEBSERVER_PATH}/worker-sha.txt'"
 
 cd ../../scripts/vms
 
-scp create-bootstrap.sh "${USER}@${PHY_BOX_1}":create-bootstrap.sh
-scp create-control-plane.sh "${USER}@${PHY_BOX_1}":create-control-plane.sh
-scp create-worker.sh "${USER}@${PHY_BOX_1}":create-worker.sh
-scp create-control-plane.sh "${USER}@${PHY_BOX_2}":create-control-plane.sh
-scp create-worker.sh "${USER}@${PHY_BOX_2}":create-worker.sh
-scp create-control-plane.sh "${USER}@${PHY_BOX_3}":create-control-plane.sh
-scp create-worker.sh "${USER}@${PHY_BOX_3}":create-worker.sh
+scp create-bootstrap.sh "root@${PHY_BOX_1}":create-bootstrap.sh
+scp create-control-plane.sh "root@${PHY_BOX_1}":create-control-plane.sh
+scp create-worker.sh "root@${PHY_BOX_1}":create-worker.sh
+
+scp create-control-plane.sh "root@${PHY_BOX_2}":create-control-plane.sh
+scp create-worker.sh "root@${PHY_BOX_2}":create-worker.sh
+
+scp create-control-plane.sh "root@${PHY_BOX_3}":create-control-plane.sh
+scp create-worker.sh "root@${PHY_BOX_3}":create-worker.sh
 
 # 7. Create VMs
-ssh "${USER}@${PHY_BOX_1}" "./create-bootstrap.sh"
-# ./create-master.sh 1"
-# ./create-master.sh 2"
-# ./create-master.sh 3"
-# ./create-worker.sh 1"
-# ./create-worker.sh 2"
-# ./create-worker.sh 3"
+ssh "root@${PHY_BOX_1}" "./create-bootstrap.sh"
+ssh "root@${PHY_BOX_1}" "./create-master.sh 1"
+ssh "root@${PHY_BOX_2}" "./create-master.sh 2"
+ssh "root@${PHY_BOX_3}" "./create-master.sh 3"
 
+ssh "root@${PHY_BOX_1}" "./create-worker.sh 1"
+ssh "root@${PHY_BOX_2}" "./create-worker.sh 2"
+ssh "root@${PHY_BOX_3}" "./create-worker.sh 3"
+
+sudo virsh list --all
+
+# todo: run on vm/address why it wont apply in vm creation
+BOOTSTRAP_SHA=$(awk '{print $1}' /var/lib/libvirt/images/bootstrap-sha.txt)
+sudo coreos-installer install --ignition-url=http://"${WEBSERVER_PATH}"/bootstrap.ign /dev/vda --ignition-hash=sha512-"${BOOTSTRAP_SHA}"
