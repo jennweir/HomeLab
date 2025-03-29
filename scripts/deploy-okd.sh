@@ -8,20 +8,22 @@ RED="\e[31m"
 GREEN="\e[32m"
 RESET="\e[0m"
 
-# Follows steps outlined here: https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal
+# https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal
+# https://github.com/okd-project/okd-scos/releases
+# https://docs.okd.io/4.18/installing/overview/index.html#ocp-installation-overview
 
 PATH_CURRENT_DIR=$(pwd)
-PHY_SSH_KEY="${HOME}/.ssh/id_rsa_homelab_phy_boxes"
-CORE_SSH_KEY="${HOME}/.ssh/okd-cluster-key"
+OKD_INSTALL_DIR=~/Projects/HomeLab/okd/install
+PHY_SSH_KEY=~/.ssh/id_rsa_homelab_phy_boxes # ~ does not expand when used inside quotes
+CORE_SSH_KEY=~/.ssh/okd-cluster-key
+WEBSERVER_K8S_KUBECONFIG=~/Projects/HomeLab/.kube/pi-kubeconfig
+WEBSERVER_PATH="http://webserver.homelab.jenniferpweir.com"
 OKD_DOMAIN="okd.jenniferpweir.com"
 PHY_BOX_1="box-1.homelab.jenniferpweir.com"
 PHY_BOX_2="box-2.homelab.jenniferpweir.com"
 PHY_BOX_3="box-3.homelab.jenniferpweir.com"
-OKD_INSTALL_DIR=~/Projects/HomeLab/okd/install # ~ does not expand when used inside quotes
-OC_CLI="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.17.0/openshift-client-mac-4.17.0.tar.gz"
-OCP_INSTALLER="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.17.0/openshift-install-mac-4.17.0.tar.gz"
-WEBSERVER_K8S_KUBECONFIG=~/Projects/HomeLab/.kube/pi-kubeconfig
-WEBSERVER_PATH="http://webserver.homelab.jenniferpweir.com"
+OC_CLI="https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/4.17.0/openshift-client-mac-4.17.0.tar.gz"
+OCP_INSTALLER="https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/4.17.0/openshift-install-mac-4.17.0.tar.gz"
 
 # This script automates the deployment of an OKD cluster with a bootstrap node and user provisioned infrastructure (UPI) with platform: none
 
@@ -167,15 +169,22 @@ COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
 
 ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "
     cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}'"
+    curl -o coreos.iso '${COREOS_LOCATION}' && \
+    curl -o bootstrap.ign '${WEBSERVER_PATH}/bootstrap.ign' && \
+    curl -o master.ign '${WEBSERVER_PATH}/master.ign' && \
+    curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
 
 ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "
     cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}'"
+    curl -o coreos.iso '${COREOS_LOCATION}' && \
+    curl -o master.ign '${WEBSERVER_PATH}/master.ign' && \
+    curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
 
 ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "
     cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}'"
+    curl -o coreos.iso '${COREOS_LOCATION}'&& \
+    curl -o master.ign '${WEBSERVER_PATH}/master.ign' && \
+    curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
 
 cd vms
 
@@ -199,7 +208,7 @@ ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "./create-worker.sh 1"
 ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "./create-worker.sh 2"
 ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "./create-worker.sh 3"
 
-BOOTSTRAP_MAC=$(ssh "root@${PHY_BOX_1}" "virsh domiflist bootstrap | awk '{ print \$5 }' | tail -2 | head -1")
+BOOTSTRAP_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh domiflist bootstrap | awk '{ print \$5 }' | tail -2 | head -1")
 CP_1_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh domiflist cp-1 | awk '{ print \$5 }' | tail -2 | head -1")
 CP_2_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh domiflist cp-2 | awk '{ print \$5 }' | tail -2 | head -1")
 CP_3_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh domiflist cp-3 | awk '{ print \$5 }' | tail -2 | head -1")
@@ -207,21 +216,30 @@ WORKER_1_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh domiflist work
 WORKER_2_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh domiflist worker-2 | awk '{ print \$5 }' | tail -2 | head -1")
 WORKER_3_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh domiflist worker-3 | awk '{ print \$5 }' | tail -2 | head -1")
 
-echo -e "${GREEN}8. Prompt for node IPs${RESET}"
-read -p "Enter IP address of bootstrap with MAC ${BOOTSTRAP_MAC} " BOOTSTRAP_IP
-read -p "Enter IP address of cp-1 with MAC ${CP_1_MAC} " CP_1_IP
-read -p "Enter IP address of cp-2 with MAC ${CP_2_MAC} " CP_2_IP
-read -p "Enter IP address of cp-3 with MAC ${CP_3_MAC} " CP_3_IP
-read -p "Enter IP address of worker-1 with MAC ${WORKER_1_MAC} " W_1_IP
-read -p "Enter IP address of worker-2 with MAC ${WORKER_2_MAC} " W_2_IP
-read -p "Enter IP address of worker-3 with MAC ${WORKER_3_MAC} " W_3_IP
+echo -e "${GREEN}8. Print node MAC addresses${RESET}"
+echo -e "${GREEN}bootstrap with MAC ${BOOTSTRAP_MAC} ${RESET}"
+echo -e "${GREEN}cp-1 has MAC ${CP_1_MAC} ${RESET}"
+echo -e "${GREEN}cp-2 has MAC ${CP_2_MAC} ${RESET}"
+echo -e "${GREEN}cp-3 has MAC ${CP_3_MAC} ${RESET}"
+echo -e "${GREEN}worker-1 has MAC ${WORKER_1_MAC} ${RESET}"
+echo -e "${GREEN}worker-2 has MAC ${WORKER_2_MAC} ${RESET}"
+echo -e "${GREEN}worker-3 has MAC ${WORKER_3_MAC} ${RESET}"
+
+sleep 20
 
 echo -e "${GREEN}9. Reboot vms to apply ignition${RESET}"
 
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; virsh start cp-2; virsh start worker-2"
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; virsh start cp-3; virsh start worker-3"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; sleep 10; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; sleep 10; virsh start cp-2; virsh start worker-2"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; sleep 10; virsh start cp-3; virsh start worker-3"
 
 echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
 cd "${OKD_INSTALL_DIR}"
 ./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for bootstrap-complete --log-level=info
+
+# remove bootstrap machine from load balancer
+
+# approve csrs
+# oc get csr -o go-template='{{range .items}}{{if not .status}}{{.metadata.name}}{{"\n"}}{{end}}{{end}}' | xargs oc adm certificate approve
+
+# ./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for install-complete 
