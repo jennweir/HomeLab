@@ -4,5 +4,7 @@ resources:
   - deployment.yaml
   - ingress.yaml
   - namespace.yaml
+  - pv.yaml
+  - pvc.yaml
   - service.yaml
   # - quay-jennweir-pull-secret.yaml
