@@ -18,8 +18,8 @@ PHY_BOX_1="box-1.homelab.jenniferpweir.com"
 PHY_BOX_2="box-2.homelab.jenniferpweir.com"
 PHY_BOX_3="box-3.homelab.jenniferpweir.com"
 OKD_INSTALL_DIR=~/Projects/HomeLab/okd/install # ~ does not expand when used inside quotes
-OC_CLI="https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/4.17.0/openshift-client-mac-arm64-4.17.0.tar.gz"
-OCP_INSTALLER="https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/4.17.0/openshift-install-linux-4.17.0.tar.gz"
+OC_CLI="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.17.0/openshift-client-mac-4.17.0.tar.gz"
+OCP_INSTALLER="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.17.0/openshift-install-mac-4.17.0.tar.gz"
 WEBSERVER_K8S_KUBECONFIG=~/Projects/HomeLab/.kube/pi-kubeconfig
 WEBSERVER_PATH="http://webserver.homelab.jenniferpweir.com"
 
@@ -141,10 +141,6 @@ echo -e "${GREEN}5. Create Ignition config files${RESET}"
 ./openshift-install create ignition-configs --dir "${OKD_INSTALL_DIR}"
 
 echo -e "${GREEN}6. Install FCOS using iso image${RESET}"
-# save sha sum for each iso image
-sha512sum bootstrap.ign > bootstrap-sha.txt
-sha512sum master.ign > master-sha.txt
-sha512sum worker.ign > worker-sha.txt
 
 # copy ignition files to web server running in k8s cluster
 KUBECONFIG="${WEBSERVER_K8S_KUBECONFIG}"
@@ -161,12 +157,9 @@ fi
 chmod 0644 bootstrap.ign
 chmod 0644 master.ign
 chmod 0644 worker.ign
-kubectl cp bootstrap.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=10s
-kubectl cp bootstrap-sha.txt ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=10s
-kubectl cp master.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=10s
-kubectl cp master-sha.txt ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=10s
-kubectl cp worker.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=10s
-kubectl cp worker-sha.txt ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=10s
+kubectl cp bootstrap.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=20s
+kubectl cp master.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=20s
+kubectl cp worker.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=20s
 
 ./openshift-install coreos print-stream-json | grep '\.iso[^.]'
 COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
@@ -174,22 +167,15 @@ COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
 
 ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "
     cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}' && \
-    curl -o bootstrap-sha.txt '${WEBSERVER_PATH}/bootstrap-sha.txt' && \
-    curl -o master-sha.txt '${WEBSERVER_PATH}/master-sha.txt' && \
-    curl -o worker-sha.txt '${WEBSERVER_PATH}/worker-sha.txt'"
+    curl -o coreos.iso '${COREOS_LOCATION}'"
 
 ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "
     cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}' && \
-    curl -o master-sha.txt '${WEBSERVER_PATH}/master-sha.txt' && \
-    curl -o worker-sha.txt '${WEBSERVER_PATH}/worker-sha.txt'"
+    curl -o coreos.iso '${COREOS_LOCATION}'"
 
 ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "
     cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}' && \
-    curl -o master-sha.txt '${WEBSERVER_PATH}/master-sha.txt' && \
-    curl -o worker-sha.txt '${WEBSERVER_PATH}/worker-sha.txt'"
+    curl -o coreos.iso '${COREOS_LOCATION}'"
 
 cd vms
 
@@ -230,20 +216,11 @@ read -p "Enter IP address of worker-1 with MAC ${WORKER_1_MAC} " W_1_IP
 read -p "Enter IP address of worker-2 with MAC ${WORKER_2_MAC} " W_2_IP
 read -p "Enter IP address of worker-3 with MAC ${WORKER_3_MAC} " W_3_IP
 
-echo -e "${GREEN}9. Apply ignition${RESET}"
+echo -e "${GREEN}9. Reboot vms to apply ignition${RESET}"
 
-cd ..
-BOOTSTRAP_SHA=$(cat bootstrap-sha.txt | awk '{print $1}')
-MASTER_SHA=$(cat master-sha.txt | awk '{print $1}')
-WORKER_SHA=$(cat worker-sha.txt | awk '{print $1}') 
-
-# sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/bootstrap.ign /dev/vda --ignition-hash=sha512-${BOOTSTRAP_SHA}; sudo reboot"
-# sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}; sudo reboot"
-# sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}; sudo reboot"
-# sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}; sudo reboot"
-# sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}; sudo reboot"
-# sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}; sudo reboot"
-# sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}; sudo reboot"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; virsh start cp-2; virsh start worker-2"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; virsh start cp-3; virsh start worker-3"
 
 echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
 cd "${OKD_INSTALL_DIR}"
