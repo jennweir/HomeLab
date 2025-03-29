@@ -8,13 +8,14 @@ RED="\e[31m"
 GREEN="\e[32m"
 RESET="\e[0m"
 
-# https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal
+# This script automates the deployment of an OKD cluster with a bootstrap node and user provisioned infrastructure (UPI) with platform: none
+# https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html
 # https://github.com/okd-project/okd-scos/releases
 # https://docs.okd.io/4.18/installing/overview/index.html#ocp-installation-overview
 
 PATH_CURRENT_DIR=$(pwd)
 OKD_INSTALL_DIR=~/Projects/HomeLab/okd/install
-PHY_SSH_KEY=~/.ssh/id_rsa_homelab_phy_boxes # ~ does not expand when used inside quotes
+PHY_SSH_KEY=~/.ssh/id_rsa_homelab_phy_boxes
 CORE_SSH_KEY=~/.ssh/okd-cluster-key
 WEBSERVER_K8S_KUBECONFIG=~/Projects/HomeLab/.kube/pi-kubeconfig
 WEBSERVER_PATH="http://webserver.homelab.jenniferpweir.com"
@@ -22,10 +23,8 @@ OKD_DOMAIN="okd.jenniferpweir.com"
 PHY_BOX_1="box-1.homelab.jenniferpweir.com"
 PHY_BOX_2="box-2.homelab.jenniferpweir.com"
 PHY_BOX_3="box-3.homelab.jenniferpweir.com"
-OC_CLI="https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/4.17.0/openshift-client-mac-4.17.0.tar.gz"
-OCP_INSTALLER="https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/4.17.0/openshift-install-mac-4.17.0.tar.gz"
-
-# This script automates the deployment of an OKD cluster with a bootstrap node and user provisioned infrastructure (UPI) with platform: none
+OC_CLI="https://github.com/okd-project/okd-scos/releases/download/4.18.0-okd-scos.6/openshift-client-mac-4.18.0-okd-scos.6.tar.gz"
+OCP_INSTALLER="https://github.com/okd-project/okd-scos/releases/download/4.18.0-okd-scos.6/openshift-install-mac-4.18.0-okd-scos.6.tar.gz"
 
 # Prerequisites
 echo -e "${GREEN}1. Check the required DNS entries resolve with forward and reverse DNS${RESET}"
@@ -142,7 +141,12 @@ yq -i '.spec.mastersSchedulable = false' "${OKD_INSTALL_DIR}/manifests/cluster-s
 echo -e "${GREEN}5. Create Ignition config files${RESET}"
 ./openshift-install create ignition-configs --dir "${OKD_INSTALL_DIR}"
 
-echo -e "${GREEN}6. Install FCOS using iso image${RESET}"
+echo -e "${GREEN}6. Install FCOS${RESET}"
+
+# Using iso image
+# ./openshift-install coreos print-stream-json | grep '\.iso[^.]'
+# COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
+# COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
 
 # copy ignition files to web server running in k8s cluster
 KUBECONFIG="${WEBSERVER_K8S_KUBECONFIG}"
@@ -159,34 +163,31 @@ fi
 chmod 0644 bootstrap.ign
 chmod 0644 master.ign
 chmod 0644 worker.ign
-kubectl cp bootstrap.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=20s
-kubectl cp master.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=20s
-kubectl cp worker.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=20s
+echo "Copying ignition files to the web server pod..."
+kubectl cp bootstrap.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
+kubectl cp master.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
+kubectl cp worker.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
 
-./openshift-install coreos print-stream-json | grep '\.iso[^.]'
-COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
-COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
+# Using PXE boot
+PXE_URLS=$(./openshift-install coreos print-stream-json | grep -Eo '"https.*(kernel-|initramfs.|rootfs.)\w+(\.img)?"' | tr -d '"')
+KERNEL_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'kernel')
+INITRAMFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'initramfs')
+ROOTFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'rootfs')
 
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "
-    cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}' && \
-    curl -o bootstrap.ign '${WEBSERVER_PATH}/bootstrap.ign' && \
-    curl -o master.ign '${WEBSERVER_PATH}/master.ign' && \
-    curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
+echo "Downloading/uploading kernel, initramfs, and rootfs images to the web server pod..."
+curl -o kernel.img "${KERNEL_URL}"
+curl -o initramfs.img "${INITRAMFS_URL}"
+curl -o rootfs.img "${ROOTFS_URL}"
 
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "
-    cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}' && \
-    curl -o master.ign '${WEBSERVER_PATH}/master.ign' && \
-    curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
-
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "
-    cd /var/lib/libvirt/images && \
-    curl -o coreos.iso '${COREOS_LOCATION}'&& \
-    curl -o master.ign '${WEBSERVER_PATH}/master.ign' && \
-    curl -o worker.ign '${WEBSERVER_PATH}/worker.ign'"
+kubectl exec -it "${WEBSERVER_POD}" -n webserver -- sh -c "curl -o kernel.img '${KERNEL_URL}' && \
+    curl -o initramfs.img '${INITRAMFS_URL}' && \
+    curl -o rootfs.img '${ROOTFS_URL}'"
 
 cd vms
+
+chmod +x create-bootstrap.sh
+chmod +x create-control-plane.sh
+chmod +x create-worker.sh
 
 scp -i "${PHY_SSH_KEY}" create-bootstrap.sh "root@${PHY_BOX_1}":create-bootstrap.sh
 scp -i "${PHY_SSH_KEY}" create-control-plane.sh "root@${PHY_BOX_1}":create-control-plane.sh
@@ -225,17 +226,17 @@ echo -e "${GREEN}worker-1 has MAC ${WORKER_1_MAC} ${RESET}"
 echo -e "${GREEN}worker-2 has MAC ${WORKER_2_MAC} ${RESET}"
 echo -e "${GREEN}worker-3 has MAC ${WORKER_3_MAC} ${RESET}"
 
-sleep 20
+# sleep 20
 
-echo -e "${GREEN}9. Reboot vms to apply ignition${RESET}"
+# echo -e "${GREEN}9. Reboot vms to apply ignition${RESET}"
 
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; sleep 10; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; sleep 10; virsh start cp-2; virsh start worker-2"
-ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; sleep 10; virsh start cp-3; virsh start worker-3"
+# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; sleep 10; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
+# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; sleep 10; virsh start cp-2; virsh start worker-2"
+# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; sleep 10; virsh start cp-3; virsh start worker-3"
 
-echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
-cd "${OKD_INSTALL_DIR}"
-./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for bootstrap-complete --log-level=info
+# echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
+# cd "${OKD_INSTALL_DIR}"
+# ./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for bootstrap-complete --log-level=info
 
 # remove bootstrap machine from load balancer
 

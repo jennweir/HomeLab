@@ -9,6 +9,7 @@ terraform.tfstate*
 
 auth
 secret
+pull-secret.txt
 
 *.crt
 *.key

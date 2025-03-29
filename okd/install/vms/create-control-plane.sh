@@ -11,29 +11,25 @@ fi
 
 INDEX=$1
 
-COREOS="/var/lib/libvirt/images/coreos.iso"
-IGNITION_CONFIG="/var/lib/libvirt/images/master.ign"
 VM_NAME="cp-${INDEX}"
 VCPUS="4"
 RAM_MB="18432"
 STREAM="stable"
 DISK="/dev/fedora/cp-${INDEX}-disk"
 
-# Setup the correct SELinux label to allow access to the config
-chcon --verbose --type svirt_home_t "${IGNITION_CONFIG}"
-
+# system for when VMs are acting as servers
 virt-install \
     --connect "qemu:///system" \
     --name "${VM_NAME}" \
     --vcpus "${VCPUS}" \
     --memory "${RAM_MB}" \
-    --cdrom "${COREOS}" \
     --disk "${DISK}",format=raw \
     --noautoconsole \
+    --pxe \
     --network bridge=br0 \
     --graphics vnc \
     --os-variant="fedora-coreos-${STREAM}" \
-    --qemu-commandline="-fw_cfg name=opt/com.coreos/config,file=${IGNITION_CONFIG}"
+    --boot network
 
 sleep 30 # wait for vm to start before marking it to autostart when host boots
 
