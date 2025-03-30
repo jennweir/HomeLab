@@ -4,7 +4,7 @@ metadata:
   name: pihole-configmap # https://docs.pi-hole.net/ftldns/dnsmasq_warn/
   namespace: pihole # changes to /etc/pihole/pihole.toml within pod
 data:
-  TZ: "America/Detroit"
+  TZ: "America/New_York"
   PIHOLE_DNS_: "8.8.8.8;8.8.4.4"
   pihole.toml: |
     [dns]
@@ -18,4 +18,4 @@ metadata:
   namespace: pihole
 data:
   02-my-wildcard-dns.conf: |
-    address=/apps.homelab.jenniferpweir.com/192.168.0.200
+    address=/apps.okd.jenniferpweir.com/192.168.0.200
