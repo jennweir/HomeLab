@@ -16,6 +16,10 @@ where 192.168.0.201 is kube-vip VIP
 
 `/etc/kubernetes/admin.conf`
 
+## Remove taint on control plane nodes
+
+`kubectl taint nodes --all node-role.kubernetes.io/control-plane-`
+
 ## Apply pod network (CNI) and overlays
 
 flannel - pod network (CNI) <https://kubernetes.io/docs/concepts/cluster-administration/addons/>

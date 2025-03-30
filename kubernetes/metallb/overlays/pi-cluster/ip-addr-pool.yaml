@@ -5,11 +5,10 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-  - 192.168.0.60-192.168.0.64 # TODO: fix available home IP space
-  - 192.168.0.252-192.168.0.253
+  - 192.168.0.235-192.168.0.255
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
-  name: example
+  name: lb-advertisement
   namespace: metallb-system
