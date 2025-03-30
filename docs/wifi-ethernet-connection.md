@@ -42,3 +42,11 @@ sudo nmcli connection modify <new-wifi-ssid> wifi-sec.key-mgmt wpa-psk wifi-sec.
 sudo nmcli connection modify <new-wifi-ssid> connection.autoconnect yes
 sudo nmcli connection up <new-wifi-ssid>
 ```
+
+## Setting DNS server to router
+
+```bash
+sudo nmcli con mod "Wired connection 1" ipv4.ignore-auto-dns yes
+sudo nmcli con mod "Wired connection 1" ipv4.dns "192.168.0.1 8.8.8.8"
+sudo nmcli con up "Wired connection 1"
+```
