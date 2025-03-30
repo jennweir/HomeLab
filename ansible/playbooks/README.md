@@ -4,44 +4,22 @@
 
 ```ansible-playbook -i inventory playbooks/raspberry-pis/install-k8s.yaml```
 
-## Choose main node and initialize with kubeadm. Save the resulting kubeadm join credentials in a secret place
+## Initialize with kubeadm
 
-```sudo kubeadm init --pod-network-cidr=10.244.0.0/16```
+<https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/>
+<https://kube-vip.io/docs/installation/static/#generating-a-manifest>
+
+`sudo kubeadm init --control-plane-endpoint 192.168.0.201:6443 --pod-network-cidr=10.244.0.0/16 --upload-certs`
+where 192.168.0.201 is kube-vip VIP
 
 ## Get kubeconfig
 
-```bash
-  # mkdir -p $HOME/.kube
-  # sudo cp /etc/kubernetes/admin.conf /root/.kube/config
+`/etc/kubernetes/admin.conf`
 
-  # - name: Create the .kube directory
-  #   ansible.builtin.file:
-  #     path: "{{ ansible_env.HOME }}/.kube"
-  #     state: directory
-  #     mode: '0755'
+## Apply pod network (CNI) and overlays
 
-  # - name: Copy admin.conf to .kube/config
-  #   ansible.builtin.command:
-  #     cmd: cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  #   become: yes
-
-  # - name: Change ownership of the config file
-  #   ansible.builtin.command:
-  #     cmd: chown $(id -u):$(id -g) $HOME/.kube/config
-  #   become: yes
-
-# sudo systemctl start kubelet
-```
-
-## Apply overlays
-
-flannel, argocd, metallb, ingress-nginx, kubernetes-dashboard, longhorn, cert-manager, etc.
-
-## Join each worker to main (fill in credentials appropriately)
-
-```bash
-sudo <kubeadm token create --print-join-command>
-```
+flannel - pod network (CNI) <https://kubernetes.io/docs/concepts/cluster-administration/addons/>
+argocd, metallb, ingress-nginx, kubernetes-dashboard, longhorn, cert-manager, etc.
 
 ## Useful Links
 

@@ -3,4 +3,7 @@ FROM httpd:2.4
 # copy custom Apache configuration to the container
 COPY ./httpd.conf /usr/local/apache2/conf/httpd.conf
 
+# Install curl (for Debian/Ubuntu-based images)
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 EXPOSE 80

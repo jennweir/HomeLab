@@ -1,4 +1,3 @@
 [pis]
-192.168.0.243 ansible_user=pi
-192.168.0.251 ansible_user=pi
-192.168.0.129 ansible_user=pi
+192.168.0.102 ansible_user=pi
+

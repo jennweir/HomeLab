@@ -127,12 +127,14 @@
   - name: Add Kubernetes apt repository
     copy:
       dest: /etc/apt/sources.list.d/kubernetes.list
-      content: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
+      content: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /"
 
+  # Use k8s 1.28 due to bug with kubevip and version 1.29 or newer
+  # https://github.com/kube-vip/kube-vip/issues/938 and https://github.com/kube-vip/kube-vip/issues/684
   - name: Create keyrings directory and import GPG key
     shell: |
       mkdir -p /etc/apt/keyrings
-      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
   - name: Clean apt cache
     command: apt-get clean

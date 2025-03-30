@@ -19,7 +19,7 @@ spec:
         - name: quay-jennweir-pull-secret
       containers:
       - name: webserver
-        image: quay.io/jennweir/custom-apache:2025.03.23@sha256:fe009576ab552372d71203964627f7082f39a7bda31102278ef521cab0ff441d
+        image: quay.io/jennweir/custom-apache:2025.03.29@sha256:fec75478fc938855d9b73c6059268dfbb173f79c13f731c6e7bbaebfa1948b8c
         lifecycle:
             postStart:
               exec:
