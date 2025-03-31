@@ -13,14 +13,14 @@ default-lease-time 600;
 max-lease-time 7200;
 ddns-update-style none;
 
-option domain-name-servers 192.168.0.61;
+option domain-name-servers 192.168.0.236;
 option routers 192.168.0.1;
 
 # PXE Boot options
-option bootfile-name "pxelinux.0";        # The PXE boot file (adjust if needed)
-next-server 192.168.0.11;                 # TFTP server IP address (replace with your server IP)
+option bootfile-name "pxelinux.0";
+next-server 192.168.0.11;
 
-range 192.168.0.2 192.168.0.230;
+range 192.168.0.104 192.168.0.114;
 }
 ```
 
@@ -30,8 +30,8 @@ systemctl status dhcpd
 journalctl --unit dhcpd --since -2m --follow
 ```
 
-#
-# DHCP Server Configuration file.
-#   see /usr/share/doc/dhcp-server/dhcpd.conf.example
-#   see dhcpd.conf(5) man page
-#
+## Extra info
+
+DHCP Server Configuration file
+see /usr/share/doc/dhcp-server/dhcpd.conf.example
+see dhcpd.conf(5) man page

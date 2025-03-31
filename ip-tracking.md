@@ -11,7 +11,7 @@ pi-host-2   192.168.0.103
 pi-host-3   192.168.0.101
 
 Separate DHCP server IP space
-192.168.0.
+192.168.0.104 - 192.168.0.114
 
 *.apps.okd.jenniferpweir.com
 192.168.0.200
