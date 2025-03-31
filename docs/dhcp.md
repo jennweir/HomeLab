@@ -1,16 +1,15 @@
 # DHCP Server
 
+Keep DHCP server in router as the authoritative DHCP server. This one simply includes PXE configs
+
 <https://docs.fedoraproject.org/en-US/fedora/f36/install-guide/advanced/Network_based_Installations/>
 
 ```bash
 dnf install dhcp-server
 
-```/etc/dhcp/dhcpd.conf
+/etc/dhcp/dhcpd.conf
 subnet 192.168.0.0 netmask 255.255.255.0 {
 interface br0;
-authoritative;
-default-lease-time 600;
-max-lease-time 7200;
 ddns-update-style none;
 
 option domain-name-servers 192.168.0.236;
@@ -19,8 +18,6 @@ option routers 192.168.0.1;
 # PXE Boot options
 option bootfile-name "pxelinux.0";
 next-server 192.168.0.11;
-
-range 192.168.0.104 192.168.0.114;
 }
 ```
 
