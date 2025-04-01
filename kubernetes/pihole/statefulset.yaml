@@ -20,7 +20,7 @@ spec:
           lifecycle:
             postStart:
               exec:
-                command: ["sh", "-c", 'sleep 10 && echo "" | pihole setpassword && pihole --config misc.etc_dnsmasq_d=true'] # disable password and enable dnsmasq for wildcard dns
+                command: ["sh", "-c", 'sleep 10 && echo "" | pihole setpassword && pihole-FTL --config misc.etc_dnsmasq_d true'] # disable password and enable dnsmasq for wildcard dns
           envFrom:
             - configMapRef:
                 name: pihole-configmap
