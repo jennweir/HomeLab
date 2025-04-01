@@ -175,13 +175,12 @@ INITRAMFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'initramfs')
 ROOTFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'rootfs')
 
 echo "Downloading/uploading kernel, initramfs, and rootfs images to the web server pod..."
-curl -o kernel.img "${KERNEL_URL}"
-curl -o initramfs.img "${INITRAMFS_URL}"
-curl -o rootfs.img "${ROOTFS_URL}"
 
-kubectl exec -it "${WEBSERVER_POD}" -n webserver -- sh -c "curl -o kernel.img '${KERNEL_URL}' && \
+kubectl exec -it "${WEBSERVER_POD}" -n webserver -- sh -c "cd ${WEBSERVER_FILE_PATH} && \
+    curl -o kernel.img '${KERNEL_URL}' && \
     curl -o initramfs.img '${INITRAMFS_URL}' && \
-    curl -o rootfs.img '${ROOTFS_URL}'"
+    curl -o rootfs.img '${ROOTFS_URL}' && \
+    chmod 0644 kernel.img initramfs.img rootfs.img"
 
 cd vms
 
