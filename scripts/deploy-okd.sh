@@ -144,43 +144,74 @@ echo -e "${GREEN}5. Create Ignition config files${RESET}"
 echo -e "${GREEN}6. Install FCOS${RESET}"
 
 # Using iso image
-# ./openshift-install coreos print-stream-json | grep '\.iso[^.]'
-# COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
-# COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
+./openshift-install coreos print-stream-json | grep '\.iso[^.]'
+COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
+COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
 
-# copy ignition files to web server running in k8s cluster
-KUBECONFIG="${WEBSERVER_K8S_KUBECONFIG}"
-export KUBECONFIG
+# Create isos with specific ignitions injected
 
-WEBSERVER_POD=$(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}")
-WEBSERVER_FILE_PATH="/usr/local/apache2/htdocs"
+curl -L -o coreos.iso "${COREOS_LOCATION}"
 
-if [[ -z "${WEBSERVER_POD}" ]]; then
-    echo -e "${RED}Error: Web server pod not found. Exiting.${RESET}"
-    exit 1
-fi
+podman machine start podman-machine-default
 
-chmod 0644 bootstrap.ign
-chmod 0644 master.ign
-chmod 0644 worker.ign
-echo "Copying ignition files to the web server pod..."
-kubectl cp bootstrap.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
-kubectl cp master.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
-kubectl cp worker.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
+podman run --rm \
+    -v $(pwd):/data -w /data \
+    quay.io/coreos/coreos-installer:release \
+    iso ignition embed -i /data/bootstrap.ign -o /data/coreos-bootstrap.iso /data/coreos.iso
 
-# Using PXE boot
-PXE_URLS=$(./openshift-install coreos print-stream-json | grep -Eo '"https.*(kernel-|initramfs.|rootfs.)\w+(\.img)?"' | tr -d '"')
-KERNEL_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'kernel')
-INITRAMFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'initramfs')
-ROOTFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'rootfs')
+podman run --rm \
+    -v $(pwd):/data -w /data \
+    quay.io/coreos/coreos-installer:release \
+    install /dev/vda \
+    iso ignition embed -i /data/master.ign -o /data/coreos-master.iso /data/coreos.iso
 
-echo "Downloading/uploading kernel, initramfs, and rootfs images to the web server pod..."
+podman run --rm \
+    -v $(pwd):/data -w /data \
+    quay.io/coreos/coreos-installer:release \
+    install /dev/vda \
+    iso ignition embed -i /data/worker.ign -o /data/coreos-worker.iso /data/coreos.iso
 
-kubectl exec -it "${WEBSERVER_POD}" -n webserver -- sh -c "cd ${WEBSERVER_FILE_PATH} && \
-    curl -o kernel.img '${KERNEL_URL}' && \
-    curl -o initramfs.img '${INITRAMFS_URL}' && \
-    curl -o rootfs.img '${ROOTFS_URL}' && \
-    chmod 0644 kernel.img initramfs.img rootfs.img"
+# copy files to web server running in k8s cluster
+# KUBECONFIG="${WEBSERVER_K8S_KUBECONFIG}"
+# export KUBECONFIG
+
+# WEBSERVER_POD=$(kubectl get pod -n webserver -l app=webserver -o jsonpath="{.items[0].metadata.name}")
+# WEBSERVER_FILE_PATH="/usr/local/apache2/htdocs"
+
+# if [[ -z "${WEBSERVER_POD}" ]]; then
+#     echo -e "${RED}Error: Web server pod not found. Exiting.${RESET}"
+#     exit 1
+# fi
+
+# chmod 0644 bootstrap.ign
+# chmod 0644 master.ign
+# chmod 0644 worker.ign
+# echo "Copying ignition files to the web server pod..."
+# kubectl cp bootstrap.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
+# kubectl cp master.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
+# kubectl cp worker.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
+
+# # Using PXE boot
+# PXE_URLS=$(./openshift-install coreos print-stream-json | grep -Eo '"https.*(kernel-|initramfs.|rootfs.)\w+(\.img)?"' | tr -d '"')
+# KERNEL_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'kernel')
+# INITRAMFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'initramfs')
+# ROOTFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'rootfs')
+# echo "Downloading/uploading kernel, initramfs, and rootfs images to the web server pod..."
+# kubectl exec -it "${WEBSERVER_POD}" -n webserver -- sh -c "cd ${WEBSERVER_FILE_PATH} && \
+#     curl -o kernel.img '${KERNEL_URL}' && \
+#     curl -o initramfs.img '${INITRAMFS_URL}' && \
+#     curl -o rootfs.img '${ROOTFS_URL}' && \
+#     chmod 0644 kernel.img initramfs.img rootfs.img"
+
+scp -i "${PHY_SSH_KEY}" coreos-bootstrap.iso "root@${PHY_BOX_1}":/var/lib/libvirt/images/coreos-bootstrap.iso
+scp -i "${PHY_SSH_KEY}" coreos-master.iso "root@${PHY_BOX_1}":/var/lib/libvirt/images/coreos-master.iso
+scp -i "${PHY_SSH_KEY}" coreos-worker.iso "root@${PHY_BOX_1}":/var/lib/libvirt/images/coreos-worker.iso
+
+scp -i "${PHY_SSH_KEY}" coreos-master.iso "root@${PHY_BOX_2}":/var/lib/libvirt/images/coreos-master.iso
+scp -i "${PHY_SSH_KEY}" coreos-worker.iso "root@${PHY_BOX_2}":/var/lib/libvirt/images/coreos-worker.iso
+
+scp -i "${PHY_SSH_KEY}" coreos-master.iso "root@${PHY_BOX_3}":/var/lib/libvirt/images/coreos-master.iso
+scp -i "${PHY_SSH_KEY}" coreos-worker.iso "root@${PHY_BOX_3}":/var/lib/libvirt/images/coreos-worker.iso
 
 cd vms
 
@@ -225,17 +256,17 @@ echo -e "${GREEN}worker-1 has MAC ${WORKER_1_MAC} ${RESET}"
 echo -e "${GREEN}worker-2 has MAC ${WORKER_2_MAC} ${RESET}"
 echo -e "${GREEN}worker-3 has MAC ${WORKER_3_MAC} ${RESET}"
 
-# sleep 20
+sleep 10
 
-# echo -e "${GREEN}9. Reboot vms to apply ignition${RESET}"
+echo -e "${GREEN}9. Reboot vms to apply ignition${RESET}"
 
-# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; sleep 10; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
-# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; sleep 10; virsh start cp-2; virsh start worker-2"
-# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; sleep 10; virsh start cp-3; virsh start worker-3"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; sleep 10; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; sleep 10; virsh start cp-2; virsh start worker-2"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; sleep 10; virsh start cp-3; virsh start worker-3"
 
-# echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
-# cd "${OKD_INSTALL_DIR}"
-# ./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for bootstrap-complete --log-level=info
+echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
+cd "${OKD_INSTALL_DIR}"
+./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for bootstrap-complete --log-level=info
 
 # remove bootstrap machine from load balancer
 

@@ -4,6 +4,7 @@ set -o nounset
 set -o pipefail
 shopt -s failglob
 
+COREOS="/var/lib/libvirt/images/coreos-bootstrap.iso"
 VM_NAME="bootstrap"
 VCPUS="4"
 RAM_MB="18432"
@@ -16,10 +17,9 @@ virt-install \
     --name "${VM_NAME}" \
     --vcpus "${VCPUS}" \
     --memory "${RAM_MB}" \
+    --cdrom "${COREOS}" \
     --disk "${DISK}",format=raw \
     --noautoconsole \
-    --pxe \
     --network bridge=br0 \
     --graphics vnc \
-    --os-variant="fedora-coreos-${STREAM}" \
-    --boot network
+    --os-variant="fedora-coreos-${STREAM}"
