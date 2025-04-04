@@ -4,7 +4,7 @@ set -o nounset
 set -o pipefail
 shopt -s failglob
 
-COREOS="/var/lib/libvirt/images/coreos-bootstrap.iso"
+COREOS="/var/lib/libvirt/images/coreos.iso"
 VM_NAME="bootstrap"
 VCPUS="4"
 RAM_MB="18432"

@@ -11,7 +11,7 @@ fi
 
 INDEX=$1
 
-COREOS="/var/lib/libvirt/images/coreos-master.iso"
+COREOS="/var/lib/libvirt/images/coreos.iso"
 VM_NAME="cp-${INDEX}"
 VCPUS="4"
 RAM_MB="18432"
