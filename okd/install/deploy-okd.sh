@@ -252,7 +252,8 @@ read -p "Enter the cp-2 IP with MAC ${CP_2_MAC}: " CP_2_IP
 read -p "Enter the cp-3 IP with MAC ${CP_3_MAC}: " CP_3_IP
 read -p "Enter the worker-1 IP with MAC ${WORKER_1_MAC}: " WORKER_1_IP
 read -p "Enter the worker-2 IP with MAC ${WORKER_2_MAC}: " WORKER_2_IP
-read -p "Enter the worker-3 IP with MAC ${WORKER_3_MAC}: " WORKER_3_IP
+read -p "Enter the worker-3 IP with MAC ${WORKER_3_MAC}: " 
+read -p "Acknowledge and enter new IPs into DNS: " YES
 
 ssh-keygen -R "${BOOTSTRAP_IP}"
 ssh-keygen -R "${CP_1_IP}"
