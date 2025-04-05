@@ -131,6 +131,21 @@ else
     exit 1
 fi
 
+if [[ -f "coreos-ssh-template.yaml" && -f ~/.ssh/okd-cluster-key.pub ]]; then
+    echo "Creating coreos-ssh.yaml from template..."
+    cp coreos-ssh-template.yaml coreos-ssh.yaml
+    echo "Replacing public SSH key in coreos-ssh.yaml with contents from ~/.ssh/okd-cluster-key.pub..."
+    public_key=$(cat "${CORE_SSH_KEY}.pub" | tr -d '\n')
+    escaped_public_key=$(echo "$public_key" | sed 's/"/\\"/g')
+    yq -i ".passwd.users[0].ssh_authorized_keys[0] = \"$escaped_public_key\"" coreos-ssh.yaml
+    echo "Public SSH key added successfully."
+else
+    echo -e "${RED}Error: Either coreos-ssh.yaml or the SSH public key is missing. Exiting.${RESET}"
+    exit 1
+fi
+
+butane --pretty --strict coreos-ssh.yaml > coreos-ssh.ign
+
 echo -e "${GREEN}4. Create Kubernetes manifests${RESET}"
 mkdir -p "${OKD_INSTALL_DIR}"
 ./openshift-install create manifests --dir "${OKD_INSTALL_DIR}"
@@ -144,11 +159,22 @@ echo -e "${GREEN}5. Create Ignition config files${RESET}"
 echo -e "${GREEN}6. Install FCOS${RESET}"
 
 # Using iso image
-# ./openshift-install coreos print-stream-json | grep '\.iso[^.]'
-# COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
-# COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
+./openshift-install coreos print-stream-json | grep '\.iso[^.]'
+COREOS_LOCATION=$(./openshift-install coreos print-stream-json | grep '\.iso[^.]' | grep x86_64 | awk '{print $2}' | sed 's/\"//g')
+COREOS_LOCATION=$(echo "${COREOS_LOCATION}" | sed 's/,$//')
 
-# copy ignition files to web server running in k8s cluster
+# Create iso with ssh ignition embedded
+
+curl -L -o coreos.iso "${COREOS_LOCATION}"
+
+podman machine start podman-machine-default
+
+podman run --rm -v $(pwd):/data quay.io/coreos/coreos-installer:release \
+    iso ignition embed -i /data/coreos-ssh.ign /data/coreos.iso
+
+podman machine stop podman-machine-default
+
+# copy files to web server running in k8s cluster
 KUBECONFIG="${WEBSERVER_K8S_KUBECONFIG}"
 export KUBECONFIG
 
@@ -168,19 +194,25 @@ kubectl cp bootstrap.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --
 kubectl cp master.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
 kubectl cp worker.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
 
-# Using PXE boot
-PXE_URLS=$(./openshift-install coreos print-stream-json | grep -Eo '"https.*(kernel-|initramfs.|rootfs.)\w+(\.img)?"' | tr -d '"')
-KERNEL_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'kernel')
-INITRAMFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'initramfs')
-ROOTFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'rootfs')
+sha512sum bootstrap.ign > bootstrap.ign.sha512
+sha512sum master.ign > master.ign.sha512
+sha512sum worker.ign > worker.ign.sha512
 
-echo "Downloading/uploading kernel, initramfs, and rootfs images to the web server pod..."
+# # Using PXE boot
+# PXE_URLS=$(./openshift-install coreos print-stream-json | grep -Eo '"https.*(kernel-|initramfs.|rootfs.)\w+(\.img)?"' | tr -d '"')
+# KERNEL_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'kernel')
+# INITRAMFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'initramfs')
+# ROOTFS_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'rootfs')
+# echo "Downloading/uploading kernel, initramfs, and rootfs images to the web server pod..."
+# kubectl exec -it "${WEBSERVER_POD}" -n webserver -- sh -c "cd ${WEBSERVER_FILE_PATH} && \
+#     curl -o kernel.img '${KERNEL_URL}' && \
+#     curl -o initramfs.img '${INITRAMFS_URL}' && \
+#     curl -o rootfs.img '${ROOTFS_URL}' && \
+#     chmod 0644 kernel.img initramfs.img rootfs.img"
 
-kubectl exec -it "${WEBSERVER_POD}" -n webserver -- sh -c "cd ${WEBSERVER_FILE_PATH} && \
-    curl -o kernel.img '${KERNEL_URL}' && \
-    curl -o initramfs.img '${INITRAMFS_URL}' && \
-    curl -o rootfs.img '${ROOTFS_URL}' && \
-    chmod 0644 kernel.img initramfs.img rootfs.img"
+scp -i "${PHY_SSH_KEY}" coreos.iso "root@${PHY_BOX_1}":/var/lib/libvirt/images/coreos.iso
+scp -i "${PHY_SSH_KEY}" coreos.iso "root@${PHY_BOX_2}":/var/lib/libvirt/images/coreos.iso
+scp -i "${PHY_SSH_KEY}" coreos.iso "root@${PHY_BOX_3}":/var/lib/libvirt/images/coreos.iso
 
 cd vms
 
@@ -216,27 +248,53 @@ WORKER_1_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh domiflist work
 WORKER_2_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh domiflist worker-2 | awk '{ print \$5 }' | tail -2 | head -1")
 WORKER_3_MAC=$(ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh domiflist worker-3 | awk '{ print \$5 }' | tail -2 | head -1")
 
-echo -e "${GREEN}8. Print node MAC addresses${RESET}"
-echo -e "${GREEN}bootstrap with MAC ${BOOTSTRAP_MAC} ${RESET}"
-echo -e "${GREEN}cp-1 has MAC ${CP_1_MAC} ${RESET}"
-echo -e "${GREEN}cp-2 has MAC ${CP_2_MAC} ${RESET}"
-echo -e "${GREEN}cp-3 has MAC ${CP_3_MAC} ${RESET}"
-echo -e "${GREEN}worker-1 has MAC ${WORKER_1_MAC} ${RESET}"
-echo -e "${GREEN}worker-2 has MAC ${WORKER_2_MAC} ${RESET}"
-echo -e "${GREEN}worker-3 has MAC ${WORKER_3_MAC} ${RESET}"
+echo -e "${GREEN}8. Print node MAC addresses and get IPs ${RESET}"
 
-# sleep 20
+read -p "Enter the bootstrap IP with MAC ${BOOTSTRAP_MAC}: " BOOTSTRAP_IP
+read -p "Enter the cp-1 IP with MAC ${CP_1_MAC}: " CP_1_IP
+read -p "Enter the cp-2 IP with MAC ${CP_2_MAC}: " CP_2_IP
+read -p "Enter the cp-3 IP with MAC ${CP_3_MAC}: " CP_3_IP
+read -p "Enter the worker-1 IP with MAC ${WORKER_1_MAC}: " WORKER_1_IP
+read -p "Enter the worker-2 IP with MAC ${WORKER_2_MAC}: " WORKER_2_IP
+read -p "Enter the worker-3 IP with MAC ${WORKER_3_MAC}: " WORKER_3_IP
+read -p "Acknowledge and enter new IPs into DNS: " YES
 
-# echo -e "${GREEN}9. Reboot vms to apply ignition${RESET}"
+ssh-keygen -R "${BOOTSTRAP_IP}"
+ssh-keygen -R "${CP_1_IP}"
+ssh-keygen -R "${CP_2_IP}"
+ssh-keygen -R "${CP_3_IP}"
+ssh-keygen -R "${WORKER_1_IP}"
+ssh-keygen -R "${WORKER_2_IP}"
+ssh-keygen -R "${WORKER_3_IP}"
 
-# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; sleep 10; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
-# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; sleep 10; virsh start cp-2; virsh start worker-2"
-# ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; sleep 10; virsh start cp-3; virsh start worker-3"
+sleep 10
 
-# echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
-# cd "${OKD_INSTALL_DIR}"
-# ./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for bootstrap-complete --log-level=info
+echo -e "${GREEN}9. Apply custom ignition and reboot to start OKD install ${RESET}"
 
+BOOTSTRAP_SHA=$(cat bootstrap.ign.sha512 | awk '{print $1}')
+MASTER_SHA=$(cat master.ign.sha512 | awk '{print $1}')
+WORKER_SHA=$(cat worker.ign.sha512 | awk '{print $1}')
+
+ssh -i "${CORE_SSH_KEY}" "core@${BOOTSTRAP_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/bootstrap.ign /dev/vda --ignition-hash=sha512-${BOOTSTRAP_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${CP_1_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${CP_2_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${CP_3_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${WORKER_1_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${WORKER_2_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${WORKER_3_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}"
+
+sleep 10
+
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_1}" "virsh shutdown bootstrap; virsh shutdown cp-1; virsh shutdown worker-1; sleep 10; virsh start bootstrap; virsh start cp-1; virsh start worker-1"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_2}" "virsh shutdown cp-2; virsh shutdown worker-2; sleep 10; virsh start cp-2; virsh start worker-2"
+ssh -i "${PHY_SSH_KEY}" "root@${PHY_BOX_3}" "virsh shutdown cp-3; virsh shutdown worker-3; sleep 10; virsh start cp-3; virsh start worker-3"
+
+echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
+cd "${OKD_INSTALL_DIR}"
+./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for bootstrap-complete --log-level=info
+
+# restart haproxy service
+# systemctl restart haproxy.service
 # remove bootstrap machine from load balancer
 
 # approve csrs

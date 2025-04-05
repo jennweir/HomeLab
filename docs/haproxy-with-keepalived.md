@@ -39,10 +39,10 @@ sudo netstat -tulnp | grep 443
 And check connections succeed
 
 ```bash
-nc -zv keepalived.homelab.jenniferpweir.com 22623
-nc -zv keepalived.homelab.jenniferpweir.com 6443
-nc -zv keepalived.homelab.jenniferpweir.com 80
-nc -zv keepalived.homelab.jenniferpweir.com 443
+nc -zv keepalived.okd.jenniferpweir.com 22623
+nc -zv keepalived.okd.jenniferpweir.com 6443
+nc -zv keepalived.okd.jenniferpweir.com 80
+nc -zv keepalived.okd.jenniferpweir.com 443
 ```
 
 > Running `ip -brief address show` on each machine participating in the keepalived service will show which machine is actively managing the VIP for vrrp from the keepalived service and stopping the keepalived service on the master machine creates successful failover to the backup machine(s) running HAProxy
