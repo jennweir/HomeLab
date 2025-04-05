@@ -194,6 +194,10 @@ kubectl cp bootstrap.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --
 kubectl cp master.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
 kubectl cp worker.ign ${WEBSERVER_POD}:${WEBSERVER_FILE_PATH} -n webserver --request-timeout=50s
 
+sha512sum bootstrap.ign > bootstrap.ign.sha512
+sha512sum master.ign > master.ign.sha512
+sha512sum worker.ign > worker.ign.sha512
+
 # # Using PXE boot
 # PXE_URLS=$(./openshift-install coreos print-stream-json | grep -Eo '"https.*(kernel-|initramfs.|rootfs.)\w+(\.img)?"' | tr -d '"')
 # KERNEL_URL=$(echo "${PXE_URLS}" | grep 'x86_64' | grep 'kernel')
@@ -252,7 +256,7 @@ read -p "Enter the cp-2 IP with MAC ${CP_2_MAC}: " CP_2_IP
 read -p "Enter the cp-3 IP with MAC ${CP_3_MAC}: " CP_3_IP
 read -p "Enter the worker-1 IP with MAC ${WORKER_1_MAC}: " WORKER_1_IP
 read -p "Enter the worker-2 IP with MAC ${WORKER_2_MAC}: " WORKER_2_IP
-read -p "Enter the worker-3 IP with MAC ${WORKER_3_MAC}: " 
+read -p "Enter the worker-3 IP with MAC ${WORKER_3_MAC}: " WORKER_3_IP
 read -p "Acknowledge and enter new IPs into DNS: " YES
 
 ssh-keygen -R "${BOOTSTRAP_IP}"
@@ -267,13 +271,17 @@ sleep 10
 
 echo -e "${GREEN}9. Apply custom ignition and reboot to start OKD install ${RESET}"
 
-ssh -i "${CORE_SSH_KEY}" "core@${BOOTSTRAP_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/bootstrap.ign /dev/vda --insecure-ignition"
-ssh -i "${CORE_SSH_KEY}" "core@${CP_1_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --insecure-ignition"
-ssh -i "${CORE_SSH_KEY}" "core@${CP_2_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --insecure-ignition"
-ssh -i "${CORE_SSH_KEY}" "core@${CP_3_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --insecure-ignition"
-ssh -i "${CORE_SSH_KEY}" "core@${WORKER_1_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --insecure-ignition"
-ssh -i "${CORE_SSH_KEY}" "core@${WORKER_2_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --insecure-ignition"
-ssh -i "${CORE_SSH_KEY}" "core@${WORKER_3_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --insecure-ignition"
+BOOTSTRAP_SHA=$(cat bootstrap.ign.sha512 | awk '{print $1}')
+MASTER_SHA=$(cat master.ign.sha512 | awk '{print $1}')
+WORKER_SHA=$(cat worker.ign.sha512 | awk '{print $1}')
+
+ssh -i "${CORE_SSH_KEY}" "core@${BOOTSTRAP_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/bootstrap.ign /dev/vda --ignition-hash=sha512-${BOOTSTRAP_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${CP_1_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${CP_2_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${CP_3_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/master.ign /dev/vda --ignition-hash=sha512-${MASTER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${WORKER_1_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${WORKER_2_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}"
+ssh -i "${CORE_SSH_KEY}" "core@${WORKER_3_IP}" "sudo coreos-installer install --ignition-url=${WEBSERVER_PATH}/worker.ign /dev/vda --ignition-hash=sha512-${WORKER_SHA}"
 
 sleep 10
 
@@ -285,7 +293,8 @@ echo -e "${GREEN}10. Wait for bootstrap to complete${RESET}"
 cd "${OKD_INSTALL_DIR}"
 ./openshift-install --dir "${OKD_INSTALL_DIR}" wait-for bootstrap-complete --log-level=info
 
-# remove control plane machines from load balancer until bootstrap completes
+# restart haproxy service
+# systemctl restart haproxy.service
 # remove bootstrap machine from load balancer
 
 # approve csrs
