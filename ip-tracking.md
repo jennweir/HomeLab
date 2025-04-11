@@ -10,9 +10,6 @@ pi-host-1   192.168.0.102
 pi-host-2   192.168.0.103
 pi-host-3   192.168.0.101
 
-Separate DHCP server IP space
-none
-
 keepalived VIP
 192.168.0.200
 
