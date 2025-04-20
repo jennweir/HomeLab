@@ -1,13 +1,13 @@
-<domain type='kvm' id='21'>
-  <name>cp-3</name>
-  <uuid>262ceb96-c79d-44a4-9d1b-ba698a0c3913</uuid>
+<domain type='kvm' id='25'>
+  <name>worker-5</name>
+  <uuid>09c9a24d-4c2e-4dd3-9f24-80a4ee72ded3</uuid>
   <metadata>
     <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
       <libosinfo:os id="http://fedoraproject.org/coreos/stable"/>
     </libosinfo:libosinfo>
   </metadata>
-  <memory unit='KiB'>18874368</memory>
-  <currentMemory unit='KiB'>18874368</currentMemory>
+  <memory unit='KiB'>12582912</memory>
+  <currentMemory unit='KiB'>12582912</currentMemory>
   <vcpu placement='static'>4</vcpu>
   <resource>
     <partition>/machine</partition>
@@ -20,7 +20,9 @@
     <acpi/>
     <apic/>
   </features>
-  <cpu mode='host-passthrough' check='none' migratable='on'/>
+  <cpu mode='host-passthrough' check='none' migratable='on'>
+    <topology sockets='1' dies='1' clusters='1' cores='4' threads='1'/>
+  </cpu>
   <clock offset='utc'>
     <timer name='rtc' tickpolicy='catchup'/>
     <timer name='pit' tickpolicy='delay'/>
@@ -37,7 +39,7 @@
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
     <disk type='block' device='disk'>
       <driver name='qemu' type='raw' cache='none' io='native' discard='unmap'/>
-      <source dev='/dev/fedora/cp-3-disk' index='2'/>
+      <source dev='/dev/fedora/worker-5-disk' index='2'/>
       <backingStore/>
       <target dev='vda' bus='virtio'/>
       <alias name='virtio-disk0'/>
@@ -150,27 +152,27 @@
       <address type='pci' domain='0x0000' bus='0x03' slot='0x00' function='0x0'/>
     </controller>
     <interface type='bridge'>
-      <mac address='52:54:00:c0:1e:f6'/>
+      <mac address='52:54:00:ac:d4:f7'/>
       <source bridge='br0'/>
-      <target dev='vnet20'/>
+      <target dev='vnet24'/>
       <model type='virtio'/>
       <alias name='net0'/>
       <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
     </interface>
     <serial type='pty'>
-      <source path='/dev/pts/0'/>
+      <source path='/dev/pts/4'/>
       <target type='isa-serial' port='0'>
         <model name='isa-serial'/>
       </target>
       <alias name='serial0'/>
     </serial>
-    <console type='pty' tty='/dev/pts/0'>
-      <source path='/dev/pts/0'/>
+    <console type='pty' tty='/dev/pts/4'>
+      <source path='/dev/pts/4'/>
       <target type='serial' port='0'/>
       <alias name='serial0'/>
     </console>
     <channel type='unix'>
-      <source mode='bind' path='/run/libvirt/qemu/channel/21-cp-3/org.qemu.guest_agent.0'/>
+      <source mode='bind' path='/run/libvirt/qemu/channel/25-worker-5/org.qemu.guest_agent.0'/>
       <target type='virtio' name='org.qemu.guest_agent.0' state='connected'/>
       <alias name='channel0'/>
       <address type='virtio-serial' controller='0' bus='0' port='1'/>
@@ -185,7 +187,7 @@
     <input type='keyboard' bus='ps2'>
       <alias name='input2'/>
     </input>
-    <graphics type='vnc' port='5900' autoport='yes' listen='127.0.0.1'>
+    <graphics type='vnc' port='5902' autoport='yes' listen='127.0.0.1'>
       <listen type='address' address='127.0.0.1'/>
     </graphics>
     <audio id='1' type='none'/>
@@ -208,8 +210,8 @@
     </rng>
   </devices>
   <seclabel type='dynamic' model='selinux' relabel='yes'>
-    <label>system_u:system_r:svirt_t:s0:c895,c957</label>
-    <imagelabel>system_u:object_r:svirt_image_t:s0:c895,c957</imagelabel>
+    <label>system_u:system_r:svirt_t:s0:c44,c441</label>
+    <imagelabel>system_u:object_r:svirt_image_t:s0:c44,c441</imagelabel>
   </seclabel>
   <seclabel type='dynamic' model='dac' relabel='yes'>
     <label>+107:+107</label>
