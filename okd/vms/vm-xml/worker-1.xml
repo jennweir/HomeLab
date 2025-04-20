@@ -1,19 +1,13 @@
-<domain type='kvm' id='17'>
+<domain type='kvm' id='36'>
   <name>worker-1</name>
-  <uuid>bb32a466-ed35-4514-8fa1-61218f7dfa8c</uuid>
-  <metadata xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0" xmlns:cockpit_machines="https://github.com/cockpit-project/cockpit-machines">
-    <libosinfo:libosinfo>
+  <uuid>59a0cd40-090e-43b7-be55-a5a043292afa</uuid>
+  <metadata>
+    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
       <libosinfo:os id="http://fedoraproject.org/coreos/stable"/>
     </libosinfo:libosinfo>
-    <cockpit_machines:data>
-      <cockpit_machines:has_install_phase>false</cockpit_machines:has_install_phase>
-      <cockpit_machines:install_source_type>url</cockpit_machines:install_source_type>
-      <cockpit_machines:install_source>http://helper.homelab.jenniferpweir.com:8080/fedora-stable-iso.iso</cockpit_machines:install_source>
-      <cockpit_machines:os_variant>fedora-coreos-stable</cockpit_machines:os_variant>
-    </cockpit_machines:data>
   </metadata>
-  <memory unit='KiB'>10485760</memory>
-  <currentMemory unit='KiB'>10485760</currentMemory>
+  <memory unit='KiB'>12582912</memory>
+  <currentMemory unit='KiB'>12582912</currentMemory>
   <vcpu placement='static'>2</vcpu>
   <resource>
     <partition>/machine</partition>
@@ -25,7 +19,6 @@
   <features>
     <acpi/>
     <apic/>
-    <vmport state='off'/>
   </features>
   <cpu mode='host-passthrough' check='none' migratable='on'/>
   <clock offset='utc'>
@@ -50,11 +43,8 @@
       <alias name='virtio-disk0'/>
       <address type='pci' domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
     </disk>
-    <disk type='network' device='cdrom'>
-      <driver name='qemu' type='raw'/>
-      <source protocol='http' name='fedora-stable-iso.iso' index='1'>
-        <host name='helper.homelab.jenniferpweir.com' port='8080'/>
-      </source>
+    <disk type='file' device='cdrom'>
+      <driver name='qemu'/>
       <target dev='sda' bus='sata'/>
       <readonly/>
       <alias name='sata0-0-0'/>
@@ -160,35 +150,30 @@
       <address type='pci' domain='0x0000' bus='0x03' slot='0x00' function='0x0'/>
     </controller>
     <interface type='bridge'>
-      <mac address='52:54:00:a0:e0:ac'/>
+      <mac address='52:54:00:cb:50:a8'/>
       <source bridge='br0'/>
-      <target dev='vnet14'/>
+      <target dev='vnet35'/>
       <model type='virtio'/>
       <alias name='net0'/>
       <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
     </interface>
     <serial type='pty'>
-      <source path='/dev/pts/1'/>
+      <source path='/dev/pts/2'/>
       <target type='isa-serial' port='0'>
         <model name='isa-serial'/>
       </target>
       <alias name='serial0'/>
     </serial>
-    <console type='pty' tty='/dev/pts/1'>
-      <source path='/dev/pts/1'/>
+    <console type='pty' tty='/dev/pts/2'>
+      <source path='/dev/pts/2'/>
       <target type='serial' port='0'/>
       <alias name='serial0'/>
     </console>
     <channel type='unix'>
-      <source mode='bind' path='/run/libvirt/qemu/channel/17-worker-1/org.qemu.guest_agent.0'/>
+      <source mode='bind' path='/run/libvirt/qemu/channel/36-worker-1/org.qemu.guest_agent.0'/>
       <target type='virtio' name='org.qemu.guest_agent.0' state='connected'/>
       <alias name='channel0'/>
       <address type='virtio-serial' controller='0' bus='0' port='1'/>
-    </channel>
-    <channel type='spicevmc'>
-      <target type='virtio' name='com.redhat.spice.0' state='disconnected'/>
-      <alias name='channel1'/>
-      <address type='virtio-serial' controller='0' bus='0' port='2'/>
     </channel>
     <input type='tablet' bus='usb'>
       <alias name='input0'/>
@@ -203,28 +188,12 @@
     <graphics type='vnc' port='5902' autoport='yes' listen='127.0.0.1'>
       <listen type='address' address='127.0.0.1'/>
     </graphics>
-    <graphics type='spice' port='5903' autoport='yes' listen='::1'>
-      <listen type='address' address='::1'/>
-      <image compression='off'/>
-    </graphics>
-    <sound model='ich9'>
-      <alias name='sound0'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x1b' function='0x0'/>
-    </sound>
-    <audio id='1' type='spice'/>
+    <audio id='1' type='none'/>
     <video>
       <model type='virtio' heads='1' primary='yes'/>
       <alias name='video0'/>
       <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x0'/>
     </video>
-    <redirdev bus='usb' type='spicevmc'>
-      <alias name='redir0'/>
-      <address type='usb' bus='0' port='2'/>
-    </redirdev>
-    <redirdev bus='usb' type='spicevmc'>
-      <alias name='redir1'/>
-      <address type='usb' bus='0' port='3'/>
-    </redirdev>
     <watchdog model='itco' action='reset'>
       <alias name='watchdog0'/>
     </watchdog>
@@ -239,8 +208,8 @@
     </rng>
   </devices>
   <seclabel type='dynamic' model='selinux' relabel='yes'>
-    <label>system_u:system_r:svirt_t:s0:c277,c877</label>
-    <imagelabel>system_u:object_r:svirt_image_t:s0:c277,c877</imagelabel>
+    <label>system_u:system_r:svirt_t:s0:c407,c458</label>
+    <imagelabel>system_u:object_r:svirt_image_t:s0:c407,c458</imagelabel>
   </seclabel>
   <seclabel type='dynamic' model='dac' relabel='yes'>
     <label>+107:+107</label>
