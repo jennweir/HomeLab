@@ -30,3 +30,5 @@ cd /iscsi/${IQN}/tpg1
 luns/ create /backstores/block/block_backend
 luns/ create /backstores/block/block_backend_nvme
 EOF
+
+systemctl start iscsid.service
