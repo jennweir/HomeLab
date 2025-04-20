@@ -13,5 +13,7 @@ items:
     name: cluster
   spec:
     disableAllDefaultSources: false
+    # https://docs.okd.io/latest/extensions/catalogs/rh-catalogs.html
+    # https://access.redhat.com/solutions/5611481
 kind: List
 metadata: {}
