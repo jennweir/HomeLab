@@ -75,7 +75,6 @@ allow br0
 vgdisplay
 lvcreate -L <#>G -n <disk-name> <volume-group-name>
 lvdisplay /dev/<volume-group-name>/<disk-name>
-mkfs.ext4 /dev/<volume-group-name>/<disk-name> # format each logical volume before using it
 lvs # to view summarized view of logical volumes
 vgs # status of your volume groups and their allocated space
 ```
