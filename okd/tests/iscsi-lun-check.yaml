@@ -12,7 +12,6 @@ spec:
     targetPortal: box-1.homelab.jenniferpweir.com:3260
     iqn: iqn.2003-01.org.linux-iscsi.box-1.x8664:sn.f94cbf33c810
     lun: 0
-    fsType: 'ext4'
     # chapAuthDiscovery: true
     # chapAuthSession: true
     # secretRef:

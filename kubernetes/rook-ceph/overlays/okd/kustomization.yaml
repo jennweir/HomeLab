@@ -1,0 +1,48 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+resources:
+  - ../../base
+patches:
+  - target:
+      kind: CephCluster
+      name: rook-ceph
+    patch: |-
+      - op: replace
+        path: /spec/storage/useAllNodes
+        value: false
+      - op: add
+        path: /spec/storage/nodes
+        value:
+          - name: "worker-3.okd.jenniferpweir.com"
+            devices:
+              - name: "vdb"
+              - name: "vdc"
+          - name: "worker-4.okd.jenniferpweir.com"
+            devices:
+              - name: "vdb"
+              - name: "vdc"
+          - name: "worker-5.okd.jenniferpweir.com"
+            devices:
+              - name: "vdb"
+              - name: "vdc"
+      - op: add
+        path: /spec/placement
+        value:
+          all:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: node-role.kubernetes.io/infra
+                        operator: Exists
+            tolerations:
+              - key: node-role.kubernetes.io/infra
+                operator: Exists
+                effect: NoSchedule
+# https://rook.io/docs/rook/v1.12/Getting-Started/quickstart/#create-a-ceph-cluster
+# virsh attach-disk worker-3 /dev/sdb vdb --targetbus virtio --persistent
+# virsh attach-disk worker-3 /dev/nvme0n1 vdc --targetbus virtio --persistent
+# virsh attach-disk worker-4 /dev/sdb vdb --targetbus virtio --persistent
+# virsh attach-disk worker-4 /dev/nvme0n1 vdc --targetbus virtio --persistent
+# virsh attach-disk worker-5 /dev/sdb vdb --targetbus virtio --persistent
+# virsh attach-disk worker-5 /dev/nvme0n1 vdc --targetbus virtio --persistent
