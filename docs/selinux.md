@@ -17,3 +17,10 @@ semodule -X 300 -i my-rpclibvirtd.pp
 # as root, set haproxy_connect_any to true and make it persistent across reboots
 setsebool -P haproxy_connect_any=1
 ```
+
+## allow rpc-virtqemud access on blk_file
+
+```bash
+ausearch -c 'rpc-virtqemud' --raw | audit2allow -M my-rpcvirtqemud
+semodule -X 300 -i my-rpcvirtqemud.pp
+```
