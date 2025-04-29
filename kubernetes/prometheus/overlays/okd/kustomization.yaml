@@ -1,0 +1,26 @@
+kind: Kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+resources:
+  - ../../base
+  - pvc.yaml
+  - ingress.yaml
+patches:
+  - target: 
+      kind: Deployment
+      name: prometheus
+    patch: |-
+      - op: add
+        path: /spec/template
+        value: 
+          spec:
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: node-role.kubernetes.io/infra
+                          operator: Exists
+            tolerations:
+              - key: node-role.kubernetes.io/infra
+                operator: Exists
+                effect: NoSchedule
