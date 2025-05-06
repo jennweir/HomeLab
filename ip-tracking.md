@@ -18,7 +18,6 @@ k8s cluster kube-vip VIP
 
 Metallb okd cluster
 192.168.0.225-192.168.0.234
-    openshift-ingress ingress controller 192.168.0.225
 
 Metallb k8s pi cluster IP space
 192.168.0.235-192.168.0.255
