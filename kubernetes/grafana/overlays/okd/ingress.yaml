@@ -4,9 +4,9 @@ metadata:
   name: grafana-ingress
   namespace: grafana
 spec:
-  ingressClassName: openshift-custom
+  ingressClassName: openshift-default
   rules:
-  - host: grafana.custom.okd.jenniferpweir.com
+  - host: grafana.apps.okd.jenniferpweir.com
     http:
       paths:
       - path: /
