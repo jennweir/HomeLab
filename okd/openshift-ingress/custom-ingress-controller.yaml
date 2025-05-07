@@ -16,3 +16,8 @@ spec:
   tuningOptions:
     reloadInterval: 0s
   domain: custom.okd.jenniferpweir.com
+  nodePlacement:
+    tolerations:
+      - key: node-role.kubernetes.io/infra # should run on worker nodes; however, dont have enough workers so tolerate taint (HostNetwork publishes ingresscontroller endpoints directly on node where it is deployed, thus using up the same ports)
+        operator: Exists
+        effect: NoSchedule
