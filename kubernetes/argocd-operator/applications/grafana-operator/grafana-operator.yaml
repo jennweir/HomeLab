@@ -6,8 +6,17 @@ metadata:
 spec:
   destination:
     server: https://kubernetes.default.svc
+    namespace: grafana-operator
   project: default
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
     path: kubernetes/grafana-operator
     targetRevision: main
+  syncPolicy:
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        maxDuration: 5m
+        factor: 2
+
