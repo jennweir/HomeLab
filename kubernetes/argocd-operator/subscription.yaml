@@ -11,6 +11,9 @@ spec:
   sourceNamespace: openshift-marketplace
   startingCSV: argocd-operator.v0.13.0
   config:
+    env:
+      - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+        value: argocd # https://access.redhat.com/solutions/7026814
     nodeSelector:
       node-role.kubernetes.io/infra: ""
     tolerations:
