@@ -1,8 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../applications/grafana-operator
-  - ../aplications/argocd-operator
-  - ../base
-  - ../components/argocd.yaml
+  - ../../applications/argocd-operator
+  - ../../applications/grafana-operator
+  - ../../base
+  - ../../components
   - subscription.yaml
