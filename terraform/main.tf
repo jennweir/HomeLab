@@ -1,65 +1,65 @@
 locals {
-    K8S_NAMESPACE_CERT_MAN = "cert-manager"
-    K8S_SERVICE_ACCOUNT_CERT_MAN = "cert-manager"
+    k8s_argocd_sa = "argocd-argocd-server"
+    k8s_argocd_ns = "argocd"
 }
 
-data "google_project" "pi_cluster" {
-    project_id = "pi-cluster-433101"
+data "google_project" "okd-homelab" {
+    project_id = "okd-homelab"
 }
 
-resource "google_storage_bucket" "pi_homelab_bucket" {
-    project = data.google_project.pi_cluster.project_id
-    name = "pi-cluster"
+resource "google_storage_bucket" "homelab_bucket" {
+    project = data.google_project.okd-homelab.project_id
+    name = "jennweir-homelab"
     location = "US"
     force_destroy = true
     public_access_prevention = "inherited"
     uniform_bucket_level_access = true
 }
 
-resource "google_storage_bucket_iam_member" "pi_homelab_bucket" {
-    bucket = google_storage_bucket.pi_homelab_bucket.name
+resource "google_storage_bucket_iam_member" "homelab_bucket" {
+    bucket = google_storage_bucket.homelab_bucket.name
     role   = "roles/storage.objectViewer"
     member = "allUsers"
 }
 
-resource "google_iam_workload_identity_pool" "pi_cluster" {
-    project                   = data.google_project.pi_cluster.project_id
-    workload_identity_pool_id = "pi-cluster"
-    display_name              = "pi-cluster"
+resource "google_iam_workload_identity_pool" "okd-homelab" {
+    project                   = data.google_project.okd-homelab.project_id
+    workload_identity_pool_id = "okd-homelab"
+    display_name              = "okd-homelab"
     description               = "created with terraform"
 }
 
-resource "google_iam_workload_identity_pool_provider" "pi_cluster" {
-    project = data.google_project.pi_cluster.project_id
-    display_name                       = "pi-cluster"
+resource "google_iam_workload_identity_pool_provider" "okd-homelab" {
+    project = data.google_project.okd-homelab.project_id
+    display_name                       = "okd-homelab"
     description                        = "created with terraform"
-    workload_identity_pool_id          = google_iam_workload_identity_pool.pi_cluster.workload_identity_pool_id
-    workload_identity_pool_provider_id = "pi-cluster"
+    workload_identity_pool_id          = google_iam_workload_identity_pool.okd-homelab.workload_identity_pool_id
+    workload_identity_pool_provider_id = "okd-homelab"
     attribute_mapping = {
         "google.subject" = "assertion.sub"
     }
     oidc {
-        issuer_uri        = "https://storage.googleapis.com/pi-cluster"
+        issuer_uri        = "https://storage.googleapis.com/jennweir-homelab"
         allowed_audiences = [
-        "//iam.googleapis.com/projects/${data.google_project.pi_cluster.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.pi_cluster.workload_identity_pool_id}/providers/pi-cluster",
+        "//iam.googleapis.com/projects/${data.google_project.okd-homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd-homelab.workload_identity_pool_id}/providers/okd-homelab",
         ]
     }
 }
 
-resource "google_service_account" "dns_solver" {
-    account_id   = "cert-manager-dns-solver-sa"
-    display_name = "Cert Manager DNS Solver"
+resource "google_service_account" "gsm_accessor" {
+    account_id   = "gsm-accessor"
+    display_name = "GSM Accessor Service Account"
+    project      = data.google_project.okd-homelab.project_id
 }
 
-resource "google_project_iam_member" "dns_solver_dns_admin" {
-    project = data.google_project.pi_cluster.project_id
-    role    = "roles/dns.admin"
-    member  = "serviceAccount:${google_service_account.dns_solver.email}" # cert-manager-dns-solver-sa@pi-cluster-433101.iam.gserviceaccount.com
+resource "google_project_iam_member" "gsm_accessor_role" {
+    project = data.google_project.okd-homelab.project_id
+    role    = "roles/secretmanager.secretAccessor"
+    member  = "serviceAccount:${google_service_account.gsm_accessor.email}"
 }
 
-# k8s service account cert-manager to google service account cert-manager-dns-solver-sa
-resource "google_service_account_iam_member" "cert_manager_binding" {
-    service_account_id = google_service_account.dns_solver.id
+resource "google_service_account_iam_member" "gsm_accessor_workload_identity_binding" {
+    service_account_id = google_service_account.gsm_accessor.name
     role               = "roles/iam.workloadIdentityUser"
-    member             = "principal://iam.googleapis.com/projects/${data.google_project.pi_cluster.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.pi_cluster.workload_identity_pool_id}/subject/${local.K8S_NAMESPACE_CERT_MAN}/${local.K8S_SERVICE_ACCOUNT_CERT_MAN}"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd-homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd-homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.k8s_argocd_ns}:${local.k8s_argocd_sa}"
 }
