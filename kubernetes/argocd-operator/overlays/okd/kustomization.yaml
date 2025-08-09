@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ../../applications/argocd-operator
   - ../../applications/grafana-operator
+  - ../../applications/external-secrets-operator
   - ../../base
   - ../../components
   - subscription.yaml
