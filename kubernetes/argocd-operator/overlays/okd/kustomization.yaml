@@ -4,6 +4,7 @@ resources:
   - ../../applications/argocd-operator
   - ../../applications/grafana-operator
   - ../../applications/external-secrets-operator
+  - ../../applications/cluster-version
   - ../../base
   - ../../components
   - subscription.yaml
