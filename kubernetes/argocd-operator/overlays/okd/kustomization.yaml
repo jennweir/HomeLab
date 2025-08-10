@@ -4,6 +4,15 @@ resources:
   - ../../applications/argocd-operator
   - ../../applications/grafana-operator
   - ../../applications/external-secrets-operator
+  - ../../applications/cluster-version
   - ../../base
   - ../../components
   - subscription.yaml
+# patches:
+#   - target:
+#       kind: Subscription
+#       name: argocd-operator
+#     patch: |-
+#       - op: replace
+#         path: 
+#         value:
