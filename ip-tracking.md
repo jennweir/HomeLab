@@ -10,8 +10,11 @@ pi-host-1   192.168.0.102
 pi-host-2   192.168.0.103
 pi-host-3   192.168.0.101
 
-keepalived VIP
-192.168.0.200
+OKD cluster api vip
+192.168.0.220
+
+OKD cluster ingress vip
+192.168.0.221
 
 k8s cluster kube-vip VIP
 192.168.0.201

@@ -10,7 +10,7 @@ RESET="\e[0m"
 
 # This script automates the deployment of an OKD cluster with a bootstrap node and user provisioned infrastructure (UPI) with platform: none
 # https://docs.okd.io/4.17/installing/installing_bare_metal/installing-bare-metal.html
-# https://github.com/okd-project/okd-scos/releases
+# https://github.com/okd-project/okd/releases
 # https://docs.okd.io/4.18/installing/overview/index.html#ocp-installation-overview
 
 PATH_CURRENT_DIR=$(pwd)
