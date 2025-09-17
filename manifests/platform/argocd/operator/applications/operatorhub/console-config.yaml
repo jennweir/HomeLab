@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
     path: manifests/platform/operatorhub
-    targetRevision: main
+    targetRevision: repo-refactor
   syncPolicy:
     retry:
       limit: 5

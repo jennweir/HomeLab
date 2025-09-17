@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
     path: manifests/platform/argocd/operator
-    targetRevision: main
+    targetRevision: repo-refactor
   syncPolicy:
     automated:
       prune: true
