@@ -9,7 +9,7 @@ gcloud iam service-accounts keys create credentials.json \
   --iam-account=gsm_accessor@okd-homelab.iam.gserviceaccount.com
 
 kubectl create secret generic gcpsm-secret \
-  --from-file=credentials.json=/Users/jenn/Projects/HomeLab/kubernetes/external-secrets-operator/overlays/okd/credentials.json \
+  --from-file=credentials.json=/Users/jenn/Projects/HomeLab/manifests/platform/external-secrets-operator/overlays/okd/credentials.json \
   --namespace=external-secrets-operator
 
 helm repo add external-secrets https://charts.external-secrets.io
