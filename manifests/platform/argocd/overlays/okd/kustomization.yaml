@@ -4,7 +4,8 @@ resources:
   - ../../operator/base
   - ../../operator/components
   - ../../applications/argocd-operator
-  - ../../applications/grafana-operator
-  - ../../applications/external-secrets-operator
   - ../../applications/cluster-version
   - ../../applications/console-config
+  - ../../applications/external-secrets-operator
+  - ../../applications/grafana-operator
+  - ../../applications/operatorhub
