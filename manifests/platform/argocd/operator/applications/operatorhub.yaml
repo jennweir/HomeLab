@@ -1,17 +1,17 @@
 kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
-  name: console-config
+  name: operatorhub
   namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
-    namespace: console-config
+    namespace: operatorhub
   project: default
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
-    path: manifests/platform/console-config
-    targetRevision: repo-refactor
+    path: manifests/platform/operatorhub
+    targetRevision: main
   syncPolicy:
     retry:
       limit: 5

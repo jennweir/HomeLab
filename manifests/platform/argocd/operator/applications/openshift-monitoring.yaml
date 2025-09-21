@@ -1,24 +1,18 @@
 kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
-  name: external-secrets-operator
+  name: openshift-monitoring
   namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
-    namespace: external-secrets-operator
+    namespace: openshift-monitoring
   project: default
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
-    path: manifests/platform/external-secrets-operator/overlays/okd
-    targetRevision: repo-refactor
+    path: manifests/platform/openshift-monitoring
+    targetRevision: main
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
-    - ServerSideApply=true
     retry:
       limit: 5
       backoff:

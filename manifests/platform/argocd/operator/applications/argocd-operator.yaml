@@ -1,18 +1,21 @@
 kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
-  name: cluster-version
+  name: argocd-operator
   namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
-    namespace: cluster-version
+    namespace: argocd-operator
   project: default
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
-    path: manifests/platform/cluster-version
-    targetRevision: repo-refactor
+    path: manifests/platform/argocd/operator
+    targetRevision: main
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     retry:
       limit: 5
       backoff:
