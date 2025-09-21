@@ -10,6 +10,7 @@ terraform.tfstate*
 auth
 secret
 pull-secret.txt
+credentials.json
 
 *.crt
 *.key
