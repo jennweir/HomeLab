@@ -3,9 +3,3 @@ kind: Kustomization
 resources:
   - ../../operator/base
   - ../../operator/components
-  - ../../operator/applications/argocd-operator
-  - ../../operator/applications/cluster-version
-  - ../../operator/applications/console-config
-  - ../../operator/applications/external-secrets-operator
-  - ../../operator/applications/grafana-operator
-  - ../../operator/applications/operatorhub
