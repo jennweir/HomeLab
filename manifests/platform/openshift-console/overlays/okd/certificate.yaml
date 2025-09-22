@@ -41,8 +41,6 @@ spec:
   dnsNames:
     - console-openshift-console.apps.okd.jenniferpweir.com
     - www.console-openshift-console.apps.okd.jenniferpweir.com
-  uris:
-    - spiffe://cluster.local/ns/openshift-console/sa/console
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
