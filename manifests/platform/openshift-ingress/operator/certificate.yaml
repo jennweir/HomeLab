@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: console-cert
-  namespace: openshift-ingress-operator
+  namespace: openshift-ingress
 spec:
   secretName: console-tls
   privateKey:
