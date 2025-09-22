@@ -17,6 +17,8 @@ spec:
       # previous account.
       name: letsencrypt-staging
     solvers:
-    - http01:
-        ingress:
-          ingressClassName: openshift-default
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
