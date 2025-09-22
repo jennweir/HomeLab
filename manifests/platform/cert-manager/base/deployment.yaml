@@ -58,6 +58,13 @@ spec:
               drop:
               - ALL
             readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 20Mi
+            limits: 
+              cpu: 30m
+              memory: 40Mi
       nodeSelector:
         kubernetes.io/os: "linux"
 ---
@@ -140,6 +147,13 @@ spec:
             timeoutSeconds: 15
             successThreshold: 1
             failureThreshold: 8
+          resources:
+            requests:
+              cpu: 10m
+              memory: 20Mi
+            limits: 
+              cpu: 30m
+              memory: 40Mi
       nodeSelector:
         kubernetes.io/os: "linux"
 ---
@@ -235,5 +249,12 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          resources:
+            requests:
+              cpu: 10m
+              memory: 20Mi
+            limits: 
+              cpu: 30m
+              memory: 40Mi
       nodeSelector:
         kubernetes.io/os: "linux"
