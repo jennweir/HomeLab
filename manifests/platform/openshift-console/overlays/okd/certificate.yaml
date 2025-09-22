@@ -45,8 +45,6 @@ spec:
     - spiffe://cluster.local/ns/openshift-console/sa/console
   emailAddresses:
     - contact@jenniferpweir.com
-  ipAddresses:
-    - 192.168.0.221
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
