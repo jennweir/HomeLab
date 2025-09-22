@@ -61,10 +61,10 @@ spec:
           resources:
             requests:
               cpu: 10m
-              memory: 20Mi
+              memory: 100Mi
             limits: 
               cpu: 30m
-              memory: 40Mi
+              memory: 200Mi
       nodeSelector:
         kubernetes.io/os: "linux"
 ---
