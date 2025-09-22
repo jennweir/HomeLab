@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  channel: stable
+  installPlanApproval: Manual # oc patch installplan install-xxxxx -n cert-manager --type merge --patch '{"spec":{"approved":true}}'
+  name: cert-manager
+  source: community-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: cert-manager.v1.16.5
