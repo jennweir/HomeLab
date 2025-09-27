@@ -4,5 +4,4 @@ namespace: cert-manager
 resources:
   - ../../base
   - ../../components
-  - clusterissuer-staging.yaml
   - cloudflare-api-token.yaml
