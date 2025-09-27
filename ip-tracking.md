@@ -1,4 +1,4 @@
-# HomeLab IP tracking
+# HomeLab IPAM
 
 Subnet
 192.168.0.0/24
