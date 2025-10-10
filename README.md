@@ -14,8 +14,8 @@ B --- D
 B --- E
 B --- F
 subgraph 192.168.X.X
-subgraph OKD Cluster - what happends when the text gets really long and wide
-C[Node cp-1 <br/><small>192.168.0.11</small>]
+subgraph OKD Cluster
+C["Node cp-1 192.168.0.11"]
 D[Node cp-2 <br/><small>192.168.0.12</small>]
 E[Node cp-3 <br/><small>192.168.0.13</small>]
 end
