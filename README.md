@@ -3,7 +3,7 @@
 ```mermaid
 graph TD
 subgraph 10.0.0.X
-A[Xfinity XB7-T<br/><small>Wifi 6 Gateway</small><br/><small>Modem & Router Combo</small><br/><small>Public IP</small>]
+A[Xfinity XB7-T Gateway<br/><small>Modem & Router Combo</small><br/><small>Public IP</small>]
 A --- B
 A --- J
 J[All other home devices]
