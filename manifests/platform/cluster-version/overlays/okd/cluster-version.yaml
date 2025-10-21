@@ -10,8 +10,8 @@ items:
     clusterID: <CLUSTER_ID>
     desiredUpdate:
       force: false
-      image: quay.io/okd/scos-release@sha256:ac52de9d13aea4abc0822e6d698479aa1380a2422334cc882b0fa92961932d07
-      version: 4.20.0-okd-scos.0
+      image: quay.io/okd/scos-release@sha256:0967ff565fc3610f7a62ddde3b43f27906538a45648c780a630fce8e4bbc422b
+      version: 4.20.0-okd-scos.6
     upstream: https://amd64.origin.releases.ci.openshift.org/graph
 kind: List
 metadata: {}
