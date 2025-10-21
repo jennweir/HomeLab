@@ -2,7 +2,7 @@ kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
   name: kubevirt-hyperconverged
-  namespace: kubevirt-hyperconverged
+  namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
