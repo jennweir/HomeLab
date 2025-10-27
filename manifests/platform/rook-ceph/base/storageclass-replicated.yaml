@@ -5,6 +5,7 @@ metadata:
   name: replicapool-replicated
   namespace: rook-ceph # namespace:cluster
   annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
     argocd.argoproj.io/sync-wave: "3"
 spec:
   failureDomain: host
