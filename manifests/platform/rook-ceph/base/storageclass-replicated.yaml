@@ -5,7 +5,6 @@ metadata:
   name: replicapool-replicated
   namespace: rook-ceph # namespace:cluster
   annotations:
-    storageclass.kubernetes.io/is-default-class: "true"
     argocd.argoproj.io/sync-wave: "3"
 spec:
   failureDomain: host
@@ -23,6 +22,7 @@ kind: StorageClass
 metadata:
   name: rook-ceph-block-replicated
   annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
     argocd.argoproj.io/sync-wave: "3"
 # Change "rook-ceph" provisioner prefix to match the operator namespace if needed
 provisioner: rook-ceph.rbd.csi.ceph.com
