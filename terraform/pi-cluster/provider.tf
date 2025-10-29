@@ -1,4 +1,4 @@
 provider "google" {
-  project = "pi-cluster-433101"
+  project = "homelab-mgmt"
   region  = "us-east1"
 }
