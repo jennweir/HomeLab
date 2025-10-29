@@ -1,10 +1,8 @@
 terraform { 
-  cloud { 
-    organization = "jennweir-org" 
-    workspaces { 
-      name = "homelab" 
-    } 
-  } 
+  backend "gcs" {
+    bucket = "jennweir-homelab"
+    prefix = "terraform/state/okd"
+  }
   required_providers {
     google = {
       source = "hashicorp/google"
