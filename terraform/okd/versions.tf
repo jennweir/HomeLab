@@ -1,6 +1,6 @@
 terraform { 
   backend "gcs" {
-    bucket = "jennweir-homelab"
+    bucket = "jennweir-terraform-backend"
     prefix = "terraform/state/okd"
   }
   required_providers {
