@@ -1,4 +1,4 @@
 provider "google" {
-  project = "okd-homelab"
+  project = "homelab-mgmt"
   region  = "us-east1"
 }
