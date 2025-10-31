@@ -35,7 +35,7 @@ kubectl create secret generic gcpsm-secret \
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
 
-helm template helm-chart-0.19.1 external-secrets/external-secrets \
-  --version 0.19.1 \
+helm template helm-chart-0.20.4 external-secrets/external-secrets \
+  --version 0.20.4 \
   --namespace external-secrets-operator
 ```

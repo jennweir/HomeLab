@@ -1,14 +1,13 @@
----
 # Source: external-secrets/templates/validatingwebhook.yaml
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: secretstore-validate
   labels:
-    helm.sh/chart: external-secrets-0.19.1
+    helm.sh/chart: external-secrets-0.20.4
     app.kubernetes.io/name: external-secrets-webhook
-    app.kubernetes.io/instance: helm-chart-0.19.1
-    app.kubernetes.io/version: "v0.19.1"
+    app.kubernetes.io/instance: helm-chart-0.20.4
+    app.kubernetes.io/version: "v0.20.4"
     app.kubernetes.io/managed-by: Helm
     external-secrets.io/component: webhook
 webhooks:
@@ -38,7 +37,7 @@ webhooks:
   clientConfig:
     service:
       namespace: external-secrets-operator
-      name: external-secrets-webhook
+      name: helm-chart-0.20.4-external-secrets-webhook
       path: /validate-external-secrets-io-v1-clustersecretstore
   admissionReviewVersions: ["v1", "v1beta1"]
   sideEffects: None
@@ -50,10 +49,10 @@ kind: ValidatingWebhookConfiguration
 metadata:
   name: externalsecret-validate
   labels:
-    helm.sh/chart: external-secrets-0.19.1
+    helm.sh/chart: external-secrets-0.20.4
     app.kubernetes.io/name: external-secrets-webhook
-    app.kubernetes.io/instance: helm-chart-0.19.1
-    app.kubernetes.io/version: "v0.19.1"
+    app.kubernetes.io/instance: helm-chart-0.20.4
+    app.kubernetes.io/version: "v0.20.4"
     app.kubernetes.io/managed-by: Helm
     external-secrets.io/component: webhook
 webhooks:
