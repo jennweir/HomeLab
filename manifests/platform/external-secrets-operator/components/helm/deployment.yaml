@@ -6,25 +6,25 @@ metadata:
   name: external-secrets-cert-controller
   namespace: external-secrets-operator
   labels:
-    helm.sh/chart: external-secrets-0.19.1
+    helm.sh/chart: external-secrets-0.20.4
     app.kubernetes.io/name: external-secrets-cert-controller
-    app.kubernetes.io/instance: helm-chart-0.19.1
-    app.kubernetes.io/version: "v0.19.1"
+    app.kubernetes.io/instance: helm-chart-0.20.4
+    app.kubernetes.io/version: "v0.20.4"
     app.kubernetes.io/managed-by: Helm
 spec:
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
       app.kubernetes.io/name: external-secrets-cert-controller
-      app.kubernetes.io/instance: helm-chart-0.19.1
+      app.kubernetes.io/instance: helm-chart-0.20.4
   template:
     metadata:
       labels:
-        helm.sh/chart: external-secrets-0.19.1
+        helm.sh/chart: external-secrets-0.20.4
         app.kubernetes.io/name: external-secrets-cert-controller
-        app.kubernetes.io/instance: helm-chart-0.19.1
-        app.kubernetes.io/version: "v0.19.1"
+        app.kubernetes.io/instance: helm-chart-0.20.4
+        app.kubernetes.io/version: "v0.20.4"
         app.kubernetes.io/managed-by: Helm
     spec:
       serviceAccountName: external-secrets-cert-controller
@@ -43,14 +43,14 @@ spec:
             # unable to validate against any security context constraint: [provider "anyuid": Forbidden: not usable by user or serviceaccount, provider restricted-v2: .containers[0].runAsUser:Invalid value: 1000: must be in the ranges: [1000830000, 1000839999]
             seccompProfile:
               type: RuntimeDefault
-          image: oci.external-secrets.io/external-secrets/external-secrets:v0.19.1
+          image: oci.external-secrets.io/external-secrets/external-secrets:v0.20.4
           imagePullPolicy: IfNotPresent
           args:
           - certcontroller
           - --crd-requeue-interval=5m
-          - --service-name=external-secrets-webhook
+          - --service-name=helm-chart-0.20.4-external-secrets-webhook
           - --service-namespace=external-secrets-operator
-          - --secret-name=external-secrets-webhook
+          - --secret-name=helm-chart-0.20.4-external-secrets-webhook
           - --secret-namespace=external-secrets-operator
           - --metrics-addr=:8080
           - --healthz-addr=:8081
@@ -82,10 +82,10 @@ metadata:
   name: external-secrets
   namespace: external-secrets-operator
   labels:
-    helm.sh/chart: external-secrets-0.19.1
+    helm.sh/chart: external-secrets-0.20.4
     app.kubernetes.io/name: external-secrets
-    app.kubernetes.io/instance: helm-chart-0.19.1
-    app.kubernetes.io/version: "v0.19.1"
+    app.kubernetes.io/instance: helm-chart-0.20.4
+    app.kubernetes.io/version: "v0.20.4"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 2
@@ -93,14 +93,14 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: external-secrets
-      app.kubernetes.io/instance: helm-chart-0.19.1
+      app.kubernetes.io/instance: helm-chart-0.20.4
   template:
     metadata:
       labels:
-        helm.sh/chart: external-secrets-0.19.1
+        helm.sh/chart: external-secrets-0.20.4
         app.kubernetes.io/name: external-secrets
-        app.kubernetes.io/instance: helm-chart-0.19.1
-        app.kubernetes.io/version: "v0.19.1"
+        app.kubernetes.io/instance: helm-chart-0.20.4
+        app.kubernetes.io/version: "v0.20.4"
         app.kubernetes.io/managed-by: Helm
     spec:
       serviceAccountName: external-secrets
@@ -119,7 +119,7 @@ spec:
             # unable to validate against any security context constraint: [provider "anyuid": Forbidden: not usable by user or serviceaccount, provider restricted-v2: .containers[0].runAsUser:Invalid value: 1000: must be in the ranges: [1000830000, 1000839999]
             seccompProfile:
               type: RuntimeDefault
-          image: oci.external-secrets.io/external-secrets/external-secrets:v0.19.1
+          image: oci.external-secrets.io/external-secrets/external-secrets:v0.20.4
           imagePullPolicy: IfNotPresent
           args:
           - --concurrent=1
@@ -146,10 +146,10 @@ metadata:
   name: external-secrets-webhook
   namespace: external-secrets-operator
   labels:
-    helm.sh/chart: external-secrets-0.19.1
+    helm.sh/chart: external-secrets-0.20.4
     app.kubernetes.io/name: external-secrets-webhook
-    app.kubernetes.io/instance: helm-chart-0.19.1
-    app.kubernetes.io/version: "v0.19.1"
+    app.kubernetes.io/instance: helm-chart-0.20.4
+    app.kubernetes.io/version: "v0.20.4"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 2
@@ -157,14 +157,14 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: external-secrets-webhook
-      app.kubernetes.io/instance: helm-chart-0.19.1
+      app.kubernetes.io/instance: helm-chart-0.20.4
   template:
     metadata:
       labels:
-        helm.sh/chart: external-secrets-0.19.1
+        helm.sh/chart: external-secrets-0.20.4
         app.kubernetes.io/name: external-secrets-webhook
-        app.kubernetes.io/instance: helm-chart-0.19.1
-        app.kubernetes.io/version: "v0.19.1"
+        app.kubernetes.io/instance: helm-chart-0.20.4
+        app.kubernetes.io/version: "v0.20.4"
         app.kubernetes.io/managed-by: Helm
     spec:
       hostNetwork: false
@@ -183,7 +183,7 @@ spec:
             # unable to validate against any security context constraint: [provider "anyuid": Forbidden: not usable by user or serviceaccount, provider restricted-v2: .containers[0].runAsUser:Invalid value: 1000: must be in the ranges: [1000830000, 1000839999]
             seccompProfile:
               type: RuntimeDefault
-          image: oci.external-secrets.io/external-secrets/external-secrets:v0.19.1
+          image: oci.external-secrets.io/external-secrets/external-secrets:v0.20.4
           imagePullPolicy: IfNotPresent
           args:
           - webhook
