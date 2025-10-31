@@ -23,8 +23,8 @@ OKD_DOMAIN="okd.jenniferpweir.com"
 PHY_BOX_1="box-1.homelab.jenniferpweir.com"
 PHY_BOX_2="box-2.homelab.jenniferpweir.com"
 PHY_BOX_3="box-3.homelab.jenniferpweir.com"
-OC_CLI="https://github.com/okd-project/okd-scos/releases/download/4.18.0-okd-scos.6/openshift-client-mac-4.18.0-okd-scos.6.tar.gz"
-OCP_INSTALLER="https://github.com/okd-project/okd-scos/releases/download/4.18.0-okd-scos.6/openshift-install-mac-4.18.0-okd-scos.6.tar.gz"
+OC_CLI="https://github.com/okd-project/okd/releases/download/4.18.0-okd-scos.6/openshift-client-mac-4.18.0-okd-scos.6.tar.gz"
+OCP_INSTALLER="https://github.com/okd-project/okd/releases/download/4.18.0-okd-scos.6/openshift-install-mac-4.18.0-okd-scos.6.tar.gz"
 
 # Prerequisites
 echo -e "${GREEN}1. Check the required DNS entries resolve with forward and reverse DNS${RESET}"
