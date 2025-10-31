@@ -48,9 +48,9 @@ spec:
           args:
           - certcontroller
           - --crd-requeue-interval=5m
-          - --service-name=helm-chart-0.20.4-external-secrets-webhook
+          - --service-name=external-secrets-webhook
           - --service-namespace=external-secrets-operator
-          - --secret-name=helm-chart-0.20.4-external-secrets-webhook
+          - --secret-name=external-secrets-webhook
           - --secret-namespace=external-secrets-operator
           - --metrics-addr=:8080
           - --healthz-addr=:8081
