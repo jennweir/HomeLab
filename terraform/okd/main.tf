@@ -63,17 +63,24 @@ resource "google_service_account_iam_member" "okd_wif" {
 resource "google_service_account" "gsm_accessor" {
     account_id   = "gsm-accessor"
     display_name = "GSM Accessor Service Account"
-    project      = data.google_project.okd_homelab.project_id
-}
-
-resource "google_project_iam_member" "gsm_accessor_role" {
-    project = data.google_project.okd_homelab.project_id
-    role    = "roles/secretmanager.secretAccessor"
+	@@ -60,20 +72,8 @@ resource "google_project_iam_member" "gsm_accessor_role" {
     member  = "serviceAccount:${google_service_account.gsm_accessor.email}"
 }
 
+resource "google_service_account_iam_member" "workload_identity_binding" {
+    service_account_id = google_service_account.gsm_accessor.name
+    role               = "roles/iam.workloadIdentityUser"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.wif_provider}:${local.wif_pool}"
+}
+
+resource "google_service_account" "eso" {
+    account_id   = "sa-eso"
+    display_name = "sa-eso"
+    project      = data.google_project.okd_homelab.project_id
+}
+
 resource "google_service_account_iam_member" "eso_wif" {
-    service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.gsm_accessor.email}"
+    service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.eso.email}"
     role               = "roles/iam.workloadIdentityUser"
     member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.eso_namespace}:${local.eso_sa}"
 }
