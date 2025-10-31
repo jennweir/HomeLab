@@ -37,7 +37,7 @@ webhooks:
   clientConfig:
     service:
       namespace: external-secrets-operator
-      name: helm-chart-0.20.4-external-secrets-webhook
+      name: external-secrets-webhook
       path: /validate-external-secrets-io-v1-clustersecretstore
   admissionReviewVersions: ["v1", "v1beta1"]
   sideEffects: None
