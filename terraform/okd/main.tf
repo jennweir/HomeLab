@@ -48,22 +48,9 @@ resource "google_iam_workload_identity_pool_provider" "okd_homelab" {
     }
 }
 
-resource "google_service_account" "sa_okd" {
-    account_id   = "sa-okd"
-    display_name = "sa-okd"
-    project      = data.google_project.okd_homelab.project_id
-}
-
-resource "google_service_account_iam_member" "okd_wif" {
-    service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.sa_okd.email}"
-    role               = "roles/iam.workloadIdentityUser"
-    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.wif_provider}:${local.wif_pool}"
-}
-
 resource "google_service_account" "gsm_accessor" {
     account_id   = "gsm-accessor"
     display_name = "GSM Accessor Service Account"
-	@@ -60,20 +72,8 @@ resource "google_project_iam_member" "gsm_accessor_role" {
     member  = "serviceAccount:${google_service_account.gsm_accessor.email}"
 }
 
