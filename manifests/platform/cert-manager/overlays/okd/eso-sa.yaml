@@ -5,3 +5,4 @@ metadata:
   namespace: cert-manager
   annotations:
     argocd.argoproj.io/sync-wave: "1"
+    iam.gke.io/gcp-service-account: gsm-accessor@okd-homelab.iam.gserviceaccount.com
