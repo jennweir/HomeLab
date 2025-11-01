@@ -2,11 +2,13 @@ apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: cloudflare-api-token
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   refreshInterval: 1h
   secretStoreRef:
-    name: gsm-cluster-secret-store
-    kind: ClusterSecretStore
+    name: gsm-secret-store
+    kind: SecretStore
   target:
     name: cloudflare-api-token-secret
     creationPolicy: Owner

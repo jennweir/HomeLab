@@ -1,7 +1,8 @@
 locals {
     wif_pool = "okd-pool"
     wif_provider = "okd-provider"
-    eso_namespace = "external-secrets-operator"
+    cert_manager_ns = "cert-manager"
+    openshift_monitoring_ns = "openshift-monitoring"
     eso_sa = "external-secrets" 
 }
 
@@ -72,8 +73,14 @@ resource "google_service_account" "eso" {
     project      = data.google_project.okd_homelab.project_id
 }
 
-resource "google_service_account_iam_member" "eso_wif" {
+resource "google_service_account_iam_member" "cert_man_eso_wif" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.eso.email}"
     role               = "roles/iam.workloadIdentityUser"
-    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.eso_namespace}:${local.eso_sa}"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.cert_manager_ns}:${local.eso_sa}"
+}
+
+resource "google_service_account_iam_member" "openshift_monitoring_eso_wif" {
+    service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.eso.email}"
+    role               = "roles/iam.workloadIdentityUser"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.openshift_monitoring_ns}:${local.eso_sa}"
 }
