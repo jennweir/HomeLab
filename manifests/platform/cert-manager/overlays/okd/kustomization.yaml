@@ -6,3 +6,5 @@ resources:
   - ../../components
   - clusterissuer-staging.yaml
   - cloudflare-api-token.yaml
+  - eso-sa.yaml
+  - secretstore.yaml
