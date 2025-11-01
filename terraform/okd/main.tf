@@ -61,12 +61,6 @@ resource "google_project_iam_member" "gsm_accessor_role" {
     member  = "serviceAccount:${google_service_account.gsm_accessor.email}"
 }
 
-resource "google_service_account_iam_member" "workload_identity_binding" {
-    service_account_id = google_service_account.gsm_accessor.name
-    role               = "roles/iam.workloadIdentityUser"
-    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.wif_provider}:${local.wif_pool}"
-}
-
 resource "google_service_account_iam_member" "cert_man_eso_wif" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.gsm_accessor.email}"
     role               = "roles/iam.workloadIdentityUser"
