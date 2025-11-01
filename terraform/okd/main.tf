@@ -3,7 +3,8 @@ locals {
     wif_provider = "okd-provider"
     cert_manager_ns = "cert-manager"
     openshift_monitoring_ns = "openshift-monitoring"
-    eso_sa = "external-secrets" 
+    eso_sa = "external-secrets"
+    eso_secrets = ["alertmanager-discord-config", "okd-cluster-cert-manager-cloudflare-api-token"]
 }
 
 data "google_project" "okd_homelab" {
@@ -55,10 +56,12 @@ resource "google_service_account" "gsm_accessor" {
     project      = data.google_project.okd_homelab.project_id
 }
 
-resource "google_project_iam_member" "gsm_accessor_role" {
-    project = data.google_project.okd_homelab.project_id
-    role    = "roles/secretmanager.secretAccessor"
-    member  = "serviceAccount:${google_service_account.gsm_accessor.email}"
+resource "google_secret_manager_secret_iam_member" "secrets_access" {
+    for_each  = toset(local.eso_secrets)
+    project   = data.google_project.okd_homelab.project_id
+    secret_id = each.value
+    role      = "roles/secretmanager.secretAccessor"
+    member    = "serviceAccount:${google_service_account.gsm_accessor.email}"
 }
 
 resource "google_service_account_iam_member" "cert_man_eso_wif" {
