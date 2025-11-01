@@ -4,4 +4,3 @@ resources:
   - ../../base
   - ../../components/helm
   - ../../components/non-helm
-  - clustersecretstore.yaml
