@@ -25,26 +25,26 @@ resource "google_storage_bucket_iam_member" "homelab_bucket" {
     member = "allUsers"
 }
 
-resource "google_iam_workload_identity_pool" "okd_homelab" {
+resource "google_iam_workload_identity_pool" "okd_pool" {
     project                   = data.google_project.okd_homelab.project_id
-    workload_identity_pool_id = "okd-homelab"
-    display_name              = "okd-homelab"
+    workload_identity_pool_id = local.wif_pool
+    display_name              = local.wif_pool
     description               = "created with terraform"
 }
 
-resource "google_iam_workload_identity_pool_provider" "okd_homelab" {
+resource "google_iam_workload_identity_pool_provider" "okd_provider" {
     project = data.google_project.okd_homelab.project_id
-    display_name                       = "okd-homelab"
+    display_name                       = local.wif_provider
     description                        = "created with terraform"
-    workload_identity_pool_id          = google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id
-    workload_identity_pool_provider_id = "okd-homelab"
+    workload_identity_pool_id          = google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id
+    workload_identity_pool_provider_id = local.wif_provider
     attribute_mapping = {
         "google.subject" = "assertion.sub"
     }
     oidc {
         issuer_uri        = "https://storage.googleapis.com/jennweir-homelab"
         allowed_audiences = [
-        "//iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/providers/okd-homelab",
+        "//iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/providers/${local.wif_provider}",
         ]
     }
 }
@@ -64,11 +64,11 @@ resource "google_project_iam_member" "gsm_accessor_role" {
 resource "google_service_account_iam_member" "cert_man_eso_wif" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.gsm_accessor.email}"
     role               = "roles/iam.workloadIdentityUser"
-    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.cert_manager_ns}:${local.eso_sa}"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.cert_manager_ns}:${local.eso_sa}"
 }
 
 resource "google_service_account_iam_member" "openshift_monitoring_eso_wif" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.gsm_accessor.email}"
     role               = "roles/iam.workloadIdentityUser"
-    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_homelab.workload_identity_pool_id}/subject/system:serviceaccount:${local.openshift_monitoring_ns}:${local.eso_sa}"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.openshift_monitoring_ns}:${local.eso_sa}"
 }
