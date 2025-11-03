@@ -44,7 +44,10 @@ resource "google_iam_workload_identity_pool_provider" "okd_provider" {
     }
     oidc {
         issuer_uri        = "https://storage.googleapis.com/jennweir-homelab"
-        allowed_audiences = ["openshift"]
+        allowed_audiences = [
+            "//iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/providers/${local.wif_provider}", 
+            "openshift"
+        ]
     }
 }
 
