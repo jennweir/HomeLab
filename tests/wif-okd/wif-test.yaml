@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wif-test
+  namespace: smoke-tests
+  labels:
+    app: wif-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wif-test
+  template:
+    metadata:
+      labels:
+        app: wif-test
+    spec:
+      serviceAccountName: smoke-tests-sa
+      containers:
+        - name: wif-test
+          image: google/cloud-sdk:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/run/secrets/google/credentials.json
+            - name: CLOUDSDK_CONFIG
+              value: /tmp/gcloud-config
+            - name: HOME
+              value: /tmp
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+          args:
+            - "/bin/sh"
+            - "-c"
+            - |
+              set -ex
+              mkdir -p /tmp/bin /tmp/google-cloud-sdk /tmp/gcloud-config
+
+              # Install jwt-cli for decoding tokens
+              JWT_URL="https://github.com/mike-engel/jwt-cli/releases/download/6.0.0/jwt-linux.tar.gz"
+              curl -L --progress-bar --output - --url "${JWT_URL}" | tar -zxf - --no-same-owner --one-top-level=/tmp/bin
+
+              export PATH="$PATH:/tmp/google-cloud-sdk/bin:/tmp/bin"
+
+              echo " jwt decode - < /var/run/secrets/openshift/serviceaccount/token"
+              echo " gcloud auth login --cred-file=$GOOGLE_APPLICATION_CREDENTIALS"
+              echo " gcloud secrets versions access latest --secret=test-secret --project=okd-homelab"
+              
+              sleep infinity
+          volumeMounts:
+            - name: google-creds
+              mountPath: /var/run/secrets/google
+              readOnly: true
+            - name: bound-sa-token
+              mountPath: /var/run/secrets/openshift/serviceaccount
+              readOnly: true
+            - name: tmp-dir
+              mountPath: /tmp
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+      volumes:
+        - name: google-creds
+          configMap:
+            name: google-creds
+            defaultMode: 420
+        - name: bound-sa-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: openshift
+                  expirationSeconds: 3600
+                  path: token
+            defaultMode: 420
+        - name: tmp-dir
+          emptyDir: {}
