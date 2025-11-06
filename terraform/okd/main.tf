@@ -65,6 +65,14 @@ resource "google_service_account" "test_gsm_accessor" {
     project      = data.google_project.okd_homelab.project_id
 }
 
+resource "google_secret_manager_secret_iam_member" "test_secret_access" {
+    for_each  = toset(["test-secret"])
+    project   = data.google_project.okd_homelab.project_id
+    secret_id = each.value
+    role      = "roles/secretmanager.secretAccessor"
+    member    = "serviceAccount:${google_service_account.test_gsm_accessor.email}"
+}
+
 resource "google_service_account" "gsm_accessor" {
     account_id   = "gsm-accessor"
     display_name = "GSM Accessor Service Account"
