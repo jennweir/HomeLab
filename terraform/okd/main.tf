@@ -4,6 +4,7 @@ locals {
     smoke_tests_ns = "smoke-tests"
     smoke_tests_sa = "smoke-tests-sa"
     cert_manager_ns = "cert-manager"
+    cert_manager_sa = "cert-manager"
     openshift_monitoring_ns = "openshift-monitoring"
     eso_sa = "external-secrets"
     eso_secrets = ["alertmanager-discord-config", "okd-cluster-cert-manager-cloudflare-api-token"]
@@ -93,13 +94,13 @@ resource "google_service_account_iam_member" "smoke_tests_wif_binding" {
     member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.smoke_tests_ns}:${local.smoke_tests_sa}"
 }
 
-resource "google_service_account_iam_member" "cert_man_eso_wif_binding" {
+resource "google_service_account_iam_member" "cert_man_wif_binding" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.gsm_accessor.email}"
     role               = "roles/iam.workloadIdentityUser"
-    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.cert_manager_ns}:${local.eso_sa}"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.cert_manager_ns}:${local.cert_manager_sa}"
 }
 
-resource "google_service_account_iam_member" "openshift_monitoring_eso_wif_binding" {
+resource "google_service_account_iam_member" "openshift_monitoring_wif_binding" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.gsm_accessor.email}"
     role               = "roles/iam.workloadIdentityUser"
     member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.openshift_monitoring_ns}:${local.eso_sa}"
