@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - applications.yaml
   - argocd.yaml
+  - avp-cmp-plugin.yaml
   - subscription.yaml
