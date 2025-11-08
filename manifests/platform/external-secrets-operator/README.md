@@ -6,14 +6,9 @@
 
 ## okd cluster
 
-```bash
-gcloud iam service-accounts keys create credentials.json \
-  --iam-account=gsm_accessor@okd-homelab.iam.gserviceaccount.com
+Uses workload identity federation to eliminate use of long-lived service account token
 
-kubectl create secret generic gcpsm-secret \
-  --from-file=credentials.json=/Users/jenn/Projects/HomeLab/manifests/platform/external-secrets-operator/overlays/okd/credentials.json \
-  --namespace=external-secrets-operator
-```
+<https://external-secrets.io/latest/api/spec/#external-secrets.io/v1.GCPWorkloadIdentityFederation>
 
 ## k8s pi cluster
 
