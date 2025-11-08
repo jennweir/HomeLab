@@ -15,5 +15,5 @@ spec:
   data:
     - secretKey: api-token
       remoteRef:
-        key: okd-cluster-cert-manager-cloudflare-api-token
+        key: cert-manager-cloudflare-api-token
         version: "latest"

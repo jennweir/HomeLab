@@ -4,10 +4,8 @@ locals {
     smoke_tests_ns = "smoke-tests"
     smoke_tests_sa = "smoke-tests-sa"
     cert_manager_ns = "cert-manager"
-    cert_manager_sa = "cert-manager"
     openshift_monitoring_ns = "openshift-monitoring"
     eso_sa = "external-secrets"
-    eso_secrets = ["alertmanager-discord-config", "okd-cluster-cert-manager-cloudflare-api-token"]
 }
 
 data "google_project" "okd_homelab" {
@@ -67,23 +65,10 @@ resource "google_service_account" "test_gsm_accessor" {
 }
 
 resource "google_secret_manager_secret_iam_member" "test_secret_access" {
-    for_each  = toset(["test-secret"])
     project   = data.google_project.okd_homelab.project_id
-    secret_id = each.value
+    secret_id = "test-secret"
     role      = "roles/secretmanager.secretAccessor"
     member    = "serviceAccount:${google_service_account.test_gsm_accessor.email}"
-}
-
-resource "google_service_account" "gsm_accessor" {
-    account_id   = "gsm-accessor"
-    display_name = "GSM Accessor Service Account"
-    project      = data.google_project.okd_homelab.project_id
-}
-
-resource "google_project_iam_member" "gsm_accessor_secretmanager" {
-    project = data.google_project.okd_homelab.project_id
-    role    = "roles/secretmanager.secretAccessor"
-    member  = "serviceAccount:${google_service_account.gsm_accessor.email}"
 }
 
 resource "google_service_account_iam_member" "smoke_tests_wif_binding" {
@@ -92,19 +77,18 @@ resource "google_service_account_iam_member" "smoke_tests_wif_binding" {
     member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.smoke_tests_ns}:${local.smoke_tests_sa}"
 }
 
+# make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
 resource "google_secret_manager_secret_iam_member" "cert_manager_secret_accessor" {
-    for_each  = toset(["okd-cluster-cert-manager-cloudflare-api-token"])
     project   = data.google_project.okd_homelab.project_id
-    secret_id = each.value
+    secret_id = "cert-manager-cloudflare-api-token"
     role      = "roles/secretmanager.secretAccessor"
     member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.cert_manager_ns}:${local.eso_sa}"
 }
 
+# make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
 resource "google_secret_manager_secret_iam_member" "openshift_monitoring_secret_accessor" {
-    for_each  = toset(["alertmanager-discord-config"])
     project   = data.google_project.okd_homelab.project_id
-    secret_id = each.value
+    secret_id = "alertmanager-discord-config"
     role      = "roles/secretmanager.secretAccessor"
     member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.openshift_monitoring_ns}:${local.eso_sa}"
 }
-
