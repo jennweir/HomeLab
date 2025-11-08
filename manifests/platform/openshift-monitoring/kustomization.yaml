@@ -5,3 +5,4 @@ resources:
   - eso-sa.yaml
   - external-secret.yaml
   - secretstore.yaml
+  # - test-critical-alert.yaml
