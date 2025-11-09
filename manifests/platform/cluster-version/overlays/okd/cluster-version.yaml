@@ -7,7 +7,7 @@ items:
     name: version
   spec:
     channel: stable-scos-4
-    clusterID: <CLUSTER_ID>
+    clusterID: <path:projects/1086456784694/secrets/okd_cluster_id#okd_cluster_id>
     desiredUpdate:
       force: false
       image: quay.io/okd/scos-release@sha256:0967ff565fc3610f7a62ddde3b43f27906538a45648c780a630fce8e4bbc422b

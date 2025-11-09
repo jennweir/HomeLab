@@ -1,11 +1,6 @@
 locals {
     wif_pool = "okd-pool"
     wif_provider = "okd-provider"
-    smoke_tests_ns = "smoke-tests"
-    smoke_tests_sa = "smoke-tests-sa"
-    cert_manager_ns = "cert-manager"
-    openshift_monitoring_ns = "openshift-monitoring"
-    eso_sa = "external-secrets"
 }
 
 data "google_project" "okd_homelab" {
@@ -74,7 +69,26 @@ resource "google_secret_manager_secret_iam_member" "test_secret_access" {
 resource "google_service_account_iam_member" "smoke_tests_wif_binding" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.test_gsm_accessor.email}"
     role               = "roles/iam.workloadIdentityUser"
-    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.smoke_tests_ns}:${local.smoke_tests_sa}"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:smoke-tests:smoke-tests-sa"
+}
+
+resource "google_service_account" "gsm_accessor" {
+    account_id   = "gsm-accessor"
+    display_name = "GSM Accessor Service Account"
+    project      = data.google_project.okd_homelab.project_id
+}
+
+resource "google_secret_manager_secret_iam_member" "gsm_secret_access" {
+    project   = data.google_project.okd_homelab.project_id
+    secret_id = "okd_cluster_id"
+    role      = "roles/secretmanager.secretAccessor"
+    member    = "serviceAccount:${google_service_account.gsm_accessor.email}"
+}
+
+resource "google_service_account_iam_member" "argocd_wif_binding" {
+    service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.gsm_accessor.email}"
+    role               = "roles/iam.workloadIdentityUser"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:argocd-argocd-repo-server"
 }
 
 # make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
@@ -82,7 +96,7 @@ resource "google_secret_manager_secret_iam_member" "cert_manager_secret_accessor
     project   = data.google_project.okd_homelab.project_id
     secret_id = "cert-manager-cloudflare-api-token"
     role      = "roles/secretmanager.secretAccessor"
-    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.cert_manager_ns}:${local.eso_sa}"
+    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:cert-manager:external-secrets"
 }
 
 # make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
@@ -90,5 +104,5 @@ resource "google_secret_manager_secret_iam_member" "openshift_monitoring_secret_
     project   = data.google_project.okd_homelab.project_id
     secret_id = "alertmanager-discord-config"
     role      = "roles/secretmanager.secretAccessor"
-    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:${local.openshift_monitoring_ns}:${local.eso_sa}"
+    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:openshift-monitoring:external-secrets"
 }
