@@ -9,4 +9,4 @@ spec:
   name: community-kubevirt-hyperconverged
   source: community-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: kubevirt-hyperconverged-operator.v1.15.2
+  startingCSV: kubevirt-hyperconverged-operator.v1.16.0
