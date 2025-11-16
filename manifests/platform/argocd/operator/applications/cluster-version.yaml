@@ -12,6 +12,8 @@ spec:
     repoURL: https://github.com/jennweir/HomeLab.git
     path: manifests/platform/cluster-version/overlays/okd
     targetRevision: avp-fixes
+    plugin:
+      name: argocd-vault-plugin-kustomize
   syncPolicy:
     retry:
       limit: 5
