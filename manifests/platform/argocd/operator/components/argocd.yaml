@@ -41,7 +41,7 @@ spec:
     mountsatoken: true
     sidecarContainers:
       - name: avp-kustomize
-        image: registry.redhat.io/ubi8/ubi:8.10-1761020747@sha256:bcfca5f27e2d2a822bdbbe7390601edefee48c3cae03b552a33235dcca4a0e24
+        image: quay.io/jennweir/argocd-sidecar-avp:0.0.2@sha256:3f222850abf6c75d592c7783c7cdbd438aef1018e0efcc59eeada4bb4accdaf1
         command:
           - /var/run/argocd/argocd-cmp-server
         env:
