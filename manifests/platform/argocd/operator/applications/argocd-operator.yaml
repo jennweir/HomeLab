@@ -10,8 +10,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
-    path: manifests/platform/argocd/operator
-    targetRevision: main
+    path: manifests/platform/argocd/operator/overlays/okd
+    targetRevision: avp-fixes
   syncPolicy:
     automated:
       prune: true

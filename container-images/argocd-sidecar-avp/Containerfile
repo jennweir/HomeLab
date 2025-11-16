@@ -1,0 +1,34 @@
+FROM registry.redhat.io/ubi9/ubi-minimal:9.7-1762956380@sha256:53ea1f6d835898acda5becdb3f8b1292038a480384bbcf994fc0bcf1f7e8eaf7
+
+USER root
+
+# Install only packages that won't conflict (git, tar, gzip usually safe)
+RUN microdnf install -y \
+    findutils \
+    git \
+    tar \
+    gzip \
+    --nodocs \
+    && microdnf clean all
+
+# -----------------------------
+# Install ArgoCD Vault Plugin
+# -----------------------------
+ENV AVP_VERSION=1.18.1
+RUN curl -L -o /usr/local/bin/argocd-vault-plugin \
+    https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v${AVP_VERSION}/argocd-vault-plugin_${AVP_VERSION}_linux_amd64 && \
+    chmod +x /usr/local/bin/argocd-vault-plugin
+
+# -----------------------------
+# Install kustomize
+# -----------------------------
+ENV KUSTOMIZE_VERSION=5.5.0
+RUN curl -L -o kustomize.tar.gz \
+    https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv${KUSTOMIZE_VERSION}/kustomize_v${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
+    tar -xzf kustomize.tar.gz && \
+    mv kustomize /usr/local/bin/kustomize && \
+    chmod +x /usr/local/bin/kustomize && \
+    rm kustomize.tar.gz
+
+# Drop to ArgoCD repo-server user
+USER 999
