@@ -10,7 +10,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
-    path: manifests/platform/argocd/operator/overlays/okd
+    path: manifests/platform/argocd/overlays/okd
     targetRevision: main
   syncPolicy:
     automated:
