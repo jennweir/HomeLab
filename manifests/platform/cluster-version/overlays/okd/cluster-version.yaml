@@ -8,6 +8,6 @@ spec:
   clusterID: <path:projects/1086456784694/secrets/okd_cluster_id#okd_cluster_id>
   desiredUpdate:
     force: false
-    image: quay.io/okd/scos-release@sha256:3bb6f10c2e39a9378237053ae97c72227af188ad8c89cb709e3d631b0fc0fa32
+    image: quay.io/okd/scos-release@sha256:d034ced1e7977cac3e7943cfb59dd06268d93c30bd6eca9fa51093bf793c44f3
     version: 4.21.0-okd-scos.ec.8
   upstream: https://amd64.origin.releases.ci.openshift.org/graph
