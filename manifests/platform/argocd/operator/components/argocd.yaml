@@ -4,8 +4,6 @@ metadata:
   name: argocd
   namespace: argocd
 spec:
-  imagePullSecrets:
-    - name: jennweir-homelab-pull-secret
   controller:
     resources:
       limits:
