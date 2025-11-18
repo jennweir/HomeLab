@@ -4,7 +4,7 @@ kind: ClusterVersion
 metadata:
   name: version
 spec:
-  channel: stable-scos-4
+  channel: next-scos-4
   clusterID: <path:projects/1086456784694/secrets/okd_cluster_id#okd_cluster_id>
   desiredUpdate:
     force: false
