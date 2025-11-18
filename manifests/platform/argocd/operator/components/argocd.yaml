@@ -4,6 +4,8 @@ metadata:
   name: argocd
   namespace: argocd
 spec:
+  imagePullSecrets:
+    - name: jennweir-homelab-pull-secret
   controller:
     resources:
       limits:
@@ -22,6 +24,9 @@ spec:
         cpu: 250m
         memory: 128Mi
   redis:
+    # specify image manually to avoid imagePullBackoff from enforcing no image short names in cri-o v1.34
+    image: public.ecr.aws/docker/library/redis:8.2.3
+    version: sha256:8061ca607db2a0c80010aeb5fc9bed0253448bc68711eaa14253a392f6c48280
     resources:
       limits:
         cpu: 200m
