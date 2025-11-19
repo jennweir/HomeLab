@@ -3,6 +3,8 @@ kind: GrafanaDashboard
 metadata:
   name: sample-dashboard
   namespace: grafana
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   resyncPeriod: 30s
   instanceSelector:
