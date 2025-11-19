@@ -4,6 +4,8 @@ locals {
     avp_gsm_secrets = [
         "okd_cluster_id",
         "project_id",
+        "grafana_admin_user",
+        "grafana_admin_password",
     ]
 }
 
