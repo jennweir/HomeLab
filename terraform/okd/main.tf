@@ -1,6 +1,10 @@
 locals {
     wif_pool = "okd-pool"
     wif_provider = "okd-provider"
+    avp_gsm_secrets = [
+        "okd_cluster_id",
+        "project_id",
+    ]
 }
 
 data "google_project" "okd_homelab" {
@@ -79,8 +83,10 @@ resource "google_service_account" "gsm_accessor" {
 }
 
 resource "google_secret_manager_secret_iam_member" "gsm_secret_access" {
+    for_each  = toset(local.avp_gsm_secrets)
+
     project   = data.google_project.okd_homelab.project_id
-    secret_id = "okd_cluster_id"
+    secret_id = each.value
     role      = "roles/secretmanager.secretAccessor"
     member    = "serviceAccount:${google_service_account.gsm_accessor.email}"
 }
@@ -119,14 +125,6 @@ resource "google_service_account_iam_member" "cert_manager_wif_binding" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.cert_manager_dns_solver.email}"
     role               = "roles/iam.workloadIdentityUser"
     member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:cert-manager:cert-manager"
-}
-
-# make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
-resource "google_secret_manager_secret_iam_member" "cert_manager_secret_accessor" {
-    project   = data.google_project.okd_homelab.project_id
-    secret_id = "cert-manager-cloudflare-api-token"
-    role      = "roles/secretmanager.secretAccessor"
-    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:cert-manager:external-secrets"
 }
 
 # make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
