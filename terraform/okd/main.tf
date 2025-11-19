@@ -128,14 +128,6 @@ resource "google_service_account_iam_member" "cert_manager_wif_binding" {
 }
 
 # make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
-resource "google_secret_manager_secret_iam_member" "cert_manager_secret_accessor" {
-    project   = data.google_project.okd_homelab.project_id
-    secret_id = "cert-manager-cloudflare-api-token"
-    role      = "roles/secretmanager.secretAccessor"
-    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:cert-manager:external-secrets"
-}
-
-# make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
 resource "google_secret_manager_secret_iam_member" "openshift_monitoring_secret_accessor" {
     project   = data.google_project.okd_homelab.project_id
     secret_id = "alertmanager-discord-config"
