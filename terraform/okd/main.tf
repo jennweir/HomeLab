@@ -1,6 +1,10 @@
 locals {
     wif_pool = "okd-pool"
     wif_provider = "okd-provider"
+    avp_gsm_secrets = [
+        "okd_cluster_id",
+        "project_id",
+    ]
 }
 
 data "google_project" "okd_homelab" {
@@ -79,8 +83,10 @@ resource "google_service_account" "gsm_accessor" {
 }
 
 resource "google_secret_manager_secret_iam_member" "gsm_secret_access" {
+    for_each  = toset(local.avp_gsm_secrets)
+
     project   = data.google_project.okd_homelab.project_id
-    secret_id = "okd_cluster_id"
+    secret_id = each.value
     role      = "roles/secretmanager.secretAccessor"
     member    = "serviceAccount:${google_service_account.gsm_accessor.email}"
 }
