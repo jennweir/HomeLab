@@ -4,6 +4,7 @@ metadata:
   name: grafana-ingress
   namespace: grafana
   annotations:
+    argocd.argoproj.io/sync-wave: "4"
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: openshift-default
