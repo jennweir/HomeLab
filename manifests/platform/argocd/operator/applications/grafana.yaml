@@ -1,16 +1,16 @@
 kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
-  name: grafana-operator
+  name: grafana
   namespace: argocd
 spec:
   destination:
     server: https://kubernetes.default.svc
-    namespace: grafana-operator
+    namespace: grafana
   project: default
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
-    path: manifests/platform/grafana-operator
+    path: manifests/platform/grafana/overlays/okd
     targetRevision: main
   syncPolicy:
     retry:
