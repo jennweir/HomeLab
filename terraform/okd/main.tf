@@ -91,6 +91,36 @@ resource "google_service_account_iam_member" "argocd_wif_binding" {
     member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:argocd-argocd-repo-server"
 }
 
+resource "google_service_account" "cert_manager_dns_solver" {
+    account_id   = "cert-manager-dns-solver"
+    display_name = "Cert Manager dns01 Solver Service Account"
+    project      = data.google_project.okd_homelab.project_id
+}
+
+resource "google_project_iam_custom_role" "cert_manager_dns_solver_role" {
+    role_id     = "cert_manager_dns_solver_role"
+    title       = "Cert Manager DNS Role"
+    description = "Least privilege role for cert-manager to manage Cloud DNS"
+    project     = data.google_project.okd_homelab.project_id
+    permissions = [
+        "dns.resourceRecordSets.create",
+        "dns.resourceRecordSets.delete",
+        "dns.resourceRecordSets.get",
+        "dns.resourceRecordSets.list",
+        "dns.resourceRecordSets.update",
+        "dns.changes.create",
+        "dns.changes.get",
+        "dns.changes.list",
+        "dns.managedZones.list",
+    ]
+}
+
+resource "google_service_account_iam_member" "cert_manager_wif_binding" {
+    service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.cert_manager_dns_solver.email}"
+    role               = "roles/iam.workloadIdentityUser"
+    member             = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:cert-manager:cert-manager"
+}
+
 # make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
 resource "google_secret_manager_secret_iam_member" "cert_manager_secret_accessor" {
     project   = data.google_project.okd_homelab.project_id

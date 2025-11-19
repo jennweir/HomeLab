@@ -18,7 +18,5 @@ spec:
       name: letsencrypt-prod
     solvers:
     - dns01:
-        cloudflare:
-          apiTokenSecretRef:
-            name: cloudflare-api-token-secret
-            key: api-token
+        cloudDNS:
+          project: <path:projects/1086456784694/secrets/project_id#project_id>
