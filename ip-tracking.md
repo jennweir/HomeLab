@@ -6,9 +6,9 @@ Subnet
 DHCP server in router IP space
 192.168.0.2 - 192.168.0.103
 
-pi-host-1   192.168.0.102
-pi-host-2   192.168.0.103
-pi-host-3   192.168.0.101
+pi-1   192.168.0.101
+pi-2   192.168.0.102
+pi-3   192.168.0.103
 
 OKD cluster api vip
 192.168.0.220

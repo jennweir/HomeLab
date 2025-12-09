@@ -45,7 +45,7 @@ spec:
                   fieldPath: metadata.namespace
             - name: EVENT_QUEUE_DEPTH
               value: "5000"
-          image: ghcr.io/flannel-io/flannel:v0.26.5
+          image: ghcr.io/flannel-io/flannel:v0.27.4@sha256:2ff3c5cb44d0e27b09f27816372084c98fa12486518ca95cb4a970f4a1a464c4
           name: kube-flannel
           resources:
             requests:
@@ -72,7 +72,7 @@ spec:
             - /opt/cni/bin/flannel
           command:
             - cp
-          image: ghcr.io/flannel-io/flannel-cni-plugin:v1.6.2-flannel1
+          image: ghcr.io/flannel-io/flannel-cni-plugin:v1.8.0-flannel1@sha256:25bd091c1867d0237432a4bcb5da720f39198b7d80edcae3bdf08262d242985c
           name: install-cni-plugin
           volumeMounts:
             - mountPath: /opt/cni/bin
@@ -83,7 +83,7 @@ spec:
             - /etc/cni/net.d/10-flannel.conflist
           command:
             - cp
-          image: ghcr.io/flannel-io/flannel:v0.26.5
+          image: ghcr.io/flannel-io/flannel:v0.27.4@sha256:2ff3c5cb44d0e27b09f27816372084c98fa12486518ca95cb4a970f4a1a464c4
           name: install-cni
           volumeMounts:
             - mountPath: /etc/cni/net.d
