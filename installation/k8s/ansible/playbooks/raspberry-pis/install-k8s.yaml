@@ -289,13 +289,13 @@
         regexp: 'path: /etc/kubernetes/super-admin.conf'
         replace: 'path: /etc/kubernetes/admin.conf'
 
-    - name: Wait for kube-vip pod to restart
-      ansible.builtin.shell: |
-        kubectl wait --for=condition=Ready pod/kube-vip-pi-1 -n kube-system
-      retries: 5
-      delay: 30
-      register: kubevip_ready
-      until: kubevip_ready.rc == 0
+    - name: Debug kubeadm init output
+      debug:
+        var: kubeadm_init.stdout_lines
+
+    - name: Extract certificate key from kubeadm init output
+      set_fact:
+        cert_key: "{{ kubeadm_init.stdout_lines | select('match', '^[0-9a-f]{64}$') | list | first }}"
 
     - name: Generate kubeadm join command
       shell: kubeadm token create --print-join-command --kubeconfig /etc/kubernetes/admin.conf
@@ -314,6 +314,10 @@
   hosts: additional-control-plane-nodes
   become: true
   tasks:
+    - name: Join additional control-plane nodes
+      shell: "{{ hostvars['pi-1'].kube_join_command }} --control-plane --certificate-key {{ hostvars['pi-1'].cert_key }}"
+      become: true
+
     - name: Copy local kube-vip.yaml to additional control-plane node
       ansible.builtin.copy:
         src: /Users/jenn/Projects/HomeLab/manifests/platform/kube-vip/kube-vip.yaml
@@ -322,26 +326,21 @@
         group: root
         mode: '0644'
 
-    - name: Run kubeadm join
-      shell: "{{ hostvars['pi-1'].kube_join_command }}"
-
-- name: Label all 3 as control-plane nodes
+- name: Remove control plane scheduling taint
   hosts: pi-1
   become: yes
   gather_facts: no
   tasks:
-    - name: Label nodes as control-plane
+    - name: Remove control plane scheduling taint
       shell: |
-        kubectl label node pi-1 node-role.kubernetes.io/control-plane= --overwrite
-        kubectl label node pi-2 node-role.kubernetes.io/control-plane= --overwrite
-        kubectl label node pi-3 node-role.kubernetes.io/control-plane= --overwrite
+        kubectl taint nodes --all node-role.kubernetes.io/control-plane-
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
-      register: label_result
+      register: taint_result
 
-    - name: Show labeling result
+    - name: Show taint removal result
       debug:
-        msg: "{{ label_result.stdout_lines }}"
+        msg: "{{ taint_result.stdout_lines }}"
 
 - name: Render flannel CNI yaml using kustomization locally
   hosts: localhost
