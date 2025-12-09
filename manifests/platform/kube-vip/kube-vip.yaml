@@ -1,8 +1,6 @@
-# Generated from kube-vip version v0.8.9 and script kube-vip-manifest.sh
 apiVersion: v1
 kind: Pod
 metadata:
-  creationTimestamp: null
   name: kube-vip
   namespace: kube-system
 spec:
@@ -20,7 +18,7 @@ spec:
           fieldPath: spec.nodeName
     - name: vip_interface
       value: eth0
-    - name: vip_cidr
+    - name: vip_subnet
       value: "32"
     - name: dns_mode
       value: first
@@ -46,7 +44,7 @@ spec:
       value: 192.168.0.201
     - name: prometheus_server
       value: :2112
-    image: ghcr.io/kube-vip/kube-vip:v0.8.9
+    image: ghcr.io/kube-vip/kube-vip:v1.0.2
     imagePullPolicy: IfNotPresent
     name: kube-vip
     resources: {}
@@ -55,6 +53,8 @@ spec:
         add:
         - NET_ADMIN
         - NET_RAW
+        drop:
+        - ALL
     volumeMounts:
     - mountPath: /etc/kubernetes/admin.conf
       name: kubeconfig

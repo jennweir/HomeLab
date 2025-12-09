@@ -4,14 +4,6 @@
 
 ```ansible-playbook -i inventory playbooks/raspberry-pis/install-k8s.yaml```
 
-## Initialize with kubeadm
-
-<https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/high-availability/>
-<https://kube-vip.io/docs/installation/static/#generating-a-manifest>
-
-`sudo kubeadm init --control-plane-endpoint 192.168.0.201:6443 --pod-network-cidr=10.244.0.0/16 --upload-certs`
-where 192.168.0.201 is kube-vip VIP
-
 ## Get kubeconfig
 
 `/etc/kubernetes/admin.conf`
@@ -20,9 +12,8 @@ where 192.168.0.201 is kube-vip VIP
 
 `kubectl taint nodes --all node-role.kubernetes.io/control-plane-`
 
-## Apply pod network (CNI) and overlays
+## Apply overlays
 
-flannel - pod network (CNI) <https://kubernetes.io/docs/concepts/cluster-administration/addons/>
 argocd, metallb, ingress-nginx, kubernetes-dashboard, longhorn, cert-manager, etc.
 
 ## Useful Links
