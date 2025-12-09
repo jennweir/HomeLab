@@ -311,7 +311,7 @@
         msg: "{{ kube_join_command }}"
 
 - name: Join additional control-plane nodes
-  hosts: additional-control-planes
+  hosts: additional-control-plane-nodes
   become: true
   tasks:
     - name: Copy local kube-vip.yaml to additional control-plane node
