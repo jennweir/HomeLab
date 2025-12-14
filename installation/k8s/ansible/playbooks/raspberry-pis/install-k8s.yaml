@@ -352,15 +352,15 @@
       debug:
         msg: "{{ taint_result.stdout_lines }}"
 
-- name: Render flannel CNI yaml using kustomization locally
-  hosts: localhost
-  gather_facts: no
-  tasks:
-    - name: Generate from kustomization
-      ansible.builtin.command: >
-        kubectl kustomize /Users/jenn/Projects/HomeLab/manifests/platform/flannel/base
-      register: flannel_yaml
-      changed_when: false
+# - name: Render flannel CNI yaml using kustomization locally
+#   hosts: localhost
+#   gather_facts: no
+#   tasks:
+#     - name: Generate from kustomization
+#       ansible.builtin.command: >
+#         kubectl kustomize /Users/jenn/Projects/HomeLab/manifests/platform/flannel/base
+#       register: flannel_yaml
+#       changed_when: false
 
 - name: Retrieve CNI yaml from local config
   hosts: localhost
