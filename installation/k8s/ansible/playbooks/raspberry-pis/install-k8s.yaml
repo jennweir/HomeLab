@@ -209,22 +209,22 @@
         name: kubectl
         selection: hold
 
-    - name: Download and install Flannel
-      ansible.builtin.get_url:
-        url: https://github.com/flannel-io/flannel/releases/download/v0.27.4/flanneld-arm64
-        dest: /usr/local/bin/flanneld
-        owner: root
-        group: root
-        mode: '0755'
+    # - name: Download and install Flannel
+    #   ansible.builtin.get_url:
+    #     url: https://github.com/flannel-io/flannel/releases/download/v0.27.4/flanneld-arm64
+    #     dest: /usr/local/bin/flanneld
+    #     owner: root
+    #     group: root
+    #     mode: '0755'
 
-    - name: Create Flannel networks directory
-      ansible.builtin.file:
-        path: /var/lib/k8s/flannel/networks
-        state: directory
-        recurse: yes
-        owner: root
-        group: root
-        mode: '0755'
+    # - name: Create Flannel networks directory
+    #   ansible.builtin.file:
+    #     path: /var/lib/k8s/flannel/networks
+    #     state: directory
+    #     recurse: yes
+    #     owner: root
+    #     group: root
+    #     mode: '0755'
 
     - name: Install open-iscsi on all nodes # sudo apt install open-iscsi
       ansible.builtin.apt:
@@ -240,8 +240,8 @@
         pre_reboot_delay: 0
         post_reboot_delay: 30
 
-- name: Kubernetes control plane bootstrap with kube-vip workaround
-  hosts: pi-1
+- name: Reset nodes from existing Kubernetes installations
+  hosts: pis
   become: yes
   tasks:
     - name: Reset any previous Kubernetes installation
@@ -258,7 +258,17 @@
         - /etc/kubernetes/manifests/kube-scheduler.yaml
         - /etc/kubernetes/manifests/etcd.yaml
       ignore_errors: yes
-  
+
+    - name: Remove CNI configs
+      ansible.builtin.file:
+        path: /etc/cni/net.d
+        state: absent
+      ignore_errors: yes
+
+- name: Kubernetes control plane bootstrap with kube-vip workaround
+  hosts: pi-1
+  become: yes
+  tasks:
     - name: Copy local kube-vip.yaml to control-plane node
       ansible.builtin.copy:
         src: /Users/jenn/Projects/HomeLab/manifests/platform/kube-vip/kube-vip.yaml
@@ -352,36 +362,46 @@
       register: flannel_yaml
       changed_when: false
 
+- name: Retrieve CNI yaml from local config
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Generate CNI yaml using kustomization
+      ansible.builtin.command: >
+        kubectl kustomize /Users/jenn/Projects/HomeLab/manifests/platform/cilium
+      register: cni_yaml
+      changed_when: false
+
 - name: Copy CNI yaml and apply
   hosts: pi-1
   become: yes
   gather_facts: no
   tasks:
-    - name: Ensure /tmp/flannel exists on the node
+    - name: Ensure /tmp/cni exists on the node
       ansible.builtin.file:
-        path: /tmp/flannel
+        path: /tmp/cni
         state: directory
         mode: '0755'
 
-    - name: Copy generated flannel YAML to node
+    - name: Copy generated cni YAML to node
       ansible.builtin.copy:
-        content: "{{ hostvars['localhost'].flannel_yaml.stdout }}"
-        dest: /tmp/flannel/flannel.yaml
+        content: "{{ hostvars['localhost'].cni_yaml.stdout }}"
+        dest: /tmp/cni/cni.yaml
         mode: '0644'
 
-    - name: Apply flannel CNI
+    - name: Apply CNI
       ansible.builtin.shell: |
-        kubectl apply -f /tmp/flannel/flannel.yaml
+        kubectl apply -f /tmp/cni/cni.yaml
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
-      register: flannel_result
+      register: cni_result
       retries: 5
       delay: 10
-      until: flannel_result.rc == 0
+      until: cni_result.rc == 0
 
-    - name: Debug flannel apply result
+    - name: Debug cni apply result
       debug:
-        var: flannel_result.stdout_lines
+        var: cni_result.stdout_lines
 
     - name: Wait until nodes are Ready to validate cni installation
       ansible.builtin.shell: |
