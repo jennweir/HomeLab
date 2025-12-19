@@ -209,22 +209,22 @@
         name: kubectl
         selection: hold
 
-    # - name: Download and install Flannel
-    #   ansible.builtin.get_url:
-    #     url: https://github.com/flannel-io/flannel/releases/download/v0.27.4/flanneld-arm64
-    #     dest: /usr/local/bin/flanneld
-    #     owner: root
-    #     group: root
-    #     mode: '0755'
+    - name: Download and install Flannel
+      ansible.builtin.get_url:
+        url: https://github.com/flannel-io/flannel/releases/download/v0.27.4/flanneld-arm64
+        dest: /usr/local/bin/flanneld
+        owner: root
+        group: root
+        mode: '0755'
 
-    # - name: Create Flannel networks directory
-    #   ansible.builtin.file:
-    #     path: /var/lib/k8s/flannel/networks
-    #     state: directory
-    #     recurse: yes
-    #     owner: root
-    #     group: root
-    #     mode: '0755'
+    - name: Create Flannel networks directory
+      ansible.builtin.file:
+        path: /var/lib/k8s/flannel/networks
+        state: directory
+        recurse: yes
+        owner: root
+        group: root
+        mode: '0755'
 
     - name: Install open-iscsi on all nodes # sudo apt install open-iscsi
       ansible.builtin.apt:
@@ -352,15 +352,15 @@
       debug:
         msg: "{{ taint_result.stdout_lines }}"
 
-# - name: Render flannel CNI yaml using kustomization locally
-#   hosts: localhost
-#   gather_facts: no
-#   tasks:
-#     - name: Generate from kustomization
-#       ansible.builtin.command: >
-#         kubectl kustomize /Users/jenn/Projects/HomeLab/manifests/platform/flannel/base
-#       register: flannel_yaml
-#       changed_when: false
+- name: Render CNI yaml using kustomization locally
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Generate from kustomization
+      ansible.builtin.command: >
+        kubectl kustomize /Users/jenn/Projects/HomeLab/manifests/platform/flannel/base
+      register: cni_yaml
+      changed_when: false
 
 - name: Retrieve CNI yaml from local config
   hosts: localhost
@@ -402,6 +402,14 @@
     - name: Debug cni apply result
       debug:
         var: cni_result.stdout_lines
+
+    - name: Restart nodes to ensure they pick up CNI changes
+      ansible.builtin.reboot:
+        msg: "Rebooting to pick up CNI changes"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
 
     - name: Wait until nodes are Ready to validate cni installation
       ansible.builtin.shell: |
