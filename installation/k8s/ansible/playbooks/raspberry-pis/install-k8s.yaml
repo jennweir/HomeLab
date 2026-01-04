@@ -209,6 +209,45 @@
         name: kubectl
         selection: hold
 
+    - name: Ensure CNI bin dir exists
+      ansible.builtin.file:
+        path: /usr/lib/cni
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Download Flannel CNI plugin tarball (arm64)
+      ansible.builtin.get_url:
+        url: "https://github.com/flannel-io/cni-plugin/releases/download/v1.9.0-flannel1/cni-plugin-flannel-linux-arm64-v1.9.0.tgz"
+        dest: /tmp/flannel-cni-plugin.tgz
+        mode: "0644"
+
+    - name: Extract Flannel CNI plugin tarball
+      ansible.builtin.unarchive:
+        src: /tmp/flannel-cni-plugin.tgz
+        dest: /tmp/flannel-cni-plugin
+        remote_src: true
+
+    - name: Install flannel CNI binary to /usr/lib/cni/flannel
+      ansible.builtin.copy:
+        src: /tmp/flannel-cni-plugin/flannel
+        dest: /usr/lib/cni/flannel
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Verify flannel CNI binary is present
+      ansible.builtin.stat:
+        path: /usr/lib/cni/flannel
+      register: flannel_cni
+
+    - name: Fail if flannel CNI binary missing
+      ansible.builtin.fail:
+        msg: "flannel CNI binary was not installed to /usr/lib/cni/flannel"
+      when: not flannel_cni.stat.exists
+
     - name: Download and install Flannel
       ansible.builtin.get_url:
         url: https://github.com/flannel-io/flannel/releases/download/v0.27.4/flanneld-arm64
