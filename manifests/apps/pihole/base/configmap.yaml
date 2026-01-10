@@ -8,5 +8,6 @@ data:
   PIHOLE_DNS_: "8.8.8.8;8.8.4.4"
   pihole.toml: |
     [dns]
-    listen_addresses = ["0.0.0.0"]
-    listening_mode = "SINGLE"
+    listenAddress = "0.0.0.0"
+    listeningMode = "all"
+    localService = false
