@@ -3,12 +3,8 @@ kind: Kustomization
 metadata:
   namespace: pihole
 resources:
-  - configmap.yaml
   - dns-service.yaml
   - headless-service.yaml
-  - ingress.yaml
   - namespace.yaml
-  # - orbital-sync.yaml # https://github.com/mattwebbio/orbital-sync/pull/567
-  - pv.yaml
   - statefulset.yaml
   - web-service.yaml
