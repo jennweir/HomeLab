@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: longhorn
     app.kubernetes.io/instance: longhorn
-    app.kubernetes.io/version: v1.8.1
+    app.kubernetes.io/version: v1.10.1
 description: Ensure Longhorn pods have the highest priority to prevent any unexpected eviction by the Kubernetes scheduler under node pressure
 globalDefault: false
 preemptionPolicy: PreemptLowerPriority

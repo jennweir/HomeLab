@@ -10,5 +10,7 @@ resources:
   - deployment-longhorn-ui.yaml
   - namespace.yaml
   - priorityclass.yaml
+  - role.yaml
+  - rolebinding.yaml
   - service.yaml
   - serviceaccount.yaml

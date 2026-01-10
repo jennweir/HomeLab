@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/name: longhorn
     app.kubernetes.io/instance: longhorn
-    app.kubernetes.io/version: v1.8.1
+    app.kubernetes.io/version: v1.10.1
     app: longhorn-manager
   name: longhorn-manager
   namespace: longhorn-system
@@ -17,12 +17,12 @@ spec:
       labels:
         app.kubernetes.io/name: longhorn
         app.kubernetes.io/instance: longhorn
-        app.kubernetes.io/version: v1.8.1
+        app.kubernetes.io/version: v1.10.1
         app: longhorn-manager
     spec:
       containers:
         - name: longhorn-manager
-          image: longhornio/longhorn-manager:v1.8.1
+          image: longhornio/longhorn-manager:v1.10.1-hotfix-2 # replace longhorn-manager:v1.10.1 with the hotfixed image longhorn-manager:v1.10.1-hotfix-2 ref: https://github.com/longhorn/longhorn/releases/tag/v1.10.1
           imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true
@@ -31,25 +31,23 @@ spec:
             - -d
             - daemon
             - --engine-image
-            - longhornio/longhorn-engine:v1.8.1
+            - longhornio/longhorn-engine:v1.10.1
             - --instance-manager-image
-            - longhornio/longhorn-instance-manager:v1.8.1
+            - longhornio/longhorn-instance-manager:v1.10.1
             - --share-manager-image
-            - longhornio/longhorn-share-manager:v1.8.1
+            - longhornio/longhorn-share-manager:v1.10.1
             - --backing-image-manager-image
-            - longhornio/backing-image-manager:v1.8.1
+            - longhornio/backing-image-manager:v1.10.1
             - --support-bundle-manager-image
-            - longhornio/support-bundle-kit:v0.0.52
+            - longhornio/support-bundle-kit:v0.0.71
             - --manager-image
-            - longhornio/longhorn-manager:v1.8.1
+            - longhornio/longhorn-manager:v1.10.1-hotfix-2
             - --service-account
             - longhorn-service-account
             - --upgrade-version-check
           ports:
             - containerPort: 9500
               name: manager
-            - containerPort: 9501
-              name: conversion-wh
             - containerPort: 9502
               name: admission-wh
             - containerPort: 9503
@@ -57,7 +55,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /v1/healthz
-              port: 9501
+              port: 9502
               scheme: HTTPS
           volumeMounts:
             - name: boot
@@ -95,7 +93,7 @@ spec:
                   fieldPath: spec.nodeName
         - name: pre-pull-share-manager-image
           imagePullPolicy: IfNotPresent
-          image: longhornio/longhorn-share-manager:v1.8.1
+          image: longhornio/longhorn-share-manager:v1.10.1
           command:
             - sh
             - -c
