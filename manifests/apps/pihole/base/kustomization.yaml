@@ -3,6 +3,7 @@ kind: Kustomization
 metadata:
   namespace: pihole
 resources:
+  - configmap.yaml
   - dns-service.yaml
   - headless-service.yaml
   - namespace.yaml

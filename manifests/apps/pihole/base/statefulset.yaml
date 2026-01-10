@@ -53,19 +53,14 @@ spec:
               mountPath: /etc/pihole
             - name: pihole-etc-dnsmasq
               mountPath: /etc/dnsmasq.d
-            - name: pihole-config-volume
+            - name: wildcard-config
               mountPath: /etc/dnsmasq.d/02-my-wildcard-dns.conf
               subPath: 02-my-wildcard-dns.conf
-            - name: pihole-local-dns-records
-              mountPath: /etc/pihole/custom.list
-              subPath: custom.list
+              readOnly: true
       volumes:
-        - name: pihole-config-volume
+        - name: wildcard-config
           configMap:
             name: pihole-wildcard-configmap
-        - name: pihole-local-dns-records
-          configMap:
-            name: pihole-local-dns-records
   volumeClaimTemplates:
     - metadata:
         name: pihole-etc-pihole

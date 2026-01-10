@@ -4,7 +4,6 @@ metadata:
   namespace: pihole
 resources:
   - ../../base
-  - configmap.yaml
   - ingress.yaml
 patches:
   - target:
