@@ -10,12 +10,3 @@ data:
     [dns]
     listen_addresses = ["0.0.0.0"]
     listening_mode = "SINGLE"
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pihole-wildcard-configmap
-  namespace: pihole
-data:
-  02-my-wildcard-dns.conf: |
-    address=/apps.okd.jenniferpweir.com/192.168.0.221
