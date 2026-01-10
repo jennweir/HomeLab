@@ -7,7 +7,6 @@ resources:
   - customresourcedefinition.yaml
   - daemonset.yaml
   - deployment-controller.yaml
-  - L2advertisement.yaml
   - namespace.yaml
   - role.yaml
   - rolebinding.yaml
