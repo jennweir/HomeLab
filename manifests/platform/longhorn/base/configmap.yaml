@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: longhorn
     app.kubernetes.io/instance: longhorn
-    app.kubernetes.io/version: v1.8.1
+    app.kubernetes.io/version: v1.10.1
 data:
   default-resource.yaml: ""
 ---
@@ -18,11 +18,11 @@ metadata:
   labels:
     app.kubernetes.io/name: longhorn
     app.kubernetes.io/instance: longhorn
-    app.kubernetes.io/version: v1.8.1
+    app.kubernetes.io/version: v1.10.1
 data:
   default-setting.yaml: |-
-    priority-class: longhorn-critical
-    disable-revision-counter: true
+    priority-class: "longhorn-critical"
+    disable-revision-counter: "{\"v1\":\"true\"}"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -32,7 +32,7 @@ metadata:
   labels:
     app.kubernetes.io/name: longhorn
     app.kubernetes.io/instance: longhorn
-    app.kubernetes.io/version: v1.8.1
+    app.kubernetes.io/version: v1.10.1
 data:
   storageclass.yaml: |
     kind: StorageClass
@@ -54,3 +54,4 @@ data:
       unmapMarkSnapChainRemoved: "ignored"
       disableRevisionCounter: "true"
       dataEngine: "v1"
+      backupTargetName: "default"

@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/name: longhorn
     app.kubernetes.io/instance: longhorn
-    app.kubernetes.io/version: v1.8.1
+    app.kubernetes.io/version: v1.10.1
     app: longhorn-ui
   name: longhorn-ui
   namespace: longhorn-system
@@ -18,15 +18,14 @@ spec:
       labels:
         app.kubernetes.io/name: longhorn
         app.kubernetes.io/instance: longhorn
-        app.kubernetes.io/version: v1.8.1
+        app.kubernetes.io/version: v1.10.1
         app: longhorn-ui
     spec:
       serviceAccountName: longhorn-ui-service-account
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 1
-              podAffinityTerm:
+            - podAffinityTerm:
                 labelSelector:
                   matchExpressions:
                     - key: app
@@ -34,9 +33,10 @@ spec:
                       values:
                         - longhorn-ui
                 topologyKey: kubernetes.io/hostname
+              weight: 1
       containers:
         - name: longhorn-ui
-          image: longhornio/longhorn-ui:v1.8.1
+          image: longhornio/longhorn-ui:v1.10.1
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: nginx-cache
