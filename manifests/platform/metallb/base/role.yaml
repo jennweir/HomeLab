@@ -60,6 +60,12 @@ rules:
   - apiGroups:
       - metallb.io
     resources:
+      - ipaddresspools/status
+    verbs:
+      - update
+  - apiGroups:
+      - metallb.io
+    resources:
       - bgpadvertisements
     verbs:
       - get
@@ -161,3 +167,10 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - metallb.io
+    resources:
+      - servicebgpstatuses
+      - servicebgpstatuses/status
+    verbs:
+      - "*"
