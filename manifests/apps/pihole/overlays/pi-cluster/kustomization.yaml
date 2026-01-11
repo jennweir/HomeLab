@@ -4,7 +4,8 @@ metadata:
   namespace: pihole
 resources:
   - ../../base
-  - ingress.yaml
+  # - ingress.yaml
+  - httproute.yaml
 patches:
   - target:
       kind: StatefulSet
