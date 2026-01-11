@@ -33,6 +33,7 @@ spec:
   plugins:
   - networking-console-plugin
   - monitoring-plugin
+  - kubevirt-plugin
   route:
     hostname: ""
     secret:
