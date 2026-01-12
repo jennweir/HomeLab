@@ -23,6 +23,13 @@ spec:
     developerCatalog:
       types:
         state: Enabled
+    perspectives:
+    - id: admin
+      visibility:
+        state: Enabled
+    - id: dev
+      visibility:
+        state: Enabled
   ingress:
     clientDownloadsURL: ""
     consoleURL: ""
@@ -33,6 +40,7 @@ spec:
   plugins:
   - networking-console-plugin
   - monitoring-plugin
+  - kubevirt-plugin
   route:
     hostname: ""
     secret:

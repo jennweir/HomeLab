@@ -6,7 +6,7 @@ metadata:
   labels:
     app: wif-test
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: wif-test
@@ -18,7 +18,7 @@ spec:
       serviceAccountName: smoke-tests-sa
       containers:
         - name: wif-test
-          image: google/cloud-sdk:latest
+          image: docker.io/google/cloud-sdk:551.0.0@sha256:9b5586a43c95260efdb4b9a22ed8d8a5e7151e8cf0bcac8bed64fab9f3c224bd
           imagePullPolicy: IfNotPresent
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
