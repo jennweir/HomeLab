@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  VALIDATE_ALL_CODEBASE: false
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
@@ -47,7 +51,9 @@ jobs:
       - name: Lint Terraform files
         run: |
           tflint --config=.github/linters/.tflint.hcl --init
-          find terraform -name "*.tf" -exec tflint --config=.github/linters/.tflint.hcl {} +
+          for dir in terraform/*/; do
+            tflint --config=.github/linters/.tflint.hcl --chdir="$dir"
+          done
 
   markdown-lint:
     name: Lint Markdown
@@ -81,6 +87,5 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Lint Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: container-images/*/Containerfile
+        run: |
+          find container-images -name "Containerfile" -exec hadolint {} +

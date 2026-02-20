@@ -13,7 +13,6 @@ RESET="\e[0m"
 # https://github.com/okd-project/okd/releases
 # https://docs.okd.io/4.18/installing/overview/index.html#ocp-installation-overview
 
-PATH_CURRENT_DIR=$(pwd)
 OKD_INSTALL_DIR=~/Projects/HomeLab/okd/install
 PHY_SSH_KEY=~/.ssh/id_rsa_homelab_phy_boxes
 CORE_SSH_KEY=~/.ssh/okd-cluster-key
@@ -169,7 +168,7 @@ curl -L -o coreos.iso "${COREOS_LOCATION}"
 
 podman machine start podman-machine-default
 
-podman run --rm -v $(pwd):/data quay.io/coreos/coreos-installer:release \
+podman run --rm -v "$(pwd)":/data quay.io/coreos/coreos-installer:release \
     iso ignition embed -i /data/coreos-ssh.ign /data/coreos.iso
 
 podman machine stop podman-machine-default
@@ -257,7 +256,7 @@ read -p "Enter the cp-3 IP with MAC ${CP_3_MAC}: " CP_3_IP
 read -p "Enter the worker-1 IP with MAC ${WORKER_1_MAC}: " WORKER_1_IP
 read -p "Enter the worker-2 IP with MAC ${WORKER_2_MAC}: " WORKER_2_IP
 read -p "Enter the worker-3 IP with MAC ${WORKER_3_MAC}: " WORKER_3_IP
-read -p "Acknowledge and enter new IPs into DNS: " YES
+# read -p "Acknowledge and enter new IPs into DNS: " YES
 
 ssh-keygen -R "${BOOTSTRAP_IP}"
 ssh-keygen -R "${CP_1_IP}"
