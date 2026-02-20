@@ -123,6 +123,12 @@ resource "google_project_iam_custom_role" "cert_manager_dns_solver_role" {
     ]
 }
 
+resource "google_project_iam_member" "cert_manager_dns_solver_role_binding" {
+    project = data.google_project.okd_homelab.project_id
+    role    = "projects/${data.google_project.okd_homelab.project_id}/roles/${google_project_iam_custom_role.cert_manager_dns_solver_role.role_id}"
+    member  = "serviceAccount:${google_service_account.cert_manager_dns_solver.email}"
+}
+
 resource "google_service_account_iam_member" "cert_manager_wif_binding" {
     service_account_id = "projects/${data.google_project.okd_homelab.project_id}/serviceAccounts/${google_service_account.cert_manager_dns_solver.email}"
     role               = "roles/iam.workloadIdentityUser"
