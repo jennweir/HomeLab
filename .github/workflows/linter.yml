@@ -50,9 +50,10 @@ jobs:
 
       - name: Lint Terraform files
         run: |
-          tflint --config=.github/linters/.tflint.hcl --init
+          CONFIG_PATH="$(pwd)/.github/linters/.tflint.hcl"
+          tflint --config="$CONFIG_PATH" --init
           for dir in terraform/*/; do
-            tflint --config=.github/linters/.tflint.hcl --chdir="$dir"
+            tflint --config="$CONFIG_PATH" --chdir="$dir"
           done
 
   markdown-lint:
@@ -85,6 +86,11 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Install hadolint
+        run: |
+          curl -sL https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+          chmod +x /usr/local/bin/hadolint
 
       - name: Lint Dockerfiles
         run: |
