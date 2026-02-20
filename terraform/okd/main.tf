@@ -142,3 +142,11 @@ resource "google_secret_manager_secret_iam_member" "openshift_monitoring_secret_
     role      = "roles/secretmanager.secretAccessor"
     member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:openshift-monitoring:external-secrets"
 }
+
+# make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
+resource "google_secret_manager_secret_iam_member" "quay_pull_secret_accessor" {
+    project   = data.google_project.okd_homelab.project_id
+    secret_id = "quay-jennweir-pull-secret"
+    role      = "roles/secretmanager.secretAccessor"
+    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:external-secrets"
+}
