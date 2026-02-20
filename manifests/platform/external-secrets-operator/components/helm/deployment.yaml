@@ -33,7 +33,7 @@ spec:
               - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
-            # runAsUser: 1000 
+            # runAsUser: 1000
             # unable to validate against any security context constraint: [provider "anyuid": Forbidden: not usable by user or serviceaccount, provider restricted-v2: .containers[0].runAsUser:Invalid value: 1000: must be in the ranges: [1000830000, 1000839999]
             seccompProfile:
               type: RuntimeDefault
@@ -103,7 +103,7 @@ spec:
               - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
-            # runAsUser: 1000 
+            # runAsUser: 1000
             # unable to validate against any security context constraint: [provider "anyuid": Forbidden: not usable by user or serviceaccount, provider restricted-v2: .containers[0].runAsUser:Invalid value: 1000: must be in the ranges: [1000830000, 1000839999]
             seccompProfile:
               type: RuntimeDefault
@@ -161,7 +161,7 @@ spec:
               - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
-            # runAsUser: 1000 
+            # runAsUser: 1000
             # unable to validate against any security context constraint: [provider "anyuid": Forbidden: not usable by user or serviceaccount, provider restricted-v2: .containers[0].runAsUser:Invalid value: 1000: must be in the ranges: [1000830000, 1000839999]
             seccompProfile:
               type: RuntimeDefault

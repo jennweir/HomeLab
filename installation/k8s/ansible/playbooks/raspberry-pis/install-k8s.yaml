@@ -193,12 +193,12 @@
           - kubeadm=1.34.2-*
           - kubectl=1.34.2-*
         state: present
-    
+
     - name: Hold kubelet
       ansible.builtin.dpkg_selections:
         name: kubelet
         selection: hold
-    
+
     - name: Hold kubeadm
       ansible.builtin.dpkg_selections:
         name: kubeadm

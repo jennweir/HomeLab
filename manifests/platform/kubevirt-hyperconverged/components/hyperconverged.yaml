@@ -1,4 +1,4 @@
-kind: HyperConverged
+pre-commit run yamllint --all-files --fixkind: HyperConverged
 apiVersion: hco.kubevirt.io/v1beta1
 metadata:
   annotations:

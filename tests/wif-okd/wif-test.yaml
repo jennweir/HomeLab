@@ -53,7 +53,7 @@ spec:
               echo " jwt decode - < /var/run/secrets/openshift/serviceaccount/token"
               echo " gcloud auth login --cred-file=$GOOGLE_APPLICATION_CREDENTIALS"
               echo " gcloud secrets versions access latest --secret=test-secret --project=okd-homelab"
-              
+
               sleep infinity
           volumeMounts:
             - name: google-creds

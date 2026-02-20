@@ -62,7 +62,7 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-            limits: 
+            limits:
               cpu: 30m
               memory: 200Mi
       nodeSelector:
@@ -151,7 +151,7 @@ spec:
             requests:
               cpu: 10m
               memory: 20Mi
-            limits: 
+            limits:
               cpu: 30m
               memory: 40Mi
       nodeSelector:
@@ -207,7 +207,7 @@ spec:
           - --dynamic-serving-dns-names=cert-manager-webhook
           - --dynamic-serving-dns-names=cert-manager-webhook.$(POD_NAMESPACE)
           - --dynamic-serving-dns-names=cert-manager-webhook.$(POD_NAMESPACE).svc
-          
+
           ports:
           - name: https
             protocol: TCP
@@ -253,7 +253,7 @@ spec:
             requests:
               cpu: 10m
               memory: 20Mi
-            limits: 
+            limits:
               cpu: 30m
               memory: 40Mi
       nodeSelector:
