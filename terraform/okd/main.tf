@@ -14,7 +14,7 @@ data "google_project" "okd_homelab" {
 }
 
 resource "google_project_service" "wif" {
-    project            = "${data.google_project.okd_homelab.project_id}"
+    project            = data.google_project.okd_homelab.project_id
     service            = "sts.googleapis.com"
     disable_on_destroy = false
 }
