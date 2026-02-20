@@ -80,8 +80,8 @@ jobs:
         run: |
           find . -type f -name "*.sh" ! -path "./.git/*" ! -path "./.terraform/*" -exec shellcheck --severity=warning {} +
 
-  dockerfile-lint:
-    name: Lint Dockerfiles
+  containerfile-lint:
+    name: Lint Containerfiles
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -92,6 +92,6 @@ jobs:
           curl -sL https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
           chmod +x /usr/local/bin/hadolint
 
-      - name: Lint Dockerfiles
+      - name: Lint Containerfiles
         run: |
           find container-images -name "Containerfile" -exec hadolint {} + || true
