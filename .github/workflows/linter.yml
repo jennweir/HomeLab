@@ -1,0 +1,89 @@
+---
+name: Linting
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  APPLY_FIXES: all
+  APPLY_FIXES_EVENT: pull_request
+  APPLY_FIXES_MODE: commit
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  linting:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: MegaLinter
+        id: ml
+        uses: oxsecurity/megalinter@v9
+        env:
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Linters enabled for this repository
+          ENABLE: KUBERNETES,TERRAFORM,YAML,MARKDOWN,SHELL,DOCKERFILE
+          # YAML linting for manifests and configs
+          YAML_YAMLLINT_CONFIG_FILE: .github/linters/.yamllint.yaml
+          # Terraform linting
+          TERRAFORM_TFLINT_CONFIG_FILE: .github/linters/.tflint.hcl
+          # Shell scripts linting
+          SHELL_SHELLCHECK_ARGS: --severity=warning
+          # Skip certain files/folders
+          EXCLUDED_DIRECTORIES: |
+            .git
+            .terraform
+            node_modules
+            venv
+            installation/okd/platform-type-none
+          # Disable spell check and copy-paste detection
+          DISABLE: COPYPASTE,SPELL,GROOVY,JAVASCRIPT,PYTHON,RUBY,GO,JAVA
+
+      - name: Upload Linting Reports
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linting Reports
+          path: |
+            megalinter-reports
+            mega-linter.log
+
+      - name: Create Pull Request with Fixes
+        id: cpr
+        if: steps.ml.outputs.has_updated_sources == 1 && env.APPLY_FIXES_MODE == 'pull_request' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          commit-message: "[ci] Apply linter fixes"
+          title: "[ci] Apply linter fixes"
+          labels: bot
+          body: "Automatic linter fixes applied"
+
+      - name: Prepare commit
+        if: steps.ml.outputs.has_updated_sources == 1 && env.APPLY_FIXES_MODE == 'commit' && github.ref != 'refs/heads/main' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+        run: sudo chown -Rc $UID .git/
+
+      - name: Commit and push linter fixes
+        if: steps.ml.outputs.has_updated_sources == 1 && env.APPLY_FIXES_MODE == 'commit' && github.ref != 'refs/heads/main' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_message: "[ci] Apply linter fixes"
+          commit_user_name: linter-bot
+          commit_user_email: action@github.com

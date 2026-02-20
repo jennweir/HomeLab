@@ -1,9 +1,9 @@
 apiVersion: v1
 baseDomain: jenniferpweir.com
-compute: 
+compute:
 - name: worker
-  replicas: 0 
-controlPlane: 
+  replicas: 0
+controlPlane:
   name: master
   replicas: 3
 metadata:
@@ -14,8 +14,8 @@ networking:
     hostPrefix: 23
   machineNetwork:
   - cidr: 192.168.0.0/24
-  networkType: OVNKubernetes 
-  serviceNetwork: 
+  networkType: OVNKubernetes
+  serviceNetwork:
   - 172.30.0.0/16
 platform:
   baremetal:

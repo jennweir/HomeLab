@@ -1,10 +1,10 @@
-#################################################################################################################
+ # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ##
 # Create the rook operator and necessary security context constraints for running
 # Rook in an OpenShift cluster.
 # For example, to create the rook-ceph cluster:
 #   oc create -f crds.yaml -f common.yaml -f operator-openshift.yaml
 #   oc create -f cluster.yaml
-#################################################################################################################
+ # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # ##
 # scc for the Rook and Ceph daemons
 kind: SecurityContextConstraints
 apiVersion: security.openshift.io/v1
@@ -343,7 +343,7 @@ data:
 
   # (Optional) CEPH CSI RBD provisioner resource requirement list, Put here list of resource
   # requests and limits you want to apply for provisioner pod
-  #CSI_RBD_PROVISIONER_RESOURCE: |
+   # CSI_RBD_PROVISIONER_RESOURCE: |
   #  - name : csi-provisioner
   #    resource:
   #      requests:
@@ -395,7 +395,7 @@ data:
   #        memory: 256Mi
   # (Optional) CEPH CSI RBD plugin resource requirement list, Put here list of resource
   # requests and limits you want to apply for plugin pod
-  #CSI_RBD_PLUGIN_RESOURCE: |
+   # CSI_RBD_PLUGIN_RESOURCE: |
   #  - name : driver-registrar
   #    resource:
   #      requests:
@@ -419,7 +419,7 @@ data:
   #        memory: 256Mi
   # (Optional) CEPH CSI CephFS provisioner resource requirement list, Put here list of resource
   # requests and limits you want to apply for provisioner pod
-  #CSI_CEPHFS_PROVISIONER_RESOURCE: |
+   # CSI_CEPHFS_PROVISIONER_RESOURCE: |
   #  - name : csi-provisioner
   #    resource:
   #      requests:
@@ -464,7 +464,7 @@ data:
   #        memory: 256Mi
   # (Optional) CEPH CSI CephFS plugin resource requirement list, Put here list of resource
   # requests and limits you want to apply for plugin pod
-  #CSI_CEPHFS_PLUGIN_RESOURCE: |
+   # CSI_CEPHFS_PLUGIN_RESOURCE: |
   #  - name : driver-registrar
   #    resource:
   #      requests:
@@ -537,7 +537,7 @@ data:
   # CSI_RBD_LIVENESS_METRICS_PORT: "9080"
   # CSIADDONS_PORT: "9070"
 
-  # Set CephFS Kernel mount options to use https://docs.ceph.com/en/latest/man/8/mount.ceph/#options
+  # Set CephFS Kernel mount options to use https://docs.ceph.com/en/latest/man/8/mount.ceph/ # options
   # Set to "ms_mode=secure" when connections.encrypted is enabled in CephCluster CR
   # CSI_CEPHFS_KERNEL_MOUNT_OPTIONS: "ms_mode=secure"
 
@@ -579,7 +579,7 @@ data:
   # CSI_TOPOLOGY_DOMAIN_LABELS: "kubernetes.io/hostname,topology.kubernetes.io/zone,topology.rook.io/rack"
 
   # Whether to skip any attach operation altogether for CephCSI PVCs.
-  # See more details [here](https://kubernetes-csi.github.io/docs/skip-attach.html#skip-attach-with-csi-driver-object).
+  # See more details [here](https://kubernetes-csi.github.io/docs/skip-attach.html # skip-attach-with-csi-driver-object).
   # If set to false it skips the volume attachments and makes the creation of pods using the CephCSI PVC fast.
   # **WARNING** It's highly discouraged to use this for RWO volumes. for RBD PVC it can cause data corruption,
   # csi-addons operations like Reclaimspace and PVC Keyrotation will also not be supported if set to false
@@ -702,7 +702,7 @@ spec:
 
             # Whether to start pods as privileged that mount a host path, which includes the Ceph mon, osd pods and csi provisioners(if logrotation is on).
             # Set this to true if SELinux is enabled (e.g. OpenShift) to workaround the anyuid issues.
-            # For more details see https://github.com/rook/rook/issues/1314#issuecomment-355799641
+            # For more details see https://github.com/rook/rook/issues/1314 # issuecomment-355799641
             - name: ROOK_HOSTPATH_REQUIRES_PRIVILEGED
               value: "true"
             # Provide customised regex as the values using comma. For eg. regex for rbd based volume, value will be like "(?i)rbd[0-9]+".
@@ -765,7 +765,7 @@ spec:
             memory: 128Mi
 
           #  Uncomment it to run lib bucket provisioner in multithreaded mode
-          #- name: LIB_BUCKET_PROVISIONER_THREADS
+           # - name: LIB_BUCKET_PROVISIONER_THREADS
           #  value: "5"
 
       # Uncomment these two settings to run the operator on the host network

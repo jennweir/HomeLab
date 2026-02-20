@@ -5,11 +5,11 @@ resources:
   - operatorgroup.yaml
   - subscription.yaml
 patches:
-  - target: 
+  - target:
       kind: PersistentVolumeClaim
       name: grafana-pvc
     patch: |-
-      - op: add 
+      - op: add
         path: /spec/storageClassName
         value:
           rook-ceph-block-replicated

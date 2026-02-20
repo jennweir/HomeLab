@@ -14,8 +14,8 @@ spec:
     # Make sure you're *ABSOLUTELY CERTAIN* that is what you want
     requireSafeReplicaSize: true
     # gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity of a given pool
-    # for more info: https://docs.ceph.com/docs/master/rados/operations/placement-groups/#specifying-expected-pool-size
-    #targetSizeRatio: .5
+    # for more info: https://docs.ceph.com/docs/master/rados/operations/placement-groups/ # specifying-expected-pool-size
+     # targetSizeRatio: .5
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -36,21 +36,21 @@ parameters:
   # You need to specify the replicated pool here in the `pool` parameter, it is
   # used for the metadata of the images.
   # The erasure coded pool must be set as the `dataPool` parameter below.
-  #dataPool: ec-data-pool
+   # dataPool: ec-data-pool
   pool: replicapool-replicated
 
   # (optional) mapOptions is a comma-separated list of map options.
   # For krbd options refer
-  # https://docs.ceph.com/docs/master/man/8/rbd/#kernel-rbd-krbd-options
+  # https://docs.ceph.com/docs/master/man/8/rbd/ # kernel-rbd-krbd-options
   # For nbd options refer
-  # https://docs.ceph.com/docs/master/man/8/rbd-nbd/#options
+  # https://docs.ceph.com/docs/master/man/8/rbd-nbd/ # options
   # mapOptions: lock_on_read,queue_depth=1024
 
   # (optional) unmapOptions is a comma-separated list of unmap options.
   # For krbd options refer
-  # https://docs.ceph.com/docs/master/man/8/rbd/#kernel-rbd-krbd-options
+  # https://docs.ceph.com/docs/master/man/8/rbd/ # kernel-rbd-krbd-options
   # For nbd options refer
-  # https://docs.ceph.com/docs/master/man/8/rbd-nbd/#options
+  # https://docs.ceph.com/docs/master/man/8/rbd-nbd/ # options
   # unmapOptions: force
 
    # (optional) Set it to true to encrypt each volume with encryption keys
@@ -74,7 +74,7 @@ parameters:
   # correspond to Ceph's OR'd bitfield value of "63". Here we use
   # a symbolic, comma-separated format:
   # For 5.4 or later kernels:
-  #imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
+   # imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
   # For 5.3 or earlier kernels:
   imageFeatures: layering
 
@@ -94,6 +94,6 @@ parameters:
 # **IMPORTANT**: CephCSI v3.4.0 onwards a volume healer functionality is added to reattach
 # the PVC to application pod if nodeplugin pod restart.
 # Its still in Alpha support. Therefore, this option is not recommended for production use.
-#mounter: rbd-nbd
+ # mounter: rbd-nbd
 allowVolumeExpansion: true
 reclaimPolicy: Delete

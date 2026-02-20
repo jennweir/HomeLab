@@ -5,6 +5,7 @@
 .terraform
 terraform.tfstate*
 *.hcl
+!.github/linters/.tflint.hcl
 
 *.iso
 
