@@ -1,7 +1,7 @@
 kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
-  name: cluster-configs
+  name: cluster-auth
   namespace: argocd
 spec:
   destination:
@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/jennweir/HomeLab.git
-    path: manifests/platform/cluster-configs
+    path: manifests/platform/cluster-auth
     targetRevision: main
   syncPolicy:
     retry:
