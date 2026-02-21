@@ -156,7 +156,7 @@ resource "google_secret_manager_secret_iam_member" "quay_pull_secret_accessor" {
 # Azure ------------------------------------------------------------------------------------------------------------------
 
 resource "azuread_application" "okd_cluster" {
-    display_name = "OKD Cluster"
+    display_name = "okd-cluster"
 }
 
 resource "azuread_service_principal" "okd_cluster" {
