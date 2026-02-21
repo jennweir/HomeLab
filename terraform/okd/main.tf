@@ -1,3 +1,5 @@
+# Google ------------------------------------------------------------------------------------------------------------------
+
 locals {
     wif_pool = "okd-pool"
     wif_provider = "okd-provider"
@@ -149,4 +151,14 @@ resource "google_secret_manager_secret_iam_member" "quay_pull_secret_accessor" {
     secret_id = "quay-jennweir-pull-secret"
     role      = "roles/secretmanager.secretAccessor"
     member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:external-secrets"
+}
+
+# Azure ------------------------------------------------------------------------------------------------------------------
+
+resource "azuread_application" "okd_cluster" {
+    display_name = "OKD Cluster"
+}
+
+resource "azuread_service_principal" "okd_cluster" {
+    client_id = azuread_application.okd_cluster.client_id
 }
