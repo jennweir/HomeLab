@@ -2,7 +2,6 @@
 
 ```bash
 # View jwt token
-export TENANT_ID=""
 export TOKEN=$(az account get-access-token --query accessToken -o tsv)
 echo $TOKEN | jwt decode -
 

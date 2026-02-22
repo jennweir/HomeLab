@@ -10,7 +10,30 @@ spec:
   oauthMetadata:
     name: ""
   serviceAccountIssuer: https://storage.googleapis.com/jennweir-homelab
-  type: ""
-  webhookTokenAuthenticator:
-    kubeConfig:
-      name: webhook-authentication-integrated-oauth
+  type: "OIDC"
+  oidcProviders:
+  - name: azuread
+    issuer:
+      issuerURL: "https://login.microsoftonline.com/<path:projects/648542105177/secrets/azure_tenant_id#azure_tenant_id>/v2.0"
+      audiences:
+        - <path:projects/648542105177/secrets/azure_client_id#azure_client_id>
+    claimMappings:
+      username:
+        claim: "preferred_username"
+    oidcClients:
+      - clientID: <path:projects/648542105177/secrets/azure_client_id#azure_client_id>
+        clientSecret:
+          name: azure-client-secret
+        componentName: console
+        componentNamespace: openshift-console
+        extraScopes:
+        - email
+        - profile
+      - clientID: <path:projects/648542105177/secrets/azure_client_id#azure_client_id>
+        clientSecret:
+          name: azure-client-secret
+        componentName: cli
+        componentNamespace: openshift-console
+        extraScopes:
+        - email
+        - profile
