@@ -1,3 +1,5 @@
+# Google ------------------------------------------------------------------------------------------------------------------
+
 locals {
     wif_pool = "okd-pool"
     wif_provider = "okd-provider"
@@ -149,4 +151,28 @@ resource "google_secret_manager_secret_iam_member" "quay_pull_secret_accessor" {
     secret_id = "quay-jennweir-pull-secret"
     role      = "roles/secretmanager.secretAccessor"
     member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:external-secrets"
+}
+
+# Azure ------------------------------------------------------------------------------------------------------------------
+
+resource "azuread_application" "okd_cluster" {
+    display_name = "okd-cluster"
+    web {
+        redirect_uris = [
+            "https://oauth-openshift.apps.okd.jenniferpweir.com/oauth2callback/Azure_AD",
+            "https://console-openshift-console.apps.okd.jenniferpweir.com/auth/callback",
+        ]
+    }
+}
+
+resource "azuread_service_principal" "okd_cluster" {
+    client_id = azuread_application.okd_cluster.client_id
+}
+
+resource "azuread_application_federated_identity_credential" "okd_cluster_byo_oidc" {
+    application_id = azuread_application.okd_cluster.id
+    display_name   = "okd-cluster-byo-oidc"
+    issuer         = "https://storage.googleapis.com/jennweir-homelab"
+    subject        = "system:serviceaccount:openshift-config:oauth-reader"
+    audiences      = ["api://AzureADTokenExchange"]
 }

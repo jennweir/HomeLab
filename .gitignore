@@ -2,8 +2,9 @@
 .kube/*
 
 # Terraform
-.terraform
-terraform.tfstate*
+.terraform/
+*.tfvars
+*.tfstate*
 *.hcl
 !.github/linters/.tflint.hcl
 
