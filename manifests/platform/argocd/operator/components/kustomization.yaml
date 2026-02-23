@@ -5,4 +5,5 @@ resources:
   - argocd.yaml
   - avp-cmp-plugin.yaml
   - google-creds-configmap.yaml
+  - serviceaccount.yaml
   - subscription.yaml
