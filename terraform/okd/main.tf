@@ -161,18 +161,7 @@ resource "azuread_application" "okd_cluster" {
         redirect_uris = [
             "https://oauth-openshift.apps.okd.jenniferpweir.com/oauth2callback/Azure_AD",
             "https://console-openshift-console.apps.okd.jenniferpweir.com/auth/callback",
+            "https://argocd-server-argocd.apps.okd.jenniferpweir.com/auth/callback"
         ]
     }
-}
-
-resource "azuread_service_principal" "okd_cluster" {
-    client_id = azuread_application.okd_cluster.client_id
-}
-
-resource "azuread_application_federated_identity_credential" "okd_cluster_byo_oidc" {
-    application_id = azuread_application.okd_cluster.id
-    display_name   = "okd-cluster-byo-oidc"
-    issuer         = "https://storage.googleapis.com/jennweir-homelab"
-    subject        = "system:serviceaccount:openshift-config:oauth-reader"
-    audiences      = ["api://AzureADTokenExchange"]
 }
