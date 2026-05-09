@@ -153,6 +153,28 @@ resource "google_secret_manager_secret_iam_member" "quay_pull_secret_accessor" {
     member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:external-secrets"
 }
 
+# argocd SA access to Azure AD secrets
+resource "google_secret_manager_secret_iam_member" "argocd_azure_tenant_id_accessor" {
+    project   = data.google_project.okd_homelab.project_id
+    secret_id = "azure_tenant_id"
+    role      = "roles/secretmanager.secretAccessor"
+    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:argocd-argocd-repo-server"
+}
+
+resource "google_secret_manager_secret_iam_member" "argocd_azure_client_id_accessor" {
+    project   = data.google_project.okd_homelab.project_id
+    secret_id = "azure_client_id"
+    role      = "roles/secretmanager.secretAccessor"
+    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:argocd-argocd-repo-server"
+}
+
+resource "google_secret_manager_secret_iam_member" "argocd_azure_client_secret_accessor" {
+    project   = data.google_project.okd_homelab.project_id
+    secret_id = "azure_client_secret"
+    role      = "roles/secretmanager.secretAccessor"
+    member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:argocd-argocd-repo-server"
+}
+
 # Azure ------------------------------------------------------------------------------------------------------------------
 
 resource "azuread_application" "okd_cluster" {
