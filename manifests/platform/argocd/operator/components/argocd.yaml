@@ -105,7 +105,7 @@ spec:
     name: azure
     issuer: <path:projects/1086456784694/secrets/azure_issuer_url#azure_issuer_url>
     clientID: <path:projects/1086456784694/secrets/azure_client_id#azure_client_id>
-    clientSecret: $oidc.azure_client_secret
+    clientSecret: <path:projects/1086456784694/secrets/azure_client_secret#azure_client_secret>
     # Optional set of OIDC scopes to request. If omitted, defaults to: ["openid", "profile", "email", "groups"]
     requestedScopes: ["openid", "profile", "email"]
     # Optional set of OIDC claims to request on the ID token.
