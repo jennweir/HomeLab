@@ -9,11 +9,11 @@ locals {
         "grafana_admin_user",
         "grafana_admin_password",
         "azure_client_id",
-        "azure_issuer_url"
+        "azure_issuer_url",
+        "azure_client_secret"
     ]
     argocd_eso_secrets = [
-        "quay-jennweir-pull-secret",
-        "azure_client_secret"
+        "quay-jennweir-pull-secret"
     ]
 }
 
