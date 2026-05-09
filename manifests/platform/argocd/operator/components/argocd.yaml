@@ -103,10 +103,10 @@ spec:
   # https://argocd-operator.readthedocs.io/en/latest/reference/argocd/#oidc-config
   oidcConfig: |
     name: azure
-    issuer: https://login.microsoftonline.com/<path:projects/1086456784694/secrets/azure_tenant_id#azure_tenant_id>/v2.0
+    issuer: <path:projects/1086456784694/secrets/azure_issuer_url#azure_issuer_url>
     clientID: <path:projects/1086456784694/secrets/azure_client_id#azure_client_id>
-    clientSecret: <path:projects/1086456784694/secrets/azure_client_secret#azure_client_secret>
+    clientSecret: $oidc-azure.azure_client_secret
     # Optional set of OIDC scopes to request. If omitted, defaults to: ["openid", "profile", "email", "groups"]
-    requestedScopes: ["openid", "profile", "email", "groups"]
+    requestedScopes: ["openid", "profile", "email"]
     # Optional set of OIDC claims to request on the ID token.
     requestedIDTokenClaims: {"groups": {"essential": true}}

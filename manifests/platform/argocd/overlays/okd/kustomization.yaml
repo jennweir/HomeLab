@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - ../../operator/base
   - ../../operator/components
-  - external-secret.yaml
+  - oidc-external-secret.yaml
+  - quay-external-secret.yaml
   - secretstore.yaml

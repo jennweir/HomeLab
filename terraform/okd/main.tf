@@ -8,6 +8,12 @@ locals {
         "project_id",
         "grafana_admin_user",
         "grafana_admin_password",
+        "azure_client_id",
+        "azure_issuer_url"
+    ]
+    argocd_eso_secrets = [
+        "quay-jennweir-pull-secret",
+        "azure_client_secret"
     ]
 }
 
@@ -146,9 +152,11 @@ resource "google_secret_manager_secret_iam_member" "openshift_monitoring_secret_
 }
 
 # make k8s service account secretAccessor directly instead of via impersonation of google service account bc of eso limitations
-resource "google_secret_manager_secret_iam_member" "quay_pull_secret_accessor" {
+resource "google_secret_manager_secret_iam_member" "argocd_eso_secret_access" {
+    for_each  = toset(local.argocd_eso_secrets)
+
     project   = data.google_project.okd_homelab.project_id
-    secret_id = "quay-jennweir-pull-secret"
+    secret_id = each.value
     role      = "roles/secretmanager.secretAccessor"
     member    = "principal://iam.googleapis.com/projects/${data.google_project.okd_homelab.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.okd_pool.workload_identity_pool_id}/subject/system:serviceaccount:argocd:external-secrets"
 }
